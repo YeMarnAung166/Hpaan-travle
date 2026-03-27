@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
-import { Link } from 'react-router-dom';
 import { supabase } from '../supabaseClient';
+import BusinessCard from '../components/BusinessCard';
 
 const categories = [
   { value: 'all', label: 'All' },
@@ -29,44 +29,33 @@ export default function BusinessList() {
     fetchBusinesses();
   }, [category]);
 
-  if (loading) return <div className="text-center py-8">Loading businesses...</div>;
+  if (loading) {
+    return (
+      <div className="container-custom flex items-center justify-center min-h-[60vh]">
+        <div className="spinner"></div>
+      </div>
+    );
+  }
 
   return (
-    <div className="container mx-auto px-4 py-8">
-      <h1 className="text-3xl font-bold text-gray-800 mb-6">Local Businesses</h1>
-      
-      <div className="flex gap-2 mb-6 flex-wrap">
+    <div className="container-custom">
+      <h1 className="page-title">Local Businesses</h1>
+
+      <div className="flex flex-wrap gap-2 mb-6">
         {categories.map(cat => (
           <button
             key={cat.value}
             onClick={() => setCategory(cat.value)}
-            className={`px-4 py-2 rounded ${
-              category === cat.value
-                ? 'bg-green-600 text-white'
-                : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
-            }`}
+            className={`btn ${category === cat.value ? 'btn-primary' : 'btn-secondary'}`}
           >
             {cat.label}
           </button>
         ))}
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
         {businesses.map(business => (
-          <div key={business.id} className="bg-white rounded-lg shadow-md overflow-hidden">
-            <img src={business.image} alt={business.name} className="w-full h-48 object-cover" />
-            <div className="p-4">
-              <h2 className="text-xl font-semibold">{business.name}</h2>
-              <p className="text-gray-600 text-sm mb-2">{business.address}</p>
-              <p className="text-gray-700 mb-4">{business.description}</p>
-              <Link
-                to={`/business/${business.id}`}
-                className="inline-block bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700"
-              >
-                Details & Contact
-              </Link>
-            </div>
-          </div>
+          <BusinessCard key={business.id} business={business} />
         ))}
       </div>
     </div>
