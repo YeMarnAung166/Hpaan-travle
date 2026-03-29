@@ -3,11 +3,13 @@ import { useParams, Link } from 'react-router-dom';
 import { supabase } from '../supabaseClient';
 import { useUser } from '../context/UserContext';
 import { useFavorites } from '../hooks/useFavorites';
+import BookingModal from '../components/BookingModal';
 
 export default function BusinessDetail() {
   const { id } = useParams();
   const [business, setBusiness] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [showBookingModal, setShowBookingModal] = useState(false);
   const user = useUser();
   const { favorites, toggleFavorite } = useFavorites(user?.id);
   const isSaved = user && favorites.businesses.has(parseInt(id));
@@ -48,6 +50,7 @@ export default function BusinessDetail() {
       <Link to="/business" className="text-green-600 hover:underline mb-4 inline-block">
         ← Back to directory
       </Link>
+
       <div className="flex justify-between items-start mb-4">
         <h1 className="text-2xl sm:text-3xl font-bold text-gray-800">{business.name}</h1>
         {user && (
@@ -60,6 +63,7 @@ export default function BusinessDetail() {
           </button>
         )}
       </div>
+
       <p className="text-gray-600 mb-2">{business.address}</p>
       <img
         src={business.image}
@@ -67,6 +71,7 @@ export default function BusinessDetail() {
         className="w-full h-48 sm:h-64 object-cover rounded-lg my-4"
       />
       <p className="text-gray-700 mb-4">{business.description}</p>
+
       <div className="bg-gray-50 p-4 rounded-lg">
         <h3 className="font-semibold mb-2">Contact</h3>
         <p>
@@ -83,7 +88,21 @@ export default function BusinessDetail() {
         >
           Contact via WhatsApp
         </a>
+
+        {/* New Booking Request Button */}
+        <button
+          onClick={() => setShowBookingModal(true)}
+          className="btn btn-primary mt-3 ml-3 bg-blue-600 hover:bg-blue-700"
+        >
+          Request Booking
+        </button>
       </div>
+
+      <BookingModal
+        business={business}
+        isOpen={showBookingModal}
+        onClose={() => setShowBookingModal(false)}
+      />
     </div>
   );
 }
