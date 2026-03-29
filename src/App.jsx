@@ -11,6 +11,7 @@ import MapPage from './pages/MapPage';
 import BusinessList from './pages/BusinessList';
 import BusinessDetail from './pages/BusinessDetail';
 import Favorites from './pages/Favorites';
+import AdminInquiries from './pages/AdminInquiries';
 
 function App() {
   const [user, setUser] = useState(null);
@@ -49,6 +50,7 @@ function App() {
               <Route path="/business" element={<BusinessList />} />
               <Route path="/business/:id" element={<BusinessDetail />} />
               <Route path="/favorites" element={<Favorites />} />
+              <Route path="/admin/inquiries" element={<AdminInquiries />} />
             </Routes>
           </main>
           <Footer />
