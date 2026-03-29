@@ -4,6 +4,7 @@ import { supabase } from '../supabaseClient';
 import { useUser } from '../context/UserContext';
 import { useFavorites } from '../hooks/useFavorites';
 import BookingModal from '../components/BookingModal';
+import BusinessReviews from '../components/BusinessReviews';
 
 export default function BusinessDetail() {
   const { id } = useParams();
@@ -103,6 +104,7 @@ export default function BusinessDetail() {
         isOpen={showBookingModal}
         onClose={() => setShowBookingModal(false)}
       />
+      <BusinessReviews businessId={business.id} />
     </div>
   );
 }
