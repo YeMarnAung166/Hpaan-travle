@@ -1,22 +1,24 @@
 import { Link, Outlet, useLocation } from 'react-router-dom';
+import { useLanguage } from '../../context/LanguageContext';
 
 export default function AdminLayout() {
   const location = useLocation();
+  const { t } = useLanguage();
   
   const navItems = [
-    { path: '/admin', label: 'Dashboard' },
-    { path: '/admin/itineraries', label: 'Itineraries' },
-    { path: '/admin/businesses', label: 'Businesses' },
-    { path: '/admin/inquiries', label: 'Inquiries' },
-    { path: '/admin/reviews', label: 'Reviews' },
+    { path: '/admin', label: t('admin.dashboard') },
+    { path: '/admin/itineraries', label: t('admin.itineraries') },
+    { path: '/admin/businesses', label: t('admin.businesses') },
+    { path: '/admin/inquiries', label: t('admin.inquiries') },
+    { path: '/admin/reviews', label: t('admin.reviews') },
   ];
   
   return (
     <div className="container-custom">
-      <h1 className="page-title">Admin Panel</h1>
+      <h1 className="page-title">{t('admin.title')}</h1>
       
       <div className="flex flex-col md:flex-row gap-6">
-        {/* Sidebar - stays visible */}
+        {/* Sidebar Navigation */}
         <aside className="md:w-64 bg-white rounded-lg shadow p-4">
           <nav className="space-y-2">
             {navItems.map((item) => (
@@ -35,9 +37,9 @@ export default function AdminLayout() {
           </nav>
         </aside>
         
-        {/* Main content - changes based on route */}
+        {/* Main Content */}
         <main className="flex-1 bg-white rounded-lg shadow p-6">
-          <Outlet />  {/* This is crucial - it renders the child routes */}
+          <Outlet />
         </main>
       </div>
     </div>

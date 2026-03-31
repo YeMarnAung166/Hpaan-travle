@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { supabase } from '../supabaseClient';
 import BusinessCard from '../components/BusinessCard';
 import SearchAndFilter from '../components/SearchAndFilter';
+import { useLanguage } from '../context/LanguageContext';
 
 export default function BusinessList() {
   const [allBusinesses, setAllBusinesses] = useState([]);
@@ -10,6 +11,7 @@ export default function BusinessList() {
   const [searchTerm, setSearchTerm] = useState('');
   const [filters, setFilters] = useState({});
   const [sortBy, setSortBy] = useState('newest');
+  const { t } = useLanguage();
 
   useEffect(() => {
     fetchBusinesses();
@@ -113,7 +115,7 @@ export default function BusinessList() {
 
   return (
     <div className="container-custom">
-      <h1 className="page-title">Local Businesses</h1>
+      <h1 className="page-title">{t('business.title')}</h1>
       
       <SearchAndFilter
         type="business"
@@ -130,7 +132,7 @@ export default function BusinessList() {
 
       {filteredBusinesses.length === 0 && (
         <div className="text-center py-12">
-          <p className="text-gray-500">No businesses found matching your criteria.</p>
+          <p className="text-gray-500">{t('common.no_results')}</p>
           <button
             onClick={() => {
               setSearchTerm('');
@@ -139,7 +141,7 @@ export default function BusinessList() {
             }}
             className="btn btn-primary mt-4"
           >
-            Clear All Filters
+            {t('common.clear')}
           </button>
         </div>
       )}

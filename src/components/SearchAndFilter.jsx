@@ -1,11 +1,12 @@
 import { useState, useEffect } from 'react';
 import StarRating from './StarRating';
+import { useLanguage } from '../context/LanguageContext';
 
 export default function SearchAndFilter({
   onSearch,
   onFilter,
   onSort,
-  type = 'business', // 'business' or 'itinerary'
+  type = 'business',
   initialFilters = {},
 }) {
   const [searchTerm, setSearchTerm] = useState('');
@@ -13,6 +14,7 @@ export default function SearchAndFilter({
   const [sortBy, setSortBy] = useState('newest');
   const [showFilters, setShowFilters] = useState(false);
   const [debouncedSearch, setDebouncedSearch] = useState('');
+  const { t } = useLanguage();
 
   // Debounce search input
   useEffect(() => {
@@ -54,7 +56,7 @@ export default function SearchAndFilter({
         <div className="flex-1">
           <input
             type="text"
-            placeholder={`Search ${type === 'business' ? 'businesses' : 'itineraries'}...`}
+            placeholder={t('common.search')}
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
             className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500"
@@ -67,7 +69,7 @@ export default function SearchAndFilter({
           <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z" />
           </svg>
-          Filters
+          {t('common.filters')}
         </button>
         <select
           value={sortBy}
@@ -98,18 +100,18 @@ export default function SearchAndFilter({
             {type === 'business' && (
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Category
+                  {t('business.category')}
                 </label>
                 <select
                   value={filters.category || 'all'}
                   onChange={(e) => handleFilterChange('category', e.target.value)}
                   className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500"
                 >
-                  <option value="all">All Categories</option>
-                  <option value="accommodation">Accommodation</option>
-                  <option value="restaurant">Restaurants</option>
-                  <option value="transport">Transport</option>
-                  <option value="tours">Tours & Activities</option>
+                  <option value="all">{t('business.all')}</option>
+                  <option value="accommodation">{t('business.accommodation')}</option>
+                  <option value="restaurant">{t('business.restaurant')}</option>
+                  <option value="transport">{t('business.transport')}</option>
+                  <option value="tours">{t('business.tours')}</option>
                 </select>
               </div>
             )}
@@ -157,17 +159,6 @@ export default function SearchAndFilter({
                 </div>
               </div>
             )}
-
-            {/* Price Range (optional - can add later) */}
-            {/* <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                Price Range
-              </label>
-              <div className="flex gap-2">
-                <input type="number" placeholder="Min" className="w-full px-3 py-2 border rounded" />
-                <input type="number" placeholder="Max" className="w-full px-3 py-2 border rounded" />
-              </div>
-            </div> */}
           </div>
 
           <div className="mt-4 flex justify-end">
@@ -175,7 +166,7 @@ export default function SearchAndFilter({
               onClick={clearFilters}
               className="text-sm text-gray-500 hover:text-red-500"
             >
-              Clear All Filters
+              {t('common.clear')}
             </button>
           </div>
         </div>

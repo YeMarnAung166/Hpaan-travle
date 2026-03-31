@@ -1,6 +1,7 @@
 import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
+import { useLanguage } from '../context/LanguageContext';
 
 // Fix default marker icons
 delete L.Icon.Default.prototype._getIconUrl;
@@ -19,6 +20,8 @@ const attractions = [
 ];
 
 export default function MapPage() {
+  const { t } = useLanguage();
+
   return (
     <div className="map-container">
       <MapContainer

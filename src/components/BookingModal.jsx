@@ -1,9 +1,11 @@
 import { useState } from 'react';
 import { supabase } from '../supabaseClient';
 import { useUser } from '../context/UserContext';
+import { useLanguage } from '../context/LanguageContext';
 
 export default function BookingModal({ business, isOpen, onClose }) {
   const user = useUser();
+  const { t } = useLanguage();
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState(false);
   const [error, setError] = useState('');
@@ -54,11 +56,11 @@ export default function BookingModal({ business, isOpen, onClose }) {
   return (
     <div className="modal-overlay" onClick={onClose}>
       <div className="modal-content max-w-md" onClick={(e) => e.stopPropagation()}>
-        <h2 className="text-2xl font-bold mb-4">Request Booking</h2>
+        <h2 className="text-2xl font-bold mb-4">{t('booking.title')}</h2>
         <p className="text-gray-600 mb-4">Send an inquiry to <strong>{business.name}</strong></p>
 
         {success ? (
-          <div className="message-success">Inquiry sent successfully! The business will contact you soon.</div>
+          <div className="message-success">{t('booking.success')}</div>
         ) : (
           <form onSubmit={handleSubmit}>
             {error && <div className="message-error mb-4">{error}</div>}
@@ -66,7 +68,7 @@ export default function BookingModal({ business, isOpen, onClose }) {
             <input
               type="text"
               name="name"
-              placeholder="Your full name"
+              placeholder={t('booking.name')}
               value={formData.name}
               onChange={handleChange}
               className="w-full border rounded px-3 py-2 mb-3 focus:outline-none focus:ring-2 focus:ring-green-500"
@@ -76,7 +78,7 @@ export default function BookingModal({ business, isOpen, onClose }) {
             <input
               type="email"
               name="email"
-              placeholder="Your email address"
+              placeholder={t('booking.email')}
               value={formData.email}
               onChange={handleChange}
               className="w-full border rounded px-3 py-2 mb-3 focus:outline-none focus:ring-2 focus:ring-green-500"
@@ -86,7 +88,7 @@ export default function BookingModal({ business, isOpen, onClose }) {
             <input
               type="date"
               name="travel_date"
-              placeholder="Preferred travel date (optional)"
+              placeholder={t('booking.travel_date')}
               value={formData.travel_date}
               onChange={handleChange}
               className="w-full border rounded px-3 py-2 mb-3 focus:outline-none focus:ring-2 focus:ring-green-500"
@@ -94,7 +96,7 @@ export default function BookingModal({ business, isOpen, onClose }) {
 
             <textarea
               name="message"
-              placeholder="Special requests or questions..."
+              placeholder={t('booking.message')}
               value={formData.message}
               onChange={handleChange}
               rows="4"
@@ -107,7 +109,7 @@ export default function BookingModal({ business, isOpen, onClose }) {
               disabled={loading}
               className="btn btn-primary w-full"
             >
-              {loading ? 'Sending...' : 'Send Inquiry'}
+              {loading ? t('booking.sending') : t('booking.send')}
             </button>
           </form>
         )}

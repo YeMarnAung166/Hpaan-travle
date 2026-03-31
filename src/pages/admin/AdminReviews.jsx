@@ -1,10 +1,12 @@
 import { useEffect, useState } from 'react';
 import { supabase } from '../../supabaseClient';
 import DataTable from '../../components/admin/DataTable';
+import { useLanguage } from '../../context/LanguageContext';
 
 export default function AdminReviews() {
   const [reviews, setReviews] = useState([]);
   const [loading, setLoading] = useState(true);
+  const { t } = useLanguage();
 
   useEffect(() => {
     fetchReviews();
@@ -20,7 +22,7 @@ export default function AdminReviews() {
   };
 
   const handleDelete = async (id) => {
-    if (confirm('Are you sure you want to delete this review?')) {
+    if (confirm(t('admin.confirm_delete'))) {
       await supabase.from('business_reviews').delete().eq('id', id);
       fetchReviews();
     }
@@ -58,14 +60,14 @@ export default function AdminReviews() {
 
   return (
     <DataTable
-      title="Reviews"
+      title={t('admin.reviews')}
       data={reviews}
       columns={columns}
       onAdd={() => alert('Reviews are created by users')}
       onEdit={() => alert('Reviews cannot be edited')}
       onDelete={handleDelete}
       addButtonLabel="+ Add (Not Available)"
-      searchPlaceholder="Search reviews..."
+      searchPlaceholder={t('common.search')}
     />
   );
 }

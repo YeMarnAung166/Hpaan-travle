@@ -1,11 +1,13 @@
 import { useEffect, useState } from 'react';
 import { supabase } from '../supabaseClient';
 import { useUser } from '../context/UserContext';
+import { useLanguage } from '../context/LanguageContext';
 import ItineraryCard from '../components/ItineraryCard';
 import BusinessCard from '../components/BusinessCard';
 
 export default function Favorites() {
   const user = useUser();
+  const { t } = useLanguage();
   const [favorites, setFavorites] = useState({ itineraries: [], businesses: [] });
   const [loading, setLoading] = useState(true);
 
@@ -16,7 +18,6 @@ export default function Favorites() {
     }
 
     const fetchFavorites = async () => {
-      // Fetch favorite IDs
       const { data: favData, error: favError } = await supabase
         .from('user_favorites')
         .select('item_type, item_id')
@@ -30,7 +31,6 @@ export default function Favorites() {
       const itinIds = favData.filter(f => f.item_type === 'itinerary').map(f => f.item_id);
       const bizIds = favData.filter(f => f.item_type === 'business').map(f => f.item_id);
 
-      // Fetch details
       let itineraries = [];
       let businesses = [];
       if (itinIds.length) {
@@ -57,7 +57,7 @@ export default function Favorites() {
   if (!user) {
     return (
       <div className="container-custom text-center py-8">
-        <h2 className="text-2xl font-bold">Please log in to see your favorites</h2>
+        <h2 className="text-2xl font-bold">{t('favorites.login_required')}</h2>
       </div>
     );
   }
@@ -72,11 +72,11 @@ export default function Favorites() {
 
   return (
     <div className="container-custom">
-      <h1 className="page-title">My Favorites</h1>
+      <h1 className="page-title">{t('favorites.title')}</h1>
 
-      <h2 className="section-title">Itineraries</h2>
+      <h2 className="section-title">{t('favorites.itineraries')}</h2>
       {favorites.itineraries.length === 0 ? (
-        <p className="text-gray-500">You haven't saved any itineraries yet.</p>
+        <p className="text-gray-500">{t('favorites.empty')}</p>
       ) : (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 mb-8">
           {favorites.itineraries.map(it => (
@@ -85,9 +85,9 @@ export default function Favorites() {
         </div>
       )}
 
-      <h2 className="section-title mt-8">Businesses</h2>
+      <h2 className="section-title mt-8">{t('favorites.businesses')}</h2>
       {favorites.businesses.length === 0 ? (
-        <p className="text-gray-500">You haven't saved any businesses yet.</p>
+        <p className="text-gray-500">{t('favorites.empty')}</p>
       ) : (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
           {favorites.businesses.map(biz => (

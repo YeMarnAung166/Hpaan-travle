@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { supabase } from '../supabaseClient';
+import { useLanguage } from '../context/LanguageContext';
 
 export default function AuthModal({ isOpen, onClose }) {
   const [email, setEmail] = useState('');
@@ -7,6 +8,7 @@ export default function AuthModal({ isOpen, onClose }) {
   const [loading, setLoading] = useState(false);
   const [mode, setMode] = useState('login');
   const [error, setError] = useState('');
+  const { t } = useLanguage();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -35,12 +37,12 @@ export default function AuthModal({ isOpen, onClose }) {
   return (
     <div className="modal-overlay">
       <div className="modal-content">
-        <h2 className="text-2xl font-bold mb-4">{mode === 'login' ? 'Login' : 'Sign Up'}</h2>
+        <h2 className="text-2xl font-bold mb-4">{mode === 'login' ? t('auth.login') : t('auth.signup')}</h2>
         {error && <div className="message-error mb-4">{error}</div>}
         <form onSubmit={handleSubmit}>
           <input
             type="email"
-            placeholder="Email"
+            placeholder={t('auth.email')}
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             className="w-full border rounded px-3 py-2 mb-3 focus:outline-none focus:ring-2 focus:ring-green-500"
@@ -48,7 +50,7 @@ export default function AuthModal({ isOpen, onClose }) {
           />
           <input
             type="password"
-            placeholder="Password"
+            placeholder={t('auth.password')}
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             className="w-full border rounded px-3 py-2 mb-4 focus:outline-none focus:ring-2 focus:ring-green-500"
@@ -59,22 +61,22 @@ export default function AuthModal({ isOpen, onClose }) {
             disabled={loading}
             className="btn btn-primary w-full"
           >
-            {loading ? 'Processing...' : (mode === 'login' ? 'Login' : 'Sign Up')}
+            {loading ? t('auth.processing') : (mode === 'login' ? t('auth.login') : t('auth.signup'))}
           </button>
         </form>
         <div className="mt-4 text-center text-sm">
           {mode === 'login' ? (
             <>
-              Don't have an account?{' '}
+              {t('auth.no_account')}{' '}
               <button onClick={() => setMode('signup')} className="text-green-600 underline">
-                Sign up
+                {t('auth.sign_up')}
               </button>
             </>
           ) : (
             <>
-              Already have an account?{' '}
+              {t('auth.have_account')}{' '}
               <button onClick={() => setMode('login')} className="text-green-600 underline">
-                Login
+                {t('auth.login_here')}
               </button>
             </>
           )}
