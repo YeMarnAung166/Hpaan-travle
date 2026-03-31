@@ -4,72 +4,66 @@ import { supabase } from '../../supabaseClient';
 export default function AdminInquiries() {
   const [inquiries, setInquiries] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
   useEffect(() => {
+    const fetchInquiries = async () => {
+      try {
+        const { data, error } = await supabase
+          .from('booking_inquiries')
+          .select('*')
+          .order('created_at', { ascending: false });
+        
+        if (error) throw error;
+        setInquiries(data || []);
+      } catch (err) {
+        console.error('Error fetching inquiries:', err);
+        setError(err.message);
+      } finally {
+        setLoading(false);
+      }
+    };
+    
     fetchInquiries();
   }, []);
 
-  const fetchInquiries = async () => {
-    const { data, error } = await supabase
-      .from('booking_inquiries')
-      .select('*')
-      .order('created_at', { ascending: false });
-    if (!error) setInquiries(data);
-    setLoading(false);
-  };
-
-  const updateStatus = async (id, status) => {
-    await supabase.from('booking_inquiries').update({ status }).eq('id', id);
-    fetchInquiries();
-  };
-
-  const handleDelete = async (id) => {
-    if (confirm('Are you sure you want to delete this inquiry?')) {
-      await supabase.from('booking_inquiries').delete().eq('id', id);
-      fetchInquiries();
-    }
-  };
-
-  const getStatusBadge = (status) => {
-    const styles = {
-      pending: 'bg-yellow-100 text-yellow-800',
-      confirmed: 'bg-green-100 text-green-800',
-      cancelled: 'bg-red-100 text-red-800',
-    };
-    return styles[status] || 'bg-gray-100 text-gray-800';
-  };
-
   if (loading) return <div className="spinner mx-auto"></div>;
+  
+  if (error) return (
+    <div className="text-center py-8 text-red-600">
+      Error loading inquiries: {error}
+    </div>
+  );
 
   return (
     <div>
       <div className="flex justify-between items-center mb-6">
         <h2 className="text-2xl font-bold">Booking Inquiries</h2>
-        <div className="text-sm text-gray-500">Total: {inquiries.length} inquiries</div>
+        <div className="text-sm text-gray-500">
+          Total: {inquiries.length} {inquiries.length === 1 ? 'inquiry' : 'inquiries'}
+        </div>
       </div>
 
-      <div className="overflow-x-auto">
-        <table className="min-w-full bg-white rounded-lg border">
-          <thead className="bg-gray-100">
-            <tr>
-              <th className="px-4 py-3 text-left text-sm font-semibold">Date</th>
-              <th className="px-4 py-3 text-left text-sm font-semibold">Business</th>
-              <th className="px-4 py-3 text-left text-sm font-semibold">Customer</th>
-              <th className="px-4 py-3 text-left text-sm font-semibold">Travel Date</th>
-              <th className="px-4 py-3 text-left text-sm font-semibold">Status</th>
-              <th className="px-4 py-3 text-left text-sm font-semibold">Message</th>
-              <th className="px-4 py-3 text-left text-sm font-semibold">Actions</th>
-            </tr>
-          </thead>
-          <tbody>
-            {inquiries.length === 0 ? (
+      {inquiries.length === 0 ? (
+        <div className="text-center py-8 text-gray-500">
+          No booking inquiries yet.
+        </div>
+      ) : (
+        <div className="overflow-x-auto">
+          <table className="min-w-full bg-white rounded-lg border">
+            <thead className="bg-gray-100">
               <tr>
-                <td colSpan="7" className="text-center py-8 text-gray-500">
-                  No booking inquiries yet.
-                </td>
+                <th className="px-4 py-3 text-left text-sm font-semibold">Date</th>
+                <th className="px-4 py-3 text-left text-sm font-semibold">Business</th>
+                <th className="px-4 py-3 text-left text-sm font-semibold">Customer</th>
+                <th className="px-4 py-3 text-left text-sm font-semibold">Travel Date</th>
+                <th className="px-4 py-3 text-left text-sm font-semibold">Status</th>
+                <th className="px-4 py-3 text-left text-sm font-semibold">Message</th>
+                <th className="px-4 py-3 text-left text-sm font-semibold">Actions</th>
               </tr>
-            ) : (
-              inquiries.map((inquiry) => (
+            </thead>
+            <tbody>
+              {inquiries.map((inquiry) => (
                 <tr key={inquiry.id} className="border-t hover:bg-gray-50">
                   <td className="px-4 py-2 text-sm whitespace-nowrap">
                     {new Date(inquiry.created_at).toLocaleDateString()}
@@ -81,7 +75,12 @@ export default function AdminInquiries() {
                   </td>
                   <td className="px-4 py-2 text-sm">{inquiry.travel_date || '—'}</td>
                   <td className="px-4 py-2 text-sm">
-                    <span className={`px-2 py-1 rounded text-xs ${getStatusBadge(inquiry.status)}`}>
+                    <span className={`px-2 py-1 rounded text-xs ${
+                      inquiry.status === 'pending' ? 'bg-yellow-100 text-yellow-800' :
+                      inquiry.status === 'confirmed' ? 'bg-green-100 text-green-800' :
+                      inquiry.status === 'cancelled' ? 'bg-red-100 text-red-800' :
+                      'bg-gray-100 text-gray-800'
+                    }`}>
                       {inquiry.status}
                     </span>
                   </td>
@@ -91,7 +90,13 @@ export default function AdminInquiries() {
                   <td className="px-4 py-2 text-sm whitespace-nowrap">
                     {inquiry.status === 'pending' && (
                       <button
-                        onClick={() => updateStatus(inquiry.id, 'confirmed')}
+                        onClick={async () => {
+                          await supabase
+                            .from('booking_inquiries')
+                            .update({ status: 'confirmed' })
+                            .eq('id', inquiry.id);
+                          fetchInquiries();
+                        }}
                         className="text-green-600 hover:underline mr-3"
                       >
                         Confirm
@@ -99,22 +104,39 @@ export default function AdminInquiries() {
                     )}
                     {inquiry.status === 'confirmed' && (
                       <button
-                        onClick={() => updateStatus(inquiry.id, 'cancelled')}
+                        onClick={async () => {
+                          await supabase
+                            .from('booking_inquiries')
+                            .update({ status: 'cancelled' })
+                            .eq('id', inquiry.id);
+                          fetchInquiries();
+                        }}
                         className="text-orange-600 hover:underline mr-3"
                       >
                         Cancel
                       </button>
                     )}
-                    <button onClick={() => handleDelete(inquiry.id)} className="text-red-600 hover:underline">
+                    <button
+                      onClick={async () => {
+                        if (confirm('Delete this inquiry?')) {
+                          await supabase
+                            .from('booking_inquiries')
+                            .delete()
+                            .eq('id', inquiry.id);
+                          fetchInquiries();
+                        }
+                      }}
+                      className="text-red-600 hover:underline"
+                    >
                       Delete
                     </button>
                   </td>
                 </tr>
-              ))
-            )}
-          </tbody>
-        </table>
-      </div>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      )}
     </div>
   );
 }

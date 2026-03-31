@@ -1,33 +1,107 @@
 import { useEffect, useState } from 'react';
 import { supabase } from '../supabaseClient';
 import BusinessCard from '../components/BusinessCard';
-
-const categories = [
-  { value: 'all', label: 'All' },
-  { value: 'accommodation', label: 'Accommodation' },
-  { value: 'restaurant', label: 'Restaurants' },
-  { value: 'transport', label: 'Transport' },
-  { value: 'tours', label: 'Tours & Activities' },
-];
+import SearchAndFilter from '../components/SearchAndFilter';
 
 export default function BusinessList() {
-  const [businesses, setBusinesses] = useState([]);
+  const [allBusinesses, setAllBusinesses] = useState([]);
+  const [filteredBusinesses, setFilteredBusinesses] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [category, setCategory] = useState('all');
+  const [searchTerm, setSearchTerm] = useState('');
+  const [filters, setFilters] = useState({});
+  const [sortBy, setSortBy] = useState('newest');
 
   useEffect(() => {
-    const fetchBusinesses = async () => {
-      let query = supabase.from('businesses').select('*');
-      if (category !== 'all') {
-        query = query.eq('category', category);
-      }
-      const { data, error } = await query;
-      if (error) console.error(error);
-      else setBusinesses(data);
-      setLoading(false);
-    };
     fetchBusinesses();
-  }, [category]);
+  }, []);
+
+  useEffect(() => {
+    applyFiltersAndSearch();
+  }, [allBusinesses, searchTerm, filters, sortBy]);
+
+  const fetchBusinesses = async () => {
+    const { data, error } = await supabase
+      .from('businesses')
+      .select('*')
+      .order('id');
+    if (!error) {
+      setAllBusinesses(data);
+    }
+    setLoading(false);
+  };
+
+  const fetchRatings = async (businessIds) => {
+    const { data, error } = await supabase
+      .from('business_reviews')
+      .select('business_id, rating')
+      .in('business_id', businessIds);
+    
+    if (error) return {};
+    
+    const ratingsMap = {};
+    data.forEach(review => {
+      if (!ratingsMap[review.business_id]) {
+        ratingsMap[review.business_id] = { sum: 0, count: 0 };
+      }
+      ratingsMap[review.business_id].sum += review.rating;
+      ratingsMap[review.business_id].count += 1;
+    });
+    
+    const avgRatings = {};
+    Object.keys(ratingsMap).forEach(id => {
+      avgRatings[id] = ratingsMap[id].sum / ratingsMap[id].count;
+    });
+    
+    return avgRatings;
+  };
+
+  const applyFiltersAndSearch = async () => {
+    let results = [...allBusinesses];
+
+    // Apply search
+    if (searchTerm) {
+      results = results.filter(business =>
+        business.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        business.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        business.address?.toLowerCase().includes(searchTerm.toLowerCase())
+      );
+    }
+
+    // Apply category filter
+    if (filters.category && filters.category !== 'all') {
+      results = results.filter(business => business.category === filters.category);
+    }
+
+    // Apply rating filter
+    if (filters.minRating > 0) {
+      const businessIds = results.map(b => b.id);
+      const ratings = await fetchRatings(businessIds);
+      results = results.filter(business => 
+        (ratings[business.id] || 0) >= filters.minRating
+      );
+    }
+
+    // Apply sorting
+    const sortFunctions = {
+      newest: (a, b) => b.id - a.id,
+      oldest: (a, b) => a.id - b.id,
+      name_asc: (a, b) => a.name.localeCompare(b.name),
+      name_desc: (a, b) => b.name.localeCompare(a.name),
+      rating: async (a, b) => {
+        const ratings = await fetchRatings([a.id, b.id]);
+        return (ratings[b.id] || 0) - (ratings[a.id] || 0);
+      }
+    };
+
+    if (sortBy === 'rating') {
+      const ratings = await fetchRatings(results.map(r => r.id));
+      results.sort((a, b) => (ratings[b.id] || 0) - (ratings[a.id] || 0));
+    } else if (sortFunctions[sortBy]) {
+      results.sort(sortFunctions[sortBy]);
+    }
+
+    setFilteredBusinesses(results);
+  };
 
   if (loading) {
     return (
@@ -40,24 +114,35 @@ export default function BusinessList() {
   return (
     <div className="container-custom">
       <h1 className="page-title">Local Businesses</h1>
-
-      <div className="flex flex-wrap gap-2 mb-6">
-        {categories.map(cat => (
-          <button
-            key={cat.value}
-            onClick={() => setCategory(cat.value)}
-            className={`btn ${category === cat.value ? 'btn-primary' : 'btn-secondary'}`}
-          >
-            {cat.label}
-          </button>
-        ))}
-      </div>
+      
+      <SearchAndFilter
+        type="business"
+        onSearch={setSearchTerm}
+        onFilter={setFilters}
+        onSort={setSortBy}
+      />
 
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
-        {businesses.map(business => (
+        {filteredBusinesses.map(business => (
           <BusinessCard key={business.id} business={business} />
         ))}
       </div>
+
+      {filteredBusinesses.length === 0 && (
+        <div className="text-center py-12">
+          <p className="text-gray-500">No businesses found matching your criteria.</p>
+          <button
+            onClick={() => {
+              setSearchTerm('');
+              setFilters({});
+              setSortBy('newest');
+            }}
+            className="btn btn-primary mt-4"
+          >
+            Clear All Filters
+          </button>
+        </div>
+      )}
     </div>
   );
 }
