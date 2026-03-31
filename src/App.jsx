@@ -11,12 +11,12 @@ import MapPage from "./pages/MapPage";
 import BusinessList from "./pages/BusinessList";
 import BusinessDetail from "./pages/BusinessDetail";
 import Favorites from "./pages/Favorites";
-import AdminInquiries from "./pages/admin/AdminInquiries";
 import ProtectedRoute from "./components/ProtectedRoute";
 import AdminLayout from "./pages/admin/AdminLayout";
 import AdminDashboard from "./pages/admin/AdminDashboard";
 import AdminItineraries from "./pages/admin/AdminItineraries";
 import AdminBusinesses from "./pages/admin/AdminBusinesses";
+import AdminInquiries from "./pages/admin/AdminInquiries";
 import AdminReviews from "./pages/admin/AdminReviews";
 
 function App() {
@@ -58,7 +58,8 @@ function App() {
               <Route path="/business" element={<BusinessList />} />
               <Route path="/business/:id" element={<BusinessDetail />} />
               <Route path="/favorites" element={<Favorites />} />
-              <Route path="/admin/inquiries" element={<AdminInquiries />} />
+              
+              {/* Admin routes - all nested under AdminLayout */}
               <Route
                 path="/admin"
                 element={

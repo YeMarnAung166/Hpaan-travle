@@ -16,7 +16,7 @@ export default function AdminLayout() {
       <h1 className="page-title">Admin Panel</h1>
       
       <div className="flex flex-col md:flex-row gap-6">
-        {/* Sidebar Navigation */}
+        {/* Sidebar - stays visible */}
         <aside className="md:w-64 bg-white rounded-lg shadow p-4">
           <nav className="space-y-2">
             {navItems.map((item) => (
@@ -35,9 +35,9 @@ export default function AdminLayout() {
           </nav>
         </aside>
         
-        {/* Main Content */}
+        {/* Main content - changes based on route */}
         <main className="flex-1 bg-white rounded-lg shadow p-6">
-          <Outlet />
+          <Outlet />  {/* This is crucial - it renders the child routes */}
         </main>
       </div>
     </div>
