@@ -1,10 +1,12 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '../supabaseClient';
 import { useUser } from '../context/UserContext';
+import { useLanguage } from '../context/LanguageContext';
 import StarRating from './StarRating';
 
 export default function BusinessReviews({ businessId }) {
   const user = useUser();
+  const { t } = useLanguage();
   const [reviews, setReviews] = useState([]);
   const [userReview, setUserReview] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -21,7 +23,6 @@ export default function BusinessReviews({ businessId }) {
   const fetchReviews = async () => {
     setLoading(true);
     
-    // Fetch all reviews for this business
     const { data, error } = await supabase
       .from('business_reviews')
       .select('*')
@@ -33,7 +34,6 @@ export default function BusinessReviews({ businessId }) {
     } else {
       setReviews(data);
       
-      // Calculate average rating
       if (data.length > 0) {
         const sum = data.reduce((acc, review) => acc + review.rating, 0);
         setAverageRating(sum / data.length);
@@ -43,7 +43,6 @@ export default function BusinessReviews({ businessId }) {
         setTotalReviews(0);
       }
       
-      // Find current user's review
       if (user) {
         const myReview = data.find(review => review.user_id === user.id);
         if (myReview) {
@@ -66,7 +65,6 @@ export default function BusinessReviews({ businessId }) {
     setSubmitting(true);
     
     if (userReview) {
-      // Update existing review
       const { error } = await supabase
         .from('business_reviews')
         .update({
@@ -83,7 +81,6 @@ export default function BusinessReviews({ businessId }) {
         setUserReview({ ...userReview, rating, comment });
       }
     } else {
-      // Insert new review
       const { error } = await supabase
         .from('business_reviews')
         .insert({
@@ -133,12 +130,12 @@ export default function BusinessReviews({ businessId }) {
   };
 
   if (loading) {
-    return <div className="text-center py-4">Loading reviews...</div>;
+    return <div className="text-center py-4">{t('common.loading')}</div>;
   }
 
   return (
     <div className="mt-8 border-t pt-6">
-      <h3 className="text-xl font-semibold mb-4">Reviews & Ratings</h3>
+      <h3 className="text-xl font-semibold mb-4">{t('reviews.title')}</h3>
       
       {/* Average Rating Summary */}
       <div className="bg-gray-50 p-4 rounded-lg mb-6">
@@ -146,31 +143,37 @@ export default function BusinessReviews({ businessId }) {
           <div className="text-center">
             <div className="text-4xl font-bold text-gray-800">{averageRating.toFixed(1)}</div>
             <StarRating rating={Math.round(averageRating)} readonly size="sm" />
-            <div className="text-sm text-gray-500">{totalReviews} review{totalReviews !== 1 ? 's' : ''}</div>
+            <div className="text-sm text-gray-500">
+              {totalReviews} {t('reviews.reviews_count')}
+            </div>
           </div>
           <div className="flex-1">
-            <div className="text-sm text-gray-600">Based on {totalReviews} traveler review{totalReviews !== 1 ? 's' : ''}</div>
+            <div className="text-sm text-gray-600">
+              {t('reviews.based_on')} {totalReviews} {t('reviews.traveler_reviews')}
+            </div>
           </div>
         </div>
       </div>
       
-      {/* Review Form (only for logged-in users) */}
+      {/* Review Form */}
       {user ? (
         <div className="bg-white border rounded-lg p-4 mb-6">
-          <h4 className="font-semibold mb-3">{userReview ? 'Edit Your Review' : 'Write a Review'}</h4>
+          <h4 className="font-semibold mb-3">
+            {userReview ? t('reviews.edit_review') : t('reviews.write_review')}
+          </h4>
           <form onSubmit={handleSubmit}>
             <div className="mb-3">
-              <label className="block text-sm font-medium mb-1">Your Rating</label>
+              <label className="block text-sm font-medium mb-1">{t('reviews.your_rating')}</label>
               <StarRating rating={rating} onRatingChange={setRating} size="lg" />
             </div>
             <div className="mb-3">
-              <label className="block text-sm font-medium mb-1">Your Comment</label>
+              <label className="block text-sm font-medium mb-1">{t('reviews.your_comment')}</label>
               <textarea
                 value={comment}
                 onChange={(e) => setComment(e.target.value)}
                 rows="3"
                 className="w-full border rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500"
-                placeholder="Share your experience with this business..."
+                placeholder={t('reviews.comment')}
                 required
               ></textarea>
             </div>
@@ -180,7 +183,7 @@ export default function BusinessReviews({ businessId }) {
                 disabled={submitting}
                 className="btn btn-primary"
               >
-                {submitting ? 'Submitting...' : (userReview ? 'Update Review' : 'Submit Review')}
+                {submitting ? t('common.loading') : (userReview ? t('reviews.update') : t('reviews.submit'))}
               </button>
               {userReview && (
                 <button
@@ -188,7 +191,7 @@ export default function BusinessReviews({ businessId }) {
                   onClick={handleDelete}
                   className="btn btn-danger"
                 >
-                  Delete Review
+                  {t('reviews.delete')}
                 </button>
               )}
             </div>
@@ -196,14 +199,14 @@ export default function BusinessReviews({ businessId }) {
         </div>
       ) : (
         <div className="bg-gray-50 border rounded-lg p-4 mb-6 text-center">
-          <p className="text-gray-600">Please <button onClick={() => alert('Click Login in header')} className="text-green-600 underline">log in</button> to leave a review.</p>
+          <p className="text-gray-600">{t('reviews.login_to_review')}</p>
         </div>
       )}
       
       {/* Reviews List */}
       <div className="space-y-4">
         {reviews.length === 0 ? (
-          <p className="text-gray-500 text-center py-4">No reviews yet. Be the first to review!</p>
+          <p className="text-gray-500 text-center py-4">{t('reviews.no_reviews')}</p>
         ) : (
           reviews.map((review) => (
             <div key={review.id} className="border-b pb-4">

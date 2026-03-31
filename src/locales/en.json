@@ -1,0 +1,116 @@
+{
+  "app": {
+    "name": "Hpa-An Travel",
+    "tagline": "Discover the beauty of Hpa-An, Myanmar"
+  },
+  "nav": {
+    "itineraries": "Itineraries",
+    "map": "Map",
+    "directory": "Directory",
+    "favorites": "Favorites",
+    "admin": "Admin",
+    "login": "Login / Sign Up",
+    "logout": "Logout",
+    "hi": "Hi"
+  },
+  "home": {
+    "title": "Travel Itineraries",
+    "subtitle": "Explore the best of Hpa-An"
+  },
+  "business": {
+    "title": "Local Businesses",
+    "accommodation": "Accommodation",
+    "restaurant": "Restaurants",
+    "transport": "Transport",
+    "tours": "Tours & Activities",
+    "all": "All",
+    "details": "Details & Contact",
+    "contact": "Contact",
+    "phone": "Phone",
+    "whatsapp": "Contact via WhatsApp",
+    "request_booking": "Request Booking",
+    "address": "Address",
+    "description": "Description"
+  },
+  "itinerary": {
+    "view_details": "View Details",
+    "duration": "Duration",
+    "day": "Day",
+    "days": "Days",
+    "back": "Back to itineraries",
+    "not_found": "Itinerary not found"
+  },
+  "favorites": {
+    "title": "My Favorites",
+    "itineraries": "Itineraries",
+    "businesses": "Businesses",
+    "empty": "You haven't saved any favorites yet.",
+    "login_required": "Please log in to see your favorites"
+  },
+  "map": {
+    "title": "Map"
+  },
+  "reviews": {
+    "title": "Reviews & Ratings",
+    "average": "Average Rating",
+    "reviews_count": "reviews",
+    "based_on": "Based on",
+    "traveler_reviews": "traveler reviews",
+    "write_review": "Write a Review",
+    "edit_review": "Edit Your Review",
+    "your_rating": "Your Rating",
+    "your_comment": "Your Comment",
+    "submit": "Submit Review",
+    "update": "Update Review",
+    "delete": "Delete Review",
+    "no_reviews": "No reviews yet. Be the first to review!",
+    "login_to_review": "Please log in to leave a review",
+    "rating": "Rating",
+    "comment": "Comment"
+  },
+  "booking": {
+    "title": "Request Booking",
+    "name": "Your full name",
+    "email": "Your email address",
+    "travel_date": "Preferred travel date (optional)",
+    "message": "Special requests or questions...",
+    "send": "Send Inquiry",
+    "sending": "Sending...",
+    "success": "Inquiry sent successfully! The business will contact you soon.",
+    "error": "Failed to send inquiry"
+  },
+  "auth": {
+    "login": "Login",
+    "signup": "Sign Up",
+    "email": "Email",
+    "password": "Password",
+    "processing": "Processing...",
+    "no_account": "Don't have an account?",
+    "have_account": "Already have an account?",
+    "sign_up": "Sign up",
+    "login_here": "Login"
+  },
+  "admin": {
+    "title": "Admin Panel",
+    "dashboard": "Dashboard",
+    "itineraries": "Itineraries",
+    "businesses": "Businesses",
+    "inquiries": "Inquiries",
+    "reviews": "Reviews",
+    "add": "Add New",
+    "edit": "Edit",
+    "delete": "Delete",
+    "save": "Save",
+    "cancel": "Cancel",
+    "confirm_delete": "Are you sure you want to delete this item?",
+    "loading": "Loading..."
+  },
+  "common": {
+    "search": "Search...",
+    "filters": "Filters",
+    "clear": "Clear All",
+    "no_results": "No results found.",
+    "error": "Something went wrong",
+    "loading": "Loading..."
+  }
+}

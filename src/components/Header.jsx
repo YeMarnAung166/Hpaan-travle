@@ -1,9 +1,12 @@
-import { useState } from "react";
-import { Link } from "react-router-dom";
-import { isUserAdmin } from "../utils/adminCheck";
+import { useState } from 'react';
+import { Link } from 'react-router-dom';
+import { isUserAdmin } from '../utils/adminCheck';
+import { useLanguage } from '../context/LanguageContext';
+import LanguageSwitcher from './LanguageSwitcher';
 
 export default function Header({ user, onLoginClick, onLogoutClick }) {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const { t } = useLanguage();
 
   const toggleMenu = () => setIsMenuOpen(!isMenuOpen);
   const closeMenu = () => setIsMenuOpen(false);
@@ -15,21 +18,21 @@ export default function Header({ user, onLoginClick, onLogoutClick }) {
         className="block px-4 py-2 hover:bg-green-600 rounded"
         onClick={closeMenu}
       >
-        Itineraries
+        {t('nav.itineraries')}
       </Link>
       <Link
         to="/map"
         className="block px-4 py-2 hover:bg-green-600 rounded"
         onClick={closeMenu}
       >
-        Map
+        {t('nav.map')}
       </Link>
       <Link
         to="/business"
         className="block px-4 py-2 hover:bg-green-600 rounded"
         onClick={closeMenu}
       >
-        Directory
+        {t('nav.directory')}
       </Link>
       {user && (
         <Link
@@ -37,7 +40,7 @@ export default function Header({ user, onLoginClick, onLogoutClick }) {
           className="block px-4 py-2 hover:bg-green-600 rounded"
           onClick={closeMenu}
         >
-          Favorites
+          {t('nav.favorites')}
         </Link>
       )}
     </>
@@ -47,67 +50,43 @@ export default function Header({ user, onLoginClick, onLogoutClick }) {
     <header className="bg-green-700 text-white shadow-md sticky top-0 z-50">
       <div className="container mx-auto px-4 py-3 flex justify-between items-center">
         <Link to="/" className="text-xl sm:text-2xl font-bold">
-          Hpa-An Travel
+          {t('app.name')}
         </Link>
 
         {/* Desktop navigation */}
         <nav className="hidden md:flex items-center space-x-4">
-          <Link to="/" className="hover:underline">
-            Itineraries
-          </Link>
-          <Link to="/map" className="hover:underline">
-            Map
-          </Link>
-          <Link to="/business" className="hover:underline">
-            Directory
-          </Link>
+          <Link to="/" className="hover:underline">{t('nav.itineraries')}</Link>
+          <Link to="/map" className="hover:underline">{t('nav.map')}</Link>
+          <Link to="/business" className="hover:underline">{t('nav.directory')}</Link>
           {user && (
             <>
-              <Link to="/favorites" className="hover:underline">
-                Favorites
-              </Link>
-              {/* Admin link - Desktop */}
+              <Link to="/favorites" className="hover:underline">{t('nav.favorites')}</Link>
               {isUserAdmin(user) && (
-                <Link to="/admin" className="hover:underline">
-                  Admin
-                </Link>
+                <Link to="/admin" className="hover:underline">{t('nav.admin')}</Link>
               )}
-              <span className="text-sm">Hi, {user.email}</span>
+              <span className="text-sm">{t('nav.hi')}, {user.email}</span>
               <button onClick={onLogoutClick} className="btn btn-danger btn-sm">
-                Logout
+                {t('nav.logout')}
               </button>
             </>
           )}
           {!user && (
-            <button
-              onClick={onLoginClick}
-              className="btn bg-white text-green-700 hover:bg-gray-100"
-            >
-              Login / Sign Up
+            <button onClick={onLoginClick} className="btn bg-white text-green-700 hover:bg-gray-100">
+              {t('nav.login')}
             </button>
           )}
+          <LanguageSwitcher />
         </nav>
 
         {/* Mobile menu button */}
-        <button
-          onClick={toggleMenu}
-          className="md:hidden focus:outline-none"
-          aria-label="Toggle menu"
-        >
-          <svg
-            className="w-6 h-6"
-            fill="none"
-            stroke="currentColor"
-            viewBox="0 0 24 24"
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth="2"
-              d="M4 6h16M4 12h16M4 18h16"
-            />
-          </svg>
-        </button>
+        <div className="flex items-center gap-2 md:hidden">
+          <LanguageSwitcher />
+          <button onClick={toggleMenu} className="focus:outline-none" aria-label="Toggle menu">
+            <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 6h16M4 12h16M4 18h16" />
+            </svg>
+          </button>
+        </div>
       </div>
 
       {/* Mobile dropdown menu */}
@@ -117,15 +96,14 @@ export default function Header({ user, onLoginClick, onLogoutClick }) {
             {navLinks}
             {user ? (
               <div className="pt-2 border-t border-green-600">
-                <div className="px-4 py-2 text-sm">Hi, {user.email}</div>
-                {/* Admin link - Mobile */}
+                <div className="px-4 py-2 text-sm">{t('nav.hi')}, {user.email}</div>
                 {isUserAdmin(user) && (
                   <Link
                     to="/admin"
                     className="block px-4 py-2 hover:bg-green-600 rounded"
                     onClick={closeMenu}
                   >
-                    Admin
+                    {t('nav.admin')}
                   </Link>
                 )}
                 <button
@@ -135,7 +113,7 @@ export default function Header({ user, onLoginClick, onLogoutClick }) {
                   }}
                   className="block w-full text-left px-4 py-2 hover:bg-green-600 rounded"
                 >
-                  Logout
+                  {t('nav.logout')}
                 </button>
               </div>
             ) : (
@@ -146,7 +124,7 @@ export default function Header({ user, onLoginClick, onLogoutClick }) {
                 }}
                 className="block w-full text-left px-4 py-2 hover:bg-green-600 rounded"
               >
-                Login / Sign Up
+                {t('nav.login')}
               </button>
             )}
           </div>

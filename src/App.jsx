@@ -5,6 +5,7 @@ import AuthModal from "./components/AuthModal";
 import Header from "./components/Header";
 import Footer from "./components/Footer";
 import { UserProvider } from "./context/UserContext";
+import { LanguageProvider } from "./context/LanguageContext";
 import ItineraryList from "./pages/ItineraryList";
 import ItineraryDetail from "./pages/ItineraryDetail";
 import MapPage from "./pages/MapPage";
@@ -42,48 +43,50 @@ function App() {
   };
 
   return (
-    <UserProvider value={user}>
-      <BrowserRouter>
-        <div className="flex flex-col min-h-screen">
-          <Header
-            user={user}
-            onLoginClick={() => setShowAuthModal(true)}
-            onLogoutClick={handleLogout}
-          />
-          <main className="flex-grow">
-            <Routes>
-              <Route path="/" element={<ItineraryList />} />
-              <Route path="/itinerary/:id" element={<ItineraryDetail />} />
-              <Route path="/map" element={<MapPage />} />
-              <Route path="/business" element={<BusinessList />} />
-              <Route path="/business/:id" element={<BusinessDetail />} />
-              <Route path="/favorites" element={<Favorites />} />
-              
-              {/* Admin routes - all nested under AdminLayout */}
-              <Route
-                path="/admin"
-                element={
-                  <ProtectedRoute>
-                    <AdminLayout />
-                  </ProtectedRoute>
-                }
-              >
-                <Route index element={<AdminDashboard />} />
-                <Route path="itineraries" element={<AdminItineraries />} />
-                <Route path="businesses" element={<AdminBusinesses />} />
-                <Route path="inquiries" element={<AdminInquiries />} />
-                <Route path="reviews" element={<AdminReviews />} />
-              </Route>
-            </Routes>
-          </main>
-          <Footer />
-          <AuthModal
-            isOpen={showAuthModal}
-            onClose={() => setShowAuthModal(false)}
-          />
-        </div>
-      </BrowserRouter>
-    </UserProvider>
+    <LanguageProvider>
+      <UserProvider value={user}>
+        <BrowserRouter>
+          <div className="flex flex-col min-h-screen">
+            <Header
+              user={user}
+              onLoginClick={() => setShowAuthModal(true)}
+              onLogoutClick={handleLogout}
+            />
+            <main className="flex-grow">
+              <Routes>
+                <Route path="/" element={<ItineraryList />} />
+                <Route path="/itinerary/:id" element={<ItineraryDetail />} />
+                <Route path="/map" element={<MapPage />} />
+                <Route path="/business" element={<BusinessList />} />
+                <Route path="/business/:id" element={<BusinessDetail />} />
+                <Route path="/favorites" element={<Favorites />} />
+                
+                {/* Admin routes - all nested under AdminLayout */}
+                <Route
+                  path="/admin"
+                  element={
+                    <ProtectedRoute>
+                      <AdminLayout />
+                    </ProtectedRoute>
+                  }
+                >
+                  <Route index element={<AdminDashboard />} />
+                  <Route path="itineraries" element={<AdminItineraries />} />
+                  <Route path="businesses" element={<AdminBusinesses />} />
+                  <Route path="inquiries" element={<AdminInquiries />} />
+                  <Route path="reviews" element={<AdminReviews />} />
+                </Route>
+              </Routes>
+            </main>
+            <Footer />
+            <AuthModal
+              isOpen={showAuthModal}
+              onClose={() => setShowAuthModal(false)}
+            />
+          </div>
+        </BrowserRouter>
+      </UserProvider>
+    </LanguageProvider>
   );
 }
 

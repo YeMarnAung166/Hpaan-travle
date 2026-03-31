@@ -2,6 +2,26 @@
 @tailwind components;
 @tailwind utilities;
 
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Noto+Sans+Myanmar:wght@400;500;600;700&display=swap');
+
+:root {
+  font-family: 'Inter', 'Noto Sans Myanmar', system-ui, sans-serif;
+}
+
+/* Better Burmese text rendering */
+[lang="my"] {
+  font-family: 'Noto Sans Myanmar', 'Inter', system-ui, sans-serif;
+  line-height: 1.6;
+}
+
+/* Custom utility for line clamping */
+.line-clamp-3 {
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
 /* Custom component classes */
 @layer components {
   /* Buttons */
