@@ -112,5 +112,14 @@
     "no_results": "No results found.",
     "error": "Something went wrong",
     "loading": "Loading..."
+  },
+  "social": {
+    "share": "Share:",
+    "facebook": "Facebook",
+    "whatsapp": "WhatsApp",
+    "twitter": "Twitter",
+    "telegram": "Telegram",
+    "copy_link": "Copy Link",
+    "copied": "Copied!"
   }
 }

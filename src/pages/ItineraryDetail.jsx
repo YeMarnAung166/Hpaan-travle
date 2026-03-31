@@ -4,6 +4,7 @@ import { supabase } from '../supabaseClient';
 import { useUser } from '../context/UserContext';
 import { useFavorites } from '../hooks/useFavorites';
 import { useLanguage } from '../context/LanguageContext';
+import SocialShare from '../components/SocialShare';
 
 export default function ItineraryDetail() {
   const { id } = useParams();
@@ -49,7 +50,7 @@ export default function ItineraryDetail() {
   const title = getLocalized(itinerary, 'title', 'title_my');
   const description = getLocalized(itinerary, 'description', 'description_my');
   
-  // Get localized days (if Burmese days exist, use them, otherwise use English)
+  // Get localized days
   const getLocalizedDays = () => {
     if (!itinerary || !itinerary.days) return [];
     if (language === 'my' && itinerary.days_my && itinerary.days_my.length > 0) {
@@ -60,13 +61,15 @@ export default function ItineraryDetail() {
   
   const days = getLocalizedDays();
 
-  // Get day label in current language
   const getDayLabel = (dayNumber) => {
     if (language === 'my') {
       return `နေ့ ${dayNumber}`;
     }
     return `${t('itinerary.day')} ${dayNumber}`;
   };
+
+  // Get current URL for sharing
+  const shareUrl = window.location.href;
 
   return (
     <div className="container-custom max-w-3xl">
@@ -95,9 +98,17 @@ export default function ItineraryDetail() {
         className="w-full h-48 sm:h-64 object-cover rounded-lg mb-6" 
       />
       
+      {/* Social Share Buttons */}
+      <SocialShare
+        title={title}
+        url={shareUrl}
+        description={description}
+        image={itinerary.image}
+      />
+      
       {/* Description Section */}
       {description && (
-        <div className="mb-8">
+        <div className="mt-8 mb-8">
           <h2 className="text-xl font-semibold text-gray-800 mb-3">
             {language === 'my' ? 'ခရီးစဉ်အကြောင်း' : 'About This Itinerary'}
           </h2>

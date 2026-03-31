@@ -6,6 +6,7 @@ import { useFavorites } from '../hooks/useFavorites';
 import { useLanguage } from '../context/LanguageContext';
 import BookingModal from '../components/BookingModal';
 import BusinessReviews from '../components/BusinessReviews';
+import SocialShare from '../components/SocialShare';
 
 export default function BusinessDetail() {
   const { id } = useParams();
@@ -35,6 +36,9 @@ export default function BusinessDetail() {
   const name = business ? getLocalized(business, 'name', 'name_my') : '';
   const description = business ? getLocalized(business, 'description', 'description_my') : '';
   const address = business ? getLocalized(business, 'address', 'address_my') : '';
+
+  // Get current URL for sharing
+  const shareUrl = window.location.href;
 
   if (loading) {
     return (
@@ -82,7 +86,15 @@ export default function BusinessDetail() {
       />
       <p className="text-gray-700 mb-4">{description}</p>
 
-      <div className="bg-gray-50 p-4 rounded-lg">
+      {/* Social Share Buttons */}
+      <SocialShare
+        title={name}
+        url={shareUrl}
+        description={description}
+        image={business.image}
+      />
+
+      <div className="bg-gray-50 p-4 rounded-lg mt-6">
         <h3 className="font-semibold mb-2">{t('business.contact')}</h3>
         <p>
           {t('business.phone')}:{' '}
