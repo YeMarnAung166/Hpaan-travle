@@ -28,7 +28,6 @@
     "contact": "Contact",
     "phone": "Phone",
     "whatsapp": "Contact via WhatsApp",
-    "request_booking": "Request Booking",
     "address": "Address",
     "description": "Description"
   },
@@ -95,7 +94,6 @@
     "dashboard": "Dashboard",
     "itineraries": "Itineraries",
     "businesses": "Businesses",
-    "inquiries": "Inquiries",
     "reviews": "Reviews",
     "add": "Add New",
     "edit": "Edit",
@@ -121,5 +119,37 @@
     "telegram": "Telegram",
     "copy_link": "Copy Link",
     "copied": "Copied!"
+  },
+  "image": {
+    "select": "Select Image",
+    "change": "Change Image",
+    "upload": "Upload",
+    "uploading": "Uploading...",
+    "invalid_type": "Only JPEG, PNG, or WebP images are allowed",
+    "too_large": "Image must be less than 5MB",
+    "error": "Upload error",
+    "remove": "Remove"
+  },
+  "filters": {
+    "newest": "Newest First",
+    "oldest": "Oldest First",
+    "highest_rated": "Highest Rated",
+    "shortest": "Shortest First",
+    "longest": "Longest First",
+    "name_asc": "Name A-Z",
+    "name_desc": "Name Z-A",
+    "duration_label": "Duration",
+    "duration_any": "Any Duration",
+    "duration_1": "1 Day",
+    "duration_2": "2 Days",
+    "duration_3": "3 Days",
+    "duration_3plus": "3+ Days",
+    "min_rating_label": "Minimum Rating",
+    "stars": "stars"
+  },
+  "pagination": {
+    "previous": "Previous",
+    "next": "Next",
+    "page_of": "Page {current} of {total}"
   }
 }

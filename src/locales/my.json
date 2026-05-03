@@ -28,7 +28,6 @@
     "contact": "ဆက်သွယ်ရန်",
     "phone": "ဖုန်း",
     "whatsapp": "WhatsApp ဖြင့် ဆက်သွယ်ရန်",
-    "request_booking": "ကြိုတင်မှာယူရန်",
     "address": "လိပ်စာ",
     "description": "ဖော်ပြချက်"
   },
@@ -99,7 +98,6 @@
     "dashboard": "ပင်မစာမျက်နှာ",
     "itineraries": "ခရီးစဉ်များ",
     "businesses": "လုပ်ငန်းများ",
-    "inquiries": "စုံစမ်းချက်များ",
     "reviews": "သုံးသပ်ချက်များ",
     "add": "အသစ်ထည့်ရန်",
     "edit": "ပြင်ရန်",
@@ -125,5 +123,37 @@
     "telegram": "တယ်လီဂရမ်",
     "copy_link": "လင့်ခ်ကူးရန်",
     "copied": "ကူးပြီးပါပြီ!"
+  },
+  "image": {
+    "select": "ဓာတ်ပုံရွေးရန်",
+    "change": "ဓာတ်ပုံပြောင်းရန်",
+    "upload": "တင်ရန်",
+    "uploading": "တင်နေသည်...",
+    "invalid_type": "JPEG၊ PNG သို့မဟုတ် WebP ပုံစံများသာ ခွင့်ပြုပါသည်",
+    "too_large": "ဓာတ်ပုံအရွယ်အစား 5MB ထက်ငယ်ရမည်",
+    "error": "တင်ခြင်းမအောင်မြင်ပါ",
+    "remove": "ဖယ်ရှားရန်"
+  },
+  "filters": {
+    "newest": "အသစ်ဆုံးရှေ့ဆုံး",
+    "oldest": "အဟောင်းဆုံးရှေ့ဆုံး",
+    "highest_rated": "အဆင့်အမြင့်ဆုံး",
+    "shortest": "အတိုဆုံးရှေ့ဆုံး",
+    "longest": "အရှည်ဆုံးရှေ့ဆုံး",
+    "name_asc": "အမည် A-Z",
+    "name_desc": "အမည် Z-A",
+    "duration_label": "ကြာချိန်",
+    "duration_any": "မည်သည့်ကြာချိန်",
+    "duration_1": "၁ ရက်",
+    "duration_2": "၂ ရက်",
+    "duration_3": "၃ ရက်",
+    "duration_3plus": "၃ ရက်အထက်",
+    "min_rating_label": "အနည်းဆုံးအဆင့်",
+    "stars": "ကြယ်"
+  },
+  "pagination": {
+    "previous": "ယခင်",
+    "next": "နောက်",
+    "page_of": "စာမျက်နှာ {current} / {total}"
   }
 }
