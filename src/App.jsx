@@ -17,7 +17,6 @@ import AdminLayout from "./pages/admin/AdminLayout";
 import AdminDashboard from "./pages/admin/AdminDashboard";
 import AdminItineraries from "./pages/admin/AdminItineraries";
 import AdminBusinesses from "./pages/admin/AdminBusinesses";
-import AdminInquiries from "./pages/admin/AdminInquiries";
 import AdminReviews from "./pages/admin/AdminReviews";
 
 function App() {
@@ -60,7 +59,7 @@ function App() {
                 <Route path="/business" element={<BusinessList />} />
                 <Route path="/business/:id" element={<BusinessDetail />} />
                 <Route path="/favorites" element={<Favorites />} />
-                
+
                 {/* Admin routes - all nested under AdminLayout */}
                 <Route
                   path="/admin"
@@ -73,7 +72,6 @@ function App() {
                   <Route index element={<AdminDashboard />} />
                   <Route path="itineraries" element={<AdminItineraries />} />
                   <Route path="businesses" element={<AdminBusinesses />} />
-                  <Route path="inquiries" element={<AdminInquiries />} />
                   <Route path="reviews" element={<AdminReviews />} />
                 </Route>
               </Routes>

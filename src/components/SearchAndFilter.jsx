@@ -49,6 +49,14 @@ export default function SearchAndFilter({
     setSortBy('newest');
   };
 
+  // Helper for duration display
+  const formatDuration = (durationCode) => {
+    if (durationCode === '3+') return t('filters.duration_3plus');
+    const num = parseInt(durationCode);
+    if (num === 1) return t('filters.duration_1');
+    return t('filters.duration_other', { count: num });
+  };
+
   return (
     <div className="bg-white rounded-lg shadow-md p-4 mb-6">
       {/* Search Bar */}
@@ -76,19 +84,19 @@ export default function SearchAndFilter({
           onChange={(e) => setSortBy(e.target.value)}
           className="px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500"
         >
-          <option value="newest">Newest First</option>
-          <option value="oldest">Oldest First</option>
+          <option value="newest">{t('filters.newest')}</option>
+          <option value="oldest">{t('filters.oldest')}</option>
           {type === 'business' && (
-            <option value="rating">Highest Rated</option>
+            <option value="rating">{t('filters.highest_rated')}</option>
           )}
           {type === 'itinerary' && (
-            <option value="duration_asc">Shortest First</option>
+            <option value="duration_asc">{t('filters.shortest')}</option>
           )}
           {type === 'itinerary' && (
-            <option value="duration_desc">Longest First</option>
+            <option value="duration_desc">{t('filters.longest')}</option>
           )}
-          <option value="name_asc">Name A-Z</option>
-          <option value="name_desc">Name Z-A</option>
+          <option value="name_asc">{t('filters.name_asc')}</option>
+          <option value="name_desc">{t('filters.name_desc')}</option>
         </select>
       </div>
 
@@ -120,18 +128,18 @@ export default function SearchAndFilter({
             {type === 'itinerary' && (
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Duration
+                  {t('filters.duration_label')}
                 </label>
                 <select
                   value={filters.duration || 'all'}
                   onChange={(e) => handleFilterChange('duration', e.target.value)}
                   className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500"
                 >
-                  <option value="all">Any Duration</option>
-                  <option value="1">1 Day</option>
-                  <option value="2">2 Days</option>
-                  <option value="3">3 Days</option>
-                  <option value="3+">3+ Days</option>
+                  <option value="all">{t('filters.duration_any')}</option>
+                  <option value="1">{t('filters.duration_1')}</option>
+                  <option value="2">{t('filters.duration_2')}</option>
+                  <option value="3">{t('filters.duration_3')}</option>
+                  <option value="3+">{t('filters.duration_3plus')}</option>
                 </select>
               </div>
             )}
@@ -140,7 +148,7 @@ export default function SearchAndFilter({
             {type === 'business' && (
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Minimum Rating
+                  {t('filters.min_rating_label')}
                 </label>
                 <div className="flex items-center gap-2">
                   <StarRating
@@ -153,7 +161,7 @@ export default function SearchAndFilter({
                       onClick={() => handleFilterChange('minRating', 0)}
                       className="text-xs text-gray-500 hover:text-red-500"
                     >
-                      Clear
+                      {t('common.clear')}
                     </button>
                   )}
                 </div>
@@ -177,25 +185,25 @@ export default function SearchAndFilter({
         <div className="mt-3 pt-3 border-t flex flex-wrap gap-2">
           {searchTerm && (
             <span className="inline-flex items-center gap-1 px-2 py-1 bg-green-100 text-green-800 rounded-full text-sm">
-              Search: {searchTerm}
+              {t('common.search')}: {searchTerm}
               <button onClick={() => setSearchTerm('')} className="hover:text-red-500">×</button>
             </span>
           )}
           {filters.category && filters.category !== 'all' && (
             <span className="inline-flex items-center gap-1 px-2 py-1 bg-blue-100 text-blue-800 rounded-full text-sm">
-              Category: {filters.category}
+              {t('business.category')}: {t(`business.${filters.category}`)}
               <button onClick={() => handleFilterChange('category', 'all')} className="hover:text-red-500">×</button>
             </span>
           )}
           {filters.duration && filters.duration !== 'all' && (
             <span className="inline-flex items-center gap-1 px-2 py-1 bg-purple-100 text-purple-800 rounded-full text-sm">
-              Duration: {filters.duration === '3+' ? '3+ Days' : `${filters.duration} Day${filters.duration > 1 ? 's' : ''}`}
+              {t('filters.duration_label')}: {formatDuration(filters.duration)}
               <button onClick={() => handleFilterChange('duration', 'all')} className="hover:text-red-500">×</button>
             </span>
           )}
           {filters.minRating > 0 && (
             <span className="inline-flex items-center gap-1 px-2 py-1 bg-yellow-100 text-yellow-800 rounded-full text-sm">
-              Rating: {filters.minRating}+ stars
+              {t('filters.min_rating_label')}: {filters.minRating}+ {t('filters.stars')}
               <button onClick={() => handleFilterChange('minRating', 0)} className="hover:text-red-500">×</button>
             </span>
           )}

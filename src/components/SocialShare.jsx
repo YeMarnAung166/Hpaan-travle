@@ -30,7 +30,7 @@ export default function SocialShare({ title, url, description, image }) {
 
   const shareButtons = [
     { key: 'facebook', label: 'Facebook', icon: '📘', color: 'bg-blue-600 hover:bg-blue-700', url: shareLinks.facebook },
-    { key: 'whatsapp', label: 'WhatsApp', icon: '💬', color: 'bg-green-500 hover:bg-green-600', url: shareLinks.whatsapp },
+    { key: 'whatsapp', label: 'WhatsApp', icon: '💬', color: 'bg-green-500 hover:bg-primary', url: shareLinks.whatsapp },
     { key: 'twitter', label: 'Twitter', icon: '🐦', color: 'bg-sky-500 hover:bg-sky-600', url: shareLinks.twitter },
     { key: 'telegram', label: 'Telegram', icon: '✈️', color: 'bg-blue-400 hover:bg-blue-500', url: shareLinks.telegram },
     { key: 'copy', label: copied ? (t('social.copied') || 'Copied!') : (t('social.copy_link') || 'Copy Link'), icon: '🔗', color: 'bg-gray-500 hover:bg-gray-600', url: '#', onClick: handleCopyLink },

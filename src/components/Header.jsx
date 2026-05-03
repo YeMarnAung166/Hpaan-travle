@@ -15,21 +15,21 @@ export default function Header({ user, onLoginClick, onLogoutClick }) {
     <>
       <Link
         to="/"
-        className="block px-4 py-2 hover:bg-green-600 rounded"
+        className="block px-4 py-2 hover:bg-primary rounded"
         onClick={closeMenu}
       >
         {t('nav.itineraries')}
       </Link>
       <Link
         to="/map"
-        className="block px-4 py-2 hover:bg-green-600 rounded"
+        className="block px-4 py-2 hover:bg-primary rounded"
         onClick={closeMenu}
       >
         {t('nav.map')}
       </Link>
       <Link
         to="/business"
-        className="block px-4 py-2 hover:bg-green-600 rounded"
+        className="block px-4 py-2 hover:bg-primary rounded"
         onClick={closeMenu}
       >
         {t('nav.directory')}
@@ -37,7 +37,7 @@ export default function Header({ user, onLoginClick, onLogoutClick }) {
       {user && (
         <Link
           to="/favorites"
-          className="block px-4 py-2 hover:bg-green-600 rounded"
+          className="block px-4 py-2 hover:bg-primary rounded"
           onClick={closeMenu}
         >
           {t('nav.favorites')}
@@ -100,7 +100,7 @@ export default function Header({ user, onLoginClick, onLogoutClick }) {
                 {isUserAdmin(user) && (
                   <Link
                     to="/admin"
-                    className="block px-4 py-2 hover:bg-green-600 rounded"
+                    className="block px-4 py-2 hover:bg-primary rounded"
                     onClick={closeMenu}
                   >
                     {t('nav.admin')}
@@ -111,7 +111,7 @@ export default function Header({ user, onLoginClick, onLogoutClick }) {
                     onLogoutClick();
                     closeMenu();
                   }}
-                  className="block w-full text-left px-4 py-2 hover:bg-green-600 rounded"
+                  className="block w-full text-left px-4 py-2 hover:bg-primary rounded"
                 >
                   {t('nav.logout')}
                 </button>
@@ -122,7 +122,7 @@ export default function Header({ user, onLoginClick, onLogoutClick }) {
                   onLoginClick();
                   closeMenu();
                 }}
-                className="block w-full text-left px-4 py-2 hover:bg-green-600 rounded"
+                className="block w-full text-left px-4 py-2 hover:bg-primary rounded"
               >
                 {t('nav.login')}
               </button>

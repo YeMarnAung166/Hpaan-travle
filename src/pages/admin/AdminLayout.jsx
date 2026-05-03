@@ -9,7 +9,6 @@ export default function AdminLayout() {
     { path: '/admin', label: t('admin.dashboard') },
     { path: '/admin/itineraries', label: t('admin.itineraries') },
     { path: '/admin/businesses', label: t('admin.businesses') },
-    { path: '/admin/inquiries', label: t('admin.inquiries') },
     { path: '/admin/reviews', label: t('admin.reviews') },
   ];
   
@@ -27,7 +26,7 @@ export default function AdminLayout() {
                 to={item.path}
                 className={`block px-4 py-2 rounded transition-colors ${
                   location.pathname === item.path
-                    ? 'bg-green-600 text-white'
+                    ? 'bg-primary text-white'
                     : 'text-gray-700 hover:bg-gray-100'
                 }`}
               >

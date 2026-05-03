@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useLanguage } from '../../context/LanguageContext';
 
 export default function DataTable({
   title,
@@ -7,14 +8,20 @@ export default function DataTable({
   onAdd,
   onEdit,
   onDelete,
-  addButtonLabel = '+ Add New',
-  emptyMessage = 'No data found.',
+  addButtonLabel = null,  // now can be null to use translation
+  emptyMessage = null,
   searchable = true,
-  searchPlaceholder = 'Search...',
+  searchPlaceholder = null,
 }) {
+  const { t } = useLanguage();
   const [searchTerm, setSearchTerm] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 10;
+
+  // Use translated defaults if not provided
+  const finalAddLabel = addButtonLabel || t('admin.add');
+  const finalEmptyMessage = emptyMessage || t('admin.empty');
+  const finalSearchPlaceholder = searchPlaceholder || t('common.search');
 
   // Filter data based on search term
   const filteredData = searchable
@@ -42,7 +49,7 @@ export default function DataTable({
           {searchable && (
             <input
               type="text"
-              placeholder={searchPlaceholder}
+              placeholder={finalSearchPlaceholder}
               value={searchTerm}
               onChange={(e) => {
                 setSearchTerm(e.target.value);
@@ -52,7 +59,7 @@ export default function DataTable({
             />
           )}
           <button onClick={onAdd} className="btn btn-primary whitespace-nowrap">
-            {addButtonLabel}
+            {finalAddLabel}
           </button>
         </div>
       </div>
@@ -66,14 +73,14 @@ export default function DataTable({
                   {col.label}
                 </th>
               ))}
-              <th className="px-4 py-3 text-left text-sm font-semibold">Actions</th>
+              <th className="px-4 py-3 text-left text-sm font-semibold">{t('admin.actions')}</th>
             </tr>
           </thead>
           <tbody>
             {paginatedData.length === 0 ? (
               <tr>
                 <td colSpan={columns.length + 1} className="text-center py-8 text-gray-500">
-                  {emptyMessage}
+                  {finalEmptyMessage}
                 </td>
               </tr>
             ) : (
@@ -89,13 +96,13 @@ export default function DataTable({
                       onClick={() => onEdit(item)}
                       className="text-blue-600 hover:underline mr-3 text-sm"
                     >
-                      Edit
+                      {t('admin.edit')}
                     </button>
                     <button
                       onClick={() => onDelete(item.id)}
                       className="text-red-600 hover:underline text-sm"
                     >
-                      Delete
+                      {t('admin.delete')}
                     </button>
                   </td>
                 </tr>
@@ -113,17 +120,17 @@ export default function DataTable({
             disabled={currentPage === 1}
             className="px-3 py-1 border rounded disabled:opacity-50 hover:bg-gray-100"
           >
-            Previous
+            {t('pagination.previous')}
           </button>
           <span className="px-3 py-1">
-            Page {currentPage} of {totalPages}
+            {t('pagination.page_of', { current: currentPage, total: totalPages })}
           </span>
           <button
             onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
             disabled={currentPage === totalPages}
             className="px-3 py-1 border rounded disabled:opacity-50 hover:bg-gray-100"
           >
-            Next
+            {t('pagination.next')}
           </button>
         </div>
       )}

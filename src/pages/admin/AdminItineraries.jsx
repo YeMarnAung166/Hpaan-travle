@@ -3,6 +3,7 @@ import { supabase } from '../../supabaseClient';
 import DataTable from '../../components/admin/DataTable';
 import FormModal from '../../components/admin/FormModal';
 import { useLanguage } from '../../context/LanguageContext';
+import ImageUploader from '../../components/ImageUploader';
 
 export default function AdminItineraries() {
   const [itineraries, setItineraries] = useState([]);
@@ -46,9 +47,7 @@ export default function AdminItineraries() {
     try {
       const days = JSON.parse(e.target.value);
       setFormData({ ...formData, days });
-    } catch (err) {
-      // Invalid JSON, ignore
-    }
+    } catch (err) {}
   };
 
   const handleDaysMyChange = (e) => {
@@ -56,9 +55,7 @@ export default function AdminItineraries() {
     try {
       const days_my = JSON.parse(e.target.value);
       setFormData({ ...formData, days_my });
-    } catch (err) {
-      // Invalid JSON, ignore
-    }
+    } catch (err) {}
   };
 
   const handleSubmit = async (e) => {
@@ -129,7 +126,8 @@ export default function AdminItineraries() {
     {
       key: 'title',
       label: 'Title',
-      render: (_, item) => language === 'my' && item.title_my ? item.title_my : item.title,
+      render: (_, item) =>
+        language === 'my' && item.title_my ? item.title_my : item.title,
     },
     { key: 'duration', label: 'Duration' },
     {
@@ -197,7 +195,9 @@ export default function AdminItineraries() {
             rows="3"
             required
           />
-          <label className="block text-sm font-medium text-gray-700 mb-1">Days (JSON format - English)</label>
+          <label className="block text-sm font-medium text-gray-700 mb-1">
+            Days (JSON format - English)
+          </label>
           <textarea
             placeholder='[{"day":1,"activities":["Activity 1","Activity 2"]}]'
             value={daysJson}
@@ -227,7 +227,9 @@ export default function AdminItineraries() {
             className="w-full border rounded px-3 py-2 mb-3 focus:outline-none focus:ring-2 focus:ring-green-500"
             rows="3"
           />
-          <label className="block text-sm font-medium text-gray-700 mb-1">နေ့စဉ်လုပ်ဆောင်မှုများ (မြန်မာ) - JSON format</label>
+          <label className="block text-sm font-medium text-gray-700 mb-1">
+            နေ့စဉ်လုပ်ဆောင်မှုများ (မြန်မာ) - JSON format
+          </label>
           <textarea
             placeholder='[{"day":1,"activities":["လုပ်ဆောင်ချက် ၁","လုပ်ဆောင်ချက် ၂"]}]'
             value={daysMyJson}
@@ -240,16 +242,19 @@ export default function AdminItineraries() {
           </p>
         </div>
 
-        {/* Common Fields */}
+        {/* Image Upload (Public Bucket) */}
         <div>
           <h3 className="font-semibold text-gray-700 mb-2">Media</h3>
-          <input
-            type="url"
-            name="image"
-            placeholder="Image URL"
-            value={formData.image}
-            onChange={handleInputChange}
-            className="w-full border rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500"
+          <ImageUploader
+            folderPath={`itineraries/${editingItem?.id || 'temp'}`}
+            existingImageUrl={formData.image}
+            onUploadComplete={(result) => {
+              if (result) {
+                setFormData((prev) => ({ ...prev, image: result.publicUrl }));
+              } else {
+                setFormData((prev) => ({ ...prev, image: '' }));
+              }
+            }}
           />
         </div>
       </FormModal>
