@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { useLanguage } from '../../context/LanguageContext';
+import Button from '../ui/Button';
 
 export default function DataTable({
   title,
@@ -8,7 +9,7 @@ export default function DataTable({
   onAdd,
   onEdit,
   onDelete,
-  addButtonLabel = null,  // now can be null to use translation
+  addButtonLabel = null,
   emptyMessage = null,
   searchable = true,
   searchPlaceholder = null,
@@ -18,12 +19,11 @@ export default function DataTable({
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 10;
 
-  // Use translated defaults if not provided
   const finalAddLabel = addButtonLabel || t('admin.add');
   const finalEmptyMessage = emptyMessage || t('admin.empty');
   const finalSearchPlaceholder = searchPlaceholder || t('common.search');
 
-  // Filter data based on search term
+  // Filter data
   const filteredData = searchable
     ? data.filter((item) =>
         Object.values(item)
@@ -55,55 +55,49 @@ export default function DataTable({
                 setSearchTerm(e.target.value);
                 setCurrentPage(1);
               }}
-              className="px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 flex-1 sm:flex-none w-full sm:w-64"
+              className="px-3 py-2 border border-neutral-mid rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/50 flex-1 sm:flex-none w-full sm:w-64"
             />
           )}
-          <button onClick={onAdd} className="btn btn-primary whitespace-nowrap">
+          <Button onClick={onAdd} variant="primary" size="md">
             {finalAddLabel}
-          </button>
+          </Button>
         </div>
       </div>
 
       <div className="overflow-x-auto">
-        <table className="min-w-full bg-white rounded-lg border">
-          <thead className="bg-gray-100">
+        <table className="min-w-full bg-white rounded-lg border border-neutral-mid">
+          <thead className="bg-neutral-light">
             <tr>
               {columns.map((col) => (
-                <th key={col.key} className="px-4 py-3 text-left text-sm font-semibold">
+                <th key={col.key} className="px-4 py-3 text-left text-sm font-semibold text-text">
                   {col.label}
                 </th>
               ))}
-              <th className="px-4 py-3 text-left text-sm font-semibold">{t('admin.actions')}</th>
+              <th className="px-4 py-3 text-left text-sm font-semibold text-text">{t('admin.actions')}</th>
             </tr>
           </thead>
           <tbody>
             {paginatedData.length === 0 ? (
               <tr>
-                <td colSpan={columns.length + 1} className="text-center py-8 text-gray-500">
+                <td colSpan={columns.length + 1} className="text-center py-8 text-text-soft">
                   {finalEmptyMessage}
                 </td>
               </tr>
             ) : (
               paginatedData.map((item, idx) => (
-                <tr key={item.id || idx} className="border-t hover:bg-gray-50">
+                <tr key={item.id || idx} className="border-t border-neutral-mid hover:bg-neutral-light/50 transition">
                   {columns.map((col) => (
-                    <td key={col.key} className="px-4 py-2 text-sm">
+                    <td key={col.key} className="px-4 py-2 text-sm text-text">
                       {col.render ? col.render(item[col.key], item) : item[col.key]}
                     </td>
                   ))}
                   <td className="px-4 py-2 whitespace-nowrap">
-                    <button
-                      onClick={() => onEdit(item)}
-                      className="text-blue-600 hover:underline mr-3 text-sm"
-                    >
+                    <Button variant="ghost" size="sm" onClick={() => onEdit(item)} className="mr-2">
                       {t('admin.edit')}
-                    </button>
-                    <button
-                      onClick={() => onDelete(item.id)}
-                      className="text-red-600 hover:underline text-sm"
-                    >
+                    </Button>
+                    <Button variant="ghost" size="sm" onClick={() => onDelete(item.id)} className="text-error">
                       {t('admin.delete')}
-                    </button>
+                    </Button>
                   </td>
                 </tr>
               ))
@@ -118,17 +112,17 @@ export default function DataTable({
           <button
             onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
             disabled={currentPage === 1}
-            className="px-3 py-1 border rounded disabled:opacity-50 hover:bg-gray-100"
+            className="px-3 py-1 border border-neutral-mid rounded disabled:opacity-50 hover:bg-neutral-light transition"
           >
             {t('pagination.previous')}
           </button>
-          <span className="px-3 py-1">
+          <span className="px-3 py-1 text-text-soft">
             {t('pagination.page_of', { current: currentPage, total: totalPages })}
           </span>
           <button
             onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
             disabled={currentPage === totalPages}
-            className="px-3 py-1 border rounded disabled:opacity-50 hover:bg-gray-100"
+            className="px-3 py-1 border border-neutral-mid rounded disabled:opacity-50 hover:bg-neutral-light transition"
           >
             {t('pagination.next')}
           </button>

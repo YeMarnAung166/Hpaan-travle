@@ -1,0 +1,55 @@
+/* Light theme (default) */
+:root {
+  /* Colors */
+  --color-primary: #2D6A4F;
+  --color-primary-light: #52B788;
+  --color-primary-dark: #1B4332;
+  --color-secondary: #D4A373;
+  --color-secondary-light: #E9C46A;
+  --color-secondary-dark: #B5835A;
+  --color-neutral-light: #F5F5F0;
+  --color-neutral-mid: #E7E5DF;
+  --color-neutral-dark: #5C5A4C;
+  --color-text: #2B2B24;
+  --color-text-soft: #78766B;
+  --color-error: #B91C1C;
+  --color-success: #059669;
+  --color-warning: #D97706;
+  --color-info: #78716C;
+
+  /* Typography */
+  --font-family-serif: 'Playfair Display', Georgia, serif;
+  --font-family-sans: 'Inter', system-ui, sans-serif;
+
+  /* Shadows */
+  --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+  --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1);
+  --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1);
+  --shadow-xl: 0 20px 25px -5px rgb(0 0 0 / 0.1);
+
+  /* Border radius */
+  --radius-sm: 0.25rem;
+  --radius-md: 0.5rem;
+  --radius-lg: 0.75rem;
+  --radius-xl: 1rem;
+  --radius-2xl: 1.5rem;
+}
+
+/* Dark theme */
+.dark {
+  --color-primary: #74C69D;
+  --color-primary-light: #95D5B2;
+  --color-primary-dark: #40916C;
+  --color-secondary: #E9C46A;
+  --color-secondary-light: #F4D03F;
+  --color-secondary-dark: #D4A373;
+  --color-neutral-light: #1E1E1A;
+  --color-neutral-mid: #2D2A24;
+  --color-neutral-dark: #5C5A4C;
+  --color-text: #F5F5F0;
+  --color-text-soft: #A8A69B;
+  --color-error: #F87171;
+  --color-success: #34D399;
+  --color-warning: #FBBF24;
+  --color-info: #9CA3AF;
+}

@@ -1,38 +1,52 @@
-// tailwind.config.js
 /** @type {import('tailwindcss').Config} */
 export default {
-  content: [
-    "./index.html",
-    "./src/**/*.{js,ts,jsx,tsx}",
-  ],
+  darkMode: 'class',
+  content: ['./index.html', './src/**/*.{js,ts,jsx,tsx}'],
   theme: {
     extend: {
       colors: {
         primary: {
-          DEFAULT: '#2D6A4F',
-          light: '#52B788',
-          dark: '#1B4332',
+          DEFAULT: 'var(--color-primary)',
+          light: 'var(--color-primary-light)',
+          dark: 'var(--color-primary-dark)',
         },
         secondary: {
-          DEFAULT: '#D4A373',
-          light: '#E9C46A',
-          dark: '#B5835A',
+          DEFAULT: 'var(--color-secondary)',
+          light: 'var(--color-secondary-light)',
+          dark: 'var(--color-secondary-dark)',
         },
         neutral: {
-          light: '#F5F5F0',
-          mid: '#E7E5DF',
-          dark: '#5C5A4C',
+          light: 'var(--color-neutral-light)',
+          mid: 'var(--color-neutral-mid)',
+          dark: 'var(--color-neutral-dark)',
         },
         text: {
-          DEFAULT: '#2B2B24',
-          soft: '#78766B',
+          DEFAULT: 'var(--color-text)',
+          soft: 'var(--color-text-soft)',
         },
+        error: 'var(--color-error)',
+        success: 'var(--color-success)',
+        warning: 'var(--color-warning)',
+        info: 'var(--color-info)',
       },
       fontFamily: {
-        serif: ['Playfair Display', 'Georgia', 'serif'],
-        sans: ['Inter', 'system-ui', 'sans-serif'],
+        serif: ['var(--font-family-serif)'],
+        sans: ['var(--font-family-sans)'],
+      },
+      boxShadow: {
+        sm: 'var(--shadow-sm)',
+        md: 'var(--shadow-md)',
+        lg: 'var(--shadow-lg)',
+        xl: 'var(--shadow-xl)',
+      },
+      borderRadius: {
+        sm: 'var(--radius-sm)',
+        md: 'var(--radius-md)',
+        lg: 'var(--radius-lg)',
+        xl: 'var(--radius-xl)',
+        '2xl': 'var(--radius-2xl)',
       },
     },
   },
   plugins: [],
-}
+};

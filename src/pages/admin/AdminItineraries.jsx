@@ -237,7 +237,7 @@ export default function AdminItineraries() {
             className="w-full border rounded px-3 py-2 font-mono text-sm focus:outline-none focus:ring-2 focus:ring-green-500"
             rows="6"
           />
-          <p className="text-xs text-gray-500 mt-1">
+          <p className="text-xs text-text-soft mt-1">
             Tip: Copy the English JSON and translate the activities
           </p>
         </div>

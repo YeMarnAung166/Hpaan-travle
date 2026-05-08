@@ -76,7 +76,7 @@ export default function Favorites() {
 
       <h2 className="section-title">{t('favorites.itineraries')}</h2>
       {favorites.itineraries.length === 0 ? (
-        <p className="text-gray-500">{t('favorites.empty')}</p>
+        <p className="text-text-soft">{t('favorites.empty')}</p>
       ) : (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 mb-8">
           {favorites.itineraries.map(it => (
@@ -87,7 +87,7 @@ export default function Favorites() {
 
       <h2 className="section-title mt-8">{t('favorites.businesses')}</h2>
       {favorites.businesses.length === 0 ? (
-        <p className="text-gray-500">{t('favorites.empty')}</p>
+        <p className="text-text-soft">{t('favorites.empty')}</p>
       ) : (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
           {favorites.businesses.map(biz => (

@@ -8,6 +8,7 @@
     "map": "Map",
     "directory": "Directory",
     "favorites": "Favorites",
+    "history": "History",
     "admin": "Admin",
     "login": "Login / Sign Up",
     "logout": "Logout",

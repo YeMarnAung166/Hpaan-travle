@@ -73,7 +73,7 @@ export default function ItineraryDetail() {
 
   return (
     <div className="container-custom max-w-3xl">
-      <Link to="/" className="text-green-600 hover:underline mb-4 inline-block">
+      <Link to="/" className="text-primary hover:underline mb-4 inline-block">
         ← {t('itinerary.back')}
       </Link>
       
