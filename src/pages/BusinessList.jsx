@@ -142,7 +142,7 @@ export default function BusinessList() {
 
       {filteredBusinesses.length === 0 && (
         <div className="text-center py-12">
-          <p className="text-gray-500">{t("common.no_results")}</p>
+          <p className="text-text-soft">{t("common.no_results")}</p>
           <button
             onClick={() => {
               setSearchTerm("");

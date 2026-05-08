@@ -104,7 +104,7 @@ export default function BusinessCard({ business }) {
           {avgRating && (
             <div className="flex items-center gap-1">
               <StarRating rating={Math.round(avgRating)} readonly size="sm" />
-              <span className="text-xs text-gray-500">({ratingCount})</span>
+              <span className="text-xs text-text-soft">({ratingCount})</span>
             </div>
           )}
           <div className="flex items-center text-xs text-gray-400">
@@ -116,7 +116,7 @@ export default function BusinessCard({ business }) {
           </div>
         </div>
 
-        <p className="text-sm text-gray-500 mb-4 line-clamp-2">
+        <p className="text-sm text-text-soft mb-4 line-clamp-2">
           {description}
         </p>
 

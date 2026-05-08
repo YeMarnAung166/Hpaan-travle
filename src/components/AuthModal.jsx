@@ -1,6 +1,8 @@
 import { useState } from 'react';
 import { supabase } from '../supabaseClient';
 import { useLanguage } from '../context/LanguageContext';
+import Input from './ui/Input';
+import Button from './ui/Button';
 
 export default function AuthModal({ isOpen, onClose }) {
   const [email, setEmail] = useState('');
@@ -15,19 +17,24 @@ export default function AuthModal({ isOpen, onClose }) {
     setLoading(true);
     setError('');
 
-    let error;
-    if (mode === 'login') {
-      const { error: signInError } = await supabase.auth.signInWithPassword({ email, password });
-      error = signInError;
-    } else {
-      const { error: signUpError } = await supabase.auth.signUp({ email, password });
-      error = signUpError;
-    }
+    console.log('Attempting', mode, 'with email:', email);
 
-    if (error) {
-      setError(error.message);
+    if (mode === 'login') {
+      const { data, error: signInError } = await supabase.auth.signInWithPassword({ email, password });
+      console.log('Login response:', { data, error: signInError });
+      if (signInError) {
+        setError(signInError.message);
+      } else {
+        onClose();
+      }
     } else {
-      onClose();
+      const { data, error: signUpError } = await supabase.auth.signUp({ email, password });
+      console.log('Signup response:', { data, error: signUpError });
+      if (signUpError) {
+        setError(signUpError.message);
+      } else {
+        onClose();
+      }
     }
     setLoading(false);
   };
@@ -35,53 +42,56 @@ export default function AuthModal({ isOpen, onClose }) {
   if (!isOpen) return null;
 
   return (
-    <div className="modal-overlay">
-      <div className="modal-content">
-        <h2 className="text-2xl font-bold mb-4">{mode === 'login' ? t('auth.login') : t('auth.signup')}</h2>
-        {error && <div className="message-error mb-4">{error}</div>}
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm">
+      <div className="relative bg-white dark:bg-neutral-dark rounded-2xl shadow-2xl w-full max-w-md p-6 mx-4">
+        <h2 className="text-2xl font-serif font-bold text-text mb-4">
+          {mode === 'login' ? t('auth.login') : t('auth.signup')}
+        </h2>
+        {error && (
+          <div className="mb-4 p-3 bg-error/10 border border-error text-error rounded-lg text-sm">
+            {error}
+          </div>
+        )}
         <form onSubmit={handleSubmit}>
-          <input
+          <Input
             type="email"
             placeholder={t('auth.email')}
             value={email}
             onChange={(e) => setEmail(e.target.value)}
-            className="w-full border rounded px-3 py-2 mb-3 focus:outline-none focus:ring-2 focus:ring-green-500"
             required
           />
-          <input
+          <Input
             type="password"
             placeholder={t('auth.password')}
             value={password}
             onChange={(e) => setPassword(e.target.value)}
-            className="w-full border rounded px-3 py-2 mb-4 focus:outline-none focus:ring-2 focus:ring-green-500"
             required
           />
-          <button
-            type="submit"
-            disabled={loading}
-            className="btn btn-primary w-full"
-          >
+          <Button type="submit" variant="primary" size="md" className="w-full" disabled={loading}>
             {loading ? t('auth.processing') : (mode === 'login' ? t('auth.login') : t('auth.signup'))}
-          </button>
+          </Button>
         </form>
-        <div className="mt-4 text-center text-sm">
+        <div className="mt-4 text-center text-sm text-text-soft">
           {mode === 'login' ? (
             <>
               {t('auth.no_account')}{' '}
-              <button onClick={() => setMode('signup')} className="text-green-600 underline">
+              <button onClick={() => setMode('signup')} className="text-primary hover:underline">
                 {t('auth.sign_up')}
               </button>
             </>
           ) : (
             <>
               {t('auth.have_account')}{' '}
-              <button onClick={() => setMode('login')} className="text-green-600 underline">
+              <button onClick={() => setMode('login')} className="text-primary hover:underline">
                 {t('auth.login_here')}
               </button>
             </>
           )}
         </div>
-        <button onClick={onClose} className="absolute top-2 right-2 text-gray-500 hover:text-gray-700">
+        <button
+          onClick={onClose}
+          className="absolute top-3 right-3 text-text-soft hover:text-text transition"
+        >
           ✕
         </button>
       </div>
