@@ -1,11 +1,11 @@
 // src/components/BusinessCard.jsx
-import { Link } from 'react-router-dom';
-import { useUser } from '../context/UserContext';
-import { useFavorites } from '../hooks/useFavorites';
-import { useLanguage } from '../context/LanguageContext';
-import { useState, useEffect } from 'react';
-import { supabase } from '../supabaseClient';
-import StarRating from './StarRating';
+import { Link } from "react-router-dom";
+import { useUser } from "../context/UserContext";
+import { useFavorites } from "../hooks/useFavorites";
+import { useLanguage } from "../context/LanguageContext";
+import { useState, useEffect } from "react";
+import { supabase } from "../supabaseClient";
+import StarRating from "./StarRating";
 
 export default function BusinessCard({ business }) {
   const user = useUser();
@@ -17,9 +17,9 @@ export default function BusinessCard({ business }) {
   const [ratingCount, setRatingCount] = useState(0);
 
   // Get localized content
-  const name = getLocalized(business, 'name', 'name_my');
-  const description = getLocalized(business, 'description', 'description_my');
-  const address = getLocalized(business, 'address', 'address_my');
+  const name = getLocalized(business, "name", "name_my");
+  const description = getLocalized(business, "description", "description_my");
+  const address = getLocalized(business, "address", "address_my");
 
   // Share URL
   const shareUrl = `${window.location.origin}/business/${business.id}`;
@@ -27,10 +27,10 @@ export default function BusinessCard({ business }) {
   useEffect(() => {
     const fetchRating = async () => {
       const { data, error } = await supabase
-        .from('business_reviews')
-        .select('rating')
-        .eq('business_id', business.id);
-      
+        .from("business_reviews")
+        .select("rating")
+        .eq("business_id", business.id);
+
       if (!error && data && data.length > 0) {
         const sum = data.reduce((acc, r) => acc + r.rating, 0);
         setAvgRating(sum / data.length);
@@ -43,16 +43,16 @@ export default function BusinessCard({ business }) {
   const handleShare = (platform) => {
     const encodedUrl = encodeURIComponent(shareUrl);
     const encodedTitle = encodeURIComponent(name);
-    
+
     const links = {
       facebook: `https://www.facebook.com/sharer/sharer.php?u=${encodedUrl}`,
       whatsapp: `https://wa.me/?text=${encodedTitle} - ${encodedUrl}`,
       twitter: `https://twitter.com/intent/tweet?text=${encodedTitle}&url=${encodedUrl}`,
       telegram: `https://t.me/share/url?url=${encodedUrl}&text=${encodedTitle}`,
     };
-    
+
     if (links[platform]) {
-      window.open(links[platform], '_blank', 'noopener,noreferrer');
+      window.open(links[platform], "_blank", "noopener,noreferrer");
     }
     setShowShare(false);
   };
@@ -78,13 +78,15 @@ export default function BusinessCard({ business }) {
           </h3>
           {user && (
             <button
-              onClick={() => toggleFavorite('business', business.id)}
-              className="flex-shrink-0 transition-all duration-200 hover:scale-110"
-              title={isSaved ? 'Remove from favorites' : 'Save to favorites'}
+              onClick={() => toggleFavorite("business", business.id)}
+              className={`flex-shrink-0 transition-all duration-200 hover:scale-110 ${
+                isSaved ? "text-red-500" : "text-gray-400"
+              }`}
+              title={isSaved ? "Remove from favorites" : "Save to favorites"}
             >
               <svg
                 className="w-5 h-5"
-                fill={isSaved ? 'currentColor' : 'none'}
+                fill={isSaved ? "currentColor" : "none"}
                 stroke="currentColor"
                 viewBox="0 0 24 24"
               >
@@ -108,9 +110,24 @@ export default function BusinessCard({ business }) {
             </div>
           )}
           <div className="flex items-center text-xs text-gray-400">
-            <svg className="w-3 h-3 mr-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+            <svg
+              className="w-3 h-3 mr-0.5"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth="2"
+                d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"
+              />
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth="2"
+                d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"
+              />
             </svg>
             <span className="truncate max-w-[150px]">{address}</span>
           </div>
@@ -125,9 +142,19 @@ export default function BusinessCard({ business }) {
             to={`/business/${business.id}`}
             className="inline-flex items-center text-amber-600 font-medium hover:text-amber-700 transition-colors text-sm"
           >
-            {t('business.details')}
-            <svg className="w-3.5 h-3.5 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5l7 7-7 7" />
+            {t("business.details")}
+            <svg
+              className="w-3.5 h-3.5 ml-1"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth="2"
+                d="M9 5l7 7-7 7"
+              />
             </svg>
           </Link>
 
@@ -135,10 +162,20 @@ export default function BusinessCard({ business }) {
             <button
               onClick={() => setShowShare(!showShare)}
               className="text-gray-400 hover:text-amber-500 transition-colors p-1"
-              title={t('social.share') || 'Share'}
+              title={t("social.share") || "Share"}
             >
-              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z" />
+              <svg
+                className="w-5 h-5"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth="2"
+                  d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z"
+                />
               </svg>
             </button>
 
@@ -146,25 +183,25 @@ export default function BusinessCard({ business }) {
             {showShare && (
               <div className="absolute bottom-full right-0 mb-2 bg-white rounded-xl shadow-lg p-1 z-10 border border-gray-100 min-w-[120px]">
                 <button
-                  onClick={() => handleShare('facebook')}
+                  onClick={() => handleShare("facebook")}
                   className="flex items-center gap-2 w-full px-3 py-1.5 text-sm text-gray-700 hover:bg-gray-50 rounded-lg transition"
                 >
                   <span className="text-blue-600">📘</span> Facebook
                 </button>
                 <button
-                  onClick={() => handleShare('whatsapp')}
+                  onClick={() => handleShare("whatsapp")}
                   className="flex items-center gap-2 w-full px-3 py-1.5 text-sm text-gray-700 hover:bg-gray-50 rounded-lg transition"
                 >
                   <span className="text-green-500">💬</span> WhatsApp
                 </button>
                 <button
-                  onClick={() => handleShare('twitter')}
+                  onClick={() => handleShare("twitter")}
                   className="flex items-center gap-2 w-full px-3 py-1.5 text-sm text-gray-700 hover:bg-gray-50 rounded-lg transition"
                 >
                   <span className="text-sky-500">🐦</span> Twitter
                 </button>
                 <button
-                  onClick={() => handleShare('telegram')}
+                  onClick={() => handleShare("telegram")}
                   className="flex items-center gap-2 w-full px-3 py-1.5 text-sm text-gray-700 hover:bg-gray-50 rounded-lg transition"
                 >
                   <span className="text-blue-400">✈️</span> Telegram
