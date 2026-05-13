@@ -9,6 +9,7 @@ export default function AdminLayout() {
     { path: '/admin/itineraries', label: t('admin.itineraries') },
     { path: '/admin/businesses', label: t('admin.businesses') },
     { path: '/admin/reviews', label: t('admin.reviews') },
+    { path: '/admin/events', label: t('admin.events') || 'Events' },
   ];
   return (
     <div className="container-custom">

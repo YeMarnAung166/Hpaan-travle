@@ -9,6 +9,7 @@
     "directory": "Directory",
     "favorites": "Favorites",
     "history": "History",
+    "events": "Events",
     "admin": "Admin",
     "login": "Login / Sign Up",
     "logout": "Logout",
@@ -152,5 +153,18 @@
     "previous": "Previous",
     "next": "Next",
     "page_of": "Page {current} of {total}"
+  },
+  "weather": {
+  "title": "Hpa‑An Weather",
+  "forecast": "3‑Day Forecast"
+  },
+  "events": {
+  "title": "Local Events & Festivals",
+  "subtitle": "Discover cultural celebrations and festivals in Hpa‑An",
+  "upcoming": "Upcoming Events",
+  "past": "Past Events",
+  "no_events": "No events found. Check back later!",
+  "upcoming_events": "Upcoming Events",
+  "view_all": "View all"
   }
 }

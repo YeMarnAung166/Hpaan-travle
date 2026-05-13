@@ -20,6 +20,7 @@ export default function Header({ onLoginClick, onLogoutClick }) {
     { to: "/", label: t("nav.itineraries") },
     { to: "/map", label: t("nav.map") },
     { to: "/business", label: t("nav.directory") },
+    { to: '/events', label: t('nav.events') },
     { to: "/history", label: t("nav.history") },
   ];
   if (user) {
