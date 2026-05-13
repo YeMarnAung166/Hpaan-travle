@@ -23,6 +23,7 @@ import HistoryPage from './pages/HistoryPage';
 import ScrollToTop from './components/ScrollToTop';
 import AdminEvents from './pages/admin/AdminEvents';
 import EventsPage from './pages/EventsPage';
+import TravelTipsPage from './pages/TravelTipsPage';
 
 function App() {
   const [user, setUser] = useState(null);
@@ -65,6 +66,7 @@ function App() {
                   <Route path="/business/:id" element={<BusinessDetail />} />
                   <Route path="/favorites" element={<Favorites />} />
                   <Route path="/events" element={<EventsPage />} />
+                  <Route path="/tips" element={<TravelTipsPage />} />
                   <Route
                     path="/admin"
                     element={

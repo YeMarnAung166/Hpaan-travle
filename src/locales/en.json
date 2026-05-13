@@ -11,6 +11,7 @@
     "history": "History",
     "events": "Events",
     "admin": "Admin",
+    "tips": "Travel Tips",
     "login": "Login / Sign Up",
     "logout": "Logout",
     "hi": "Hi"
@@ -166,5 +167,11 @@
   "no_events": "No events found. Check back later!",
   "upcoming_events": "Upcoming Events",
   "view_all": "View all"
-  }
+  },
+  "photos": {
+  "share_your_photos": "Share your photos",
+  "caption": "Caption (optional)",
+  "select_photo": "Select Photo",
+  "uploading": "Uploading..."
+}
 }
