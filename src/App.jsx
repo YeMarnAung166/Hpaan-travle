@@ -21,6 +21,8 @@ import AdminBusinesses from "./pages/admin/AdminBusinesses";
 import AdminReviews from "./pages/admin/AdminReviews";
 import HistoryPage from './pages/HistoryPage';
 import ScrollToTop from './components/ScrollToTop';
+import AdminEvents from './pages/admin/AdminEvents';
+import EventsPage from './pages/EventsPage';
 
 function App() {
   const [user, setUser] = useState(null);
@@ -62,6 +64,7 @@ function App() {
                   <Route path="/business" element={<BusinessList />} />
                   <Route path="/business/:id" element={<BusinessDetail />} />
                   <Route path="/favorites" element={<Favorites />} />
+                  <Route path="/events" element={<EventsPage />} />
                   <Route
                     path="/admin"
                     element={
@@ -74,6 +77,7 @@ function App() {
                     <Route path="itineraries" element={<AdminItineraries />} />
                     <Route path="businesses" element={<AdminBusinesses />} />
                     <Route path="reviews" element={<AdminReviews />} />
+                    <Route path="events" element={<AdminEvents />} />
                   </Route>
                 </Routes>
               </main>
