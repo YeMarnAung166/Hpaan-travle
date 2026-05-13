@@ -94,6 +94,7 @@ export default function AuthModal({ isOpen, onClose }) {
         >
           ✕
         </button>
+        
       </div>
     </div>
   );
