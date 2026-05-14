@@ -4,7 +4,7 @@ import imageCompression from 'browser-image-compression';
 import { useLanguage } from '../context/LanguageContext';
 import Button from './ui/Button';
 
-const BUCKET_NAME = 'Hpaan-Travel';
+const BUCKET_NAME = 'hpaan-assets';
 
 export default function ImageUploader({ folderPath, onUploadComplete, existingImageUrl = null }) {
   const { t } = useLanguage();
@@ -16,20 +16,30 @@ export default function ImageUploader({ folderPath, onUploadComplete, existingIm
   const fileInputRef = useRef();
 
   useEffect(() => {
-    return () => { if (preview?.startsWith('blob:')) URL.revokeObjectURL(preview); };
+    return () => {
+      if (preview?.startsWith('blob:')) URL.revokeObjectURL(preview);
+    };
   }, [preview]);
 
   const compressImage = async (file) => {
-    return await imageCompression(file, { maxSizeMB: 0.2, maxWidthOrHeight: 1024, useWebWorker: true, fileType: 'image/jpeg' });
+    const options = { maxSizeMB: 0.2, maxWidthOrHeight: 1024, useWebWorker: true, fileType: 'image/jpeg' };
+    return await imageCompression(file, options);
   };
 
   const handleFileChange = (e) => {
     const file = e.target.files[0];
     if (!file) return;
-    if (!['image/jpeg', 'image/png', 'image/webp'].includes(file.type)) return alert(t('image.invalid_type'));
-    if (file.size > 5 * 1024 * 1024) return alert(t('image.too_large'));
+    if (!['image/jpeg', 'image/png', 'image/webp'].includes(file.type)) {
+      alert(t('image.invalid_type'));
+      return;
+    }
+    if (file.size > 5 * 1024 * 1024) {
+      alert(t('image.too_large'));
+      return;
+    }
     if (preview?.startsWith('blob:')) URL.revokeObjectURL(preview);
-    setPreview(URL.createObjectURL(file));
+    const objectUrl = URL.createObjectURL(file);
+    setPreview(objectUrl);
     setSelectedFile(file);
     setError(null);
   };
@@ -44,15 +54,20 @@ export default function ImageUploader({ folderPath, onUploadComplete, existingIm
       const ext = compressed.type.split('/')[1];
       const fileName = `${Date.now()}-${Math.random().toString(36).substring(2, 10)}.${ext}`;
       const fullPath = `${folderPath}/${fileName}`;
-      const { error } = await supabase.storage.from(BUCKET_NAME).upload(fullPath, compressed, { cacheControl: '3600' });
-      if (error) throw error;
-      const { data: { publicUrl } } = supabase.storage.from(BUCKET_NAME).getPublicUrl(fullPath);
+      const { error: uploadError } = await supabase.storage
+        .from(BUCKET_NAME)
+        .upload(fullPath, compressed, { cacheControl: '3600' });
+      if (uploadError) throw uploadError;
+      const { data: { publicUrl } } = supabase.storage
+        .from(BUCKET_NAME)
+        .getPublicUrl(fullPath);
       if (preview?.startsWith('blob:')) URL.revokeObjectURL(preview);
       setPreview(publicUrl);
       setSelectedFile(null);
       if (fileInputRef.current) fileInputRef.current.value = '';
       onUploadComplete?.({ publicUrl, path: fullPath });
     } catch (err) {
+      console.error(err);
       setError(err.message);
     } finally {
       setUploading(false);
