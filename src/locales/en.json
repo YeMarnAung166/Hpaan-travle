@@ -1,24 +1,25 @@
 {
   "app": {
-    "name": "Hpa-An Travel",
-    "tagline": "Discover the beauty of Hpa-An, Myanmar"
+    "name": "Hpa‑An Travel",
+    "tagline": "Discover the beauty of Hpa‑An, Myanmar"
   },
   "nav": {
     "itineraries": "Itineraries",
     "map": "Map",
     "directory": "Directory",
     "favorites": "Favorites",
-    "history": "History",
-    "events": "Events",
     "admin": "Admin",
-    "tips": "Travel Tips",
-    "login": "Login / Sign Up",
+    "login": "Login",
     "logout": "Logout",
-    "hi": "Hi"
+    "hi": "Hi",
+    "events": "Events",
+    "tips": "Travel Tips",
+    "history": "History",
+    "profile": "Profile"
   },
   "home": {
     "title": "Travel Itineraries",
-    "subtitle": "Explore the best of Hpa-An"
+    "subtitle": "Explore the best of Hpa‑An"
   },
   "business": {
     "title": "Local Businesses",
@@ -30,9 +31,11 @@
     "details": "Details & Contact",
     "contact": "Contact",
     "phone": "Phone",
-    "whatsapp": "Contact via WhatsApp",
+    "whatsapp": "WhatsApp",
+    "request_booking": "Request Booking",
     "address": "Address",
-    "description": "Description"
+    "description": "Description",
+    "category": "Category"
   },
   "itinerary": {
     "view_details": "View Details",
@@ -97,14 +100,21 @@
     "dashboard": "Dashboard",
     "itineraries": "Itineraries",
     "businesses": "Businesses",
+    "inquiries": "Inquiries",
     "reviews": "Reviews",
+    "events": "Events",
     "add": "Add New",
     "edit": "Edit",
     "delete": "Delete",
-    "save": "Save",
-    "cancel": "Cancel",
+    "actions": "Actions",
+    "empty": "No data found.",
     "confirm_delete": "Are you sure you want to delete this item?",
     "loading": "Loading..."
+  },
+  "pagination": {
+    "previous": "Previous",
+    "next": "Next",
+    "page_of": "Page {current} of {total}"
   },
   "common": {
     "search": "Search...",
@@ -112,7 +122,26 @@
     "clear": "Clear All",
     "no_results": "No results found.",
     "error": "Something went wrong",
-    "loading": "Loading..."
+    "loading": "Loading...",
+    "save": "Save",
+    "saving": "Saving..."
+  },
+  "filters": {
+    "newest": "Newest First",
+    "oldest": "Oldest First",
+    "highest_rated": "Highest Rated",
+    "shortest": "Shortest First",
+    "longest": "Longest First",
+    "name_asc": "Name A-Z",
+    "name_desc": "Name Z-A",
+    "duration_label": "Duration",
+    "duration_any": "Any Duration",
+    "duration_1": "1 Day",
+    "duration_2": "2 Days",
+    "duration_3": "3 Days",
+    "duration_3plus": "3+ Days",
+    "min_rating_label": "Minimum Rating",
+    "stars": "stars"
   },
   "social": {
     "share": "Share:",
@@ -133,45 +162,30 @@
     "error": "Upload error",
     "remove": "Remove"
   },
-  "filters": {
-    "newest": "Newest First",
-    "oldest": "Oldest First",
-    "highest_rated": "Highest Rated",
-    "shortest": "Shortest First",
-    "longest": "Longest First",
-    "name_asc": "Name A-Z",
-    "name_desc": "Name Z-A",
-    "duration_label": "Duration",
-    "duration_any": "Any Duration",
-    "duration_1": "1 Day",
-    "duration_2": "2 Days",
-    "duration_3": "3 Days",
-    "duration_3plus": "3+ Days",
-    "min_rating_label": "Minimum Rating",
-    "stars": "stars"
-  },
-  "pagination": {
-    "previous": "Previous",
-    "next": "Next",
-    "page_of": "Page {current} of {total}"
-  },
   "weather": {
-  "title": "Hpa‑An Weather",
-  "forecast": "3‑Day Forecast"
+    "title": "Hpa‑An Weather",
+    "forecast": "3‑Day Forecast"
   },
   "events": {
-  "title": "Local Events & Festivals",
-  "subtitle": "Discover cultural celebrations and festivals in Hpa‑An",
-  "upcoming": "Upcoming Events",
-  "past": "Past Events",
-  "no_events": "No events found. Check back later!",
-  "upcoming_events": "Upcoming Events",
-  "view_all": "View all"
+    "title": "Local Events & Festivals",
+    "subtitle": "Discover cultural celebrations and festivals in Hpa‑An",
+    "upcoming": "Upcoming Events",
+    "past": "Past Events",
+    "no_events": "No events found. Check back later!",
+    "upcoming_events": "Upcoming Events",
+    "view_all": "View all"
   },
   "photos": {
-  "share_your_photos": "Share your photos",
-  "caption": "Caption (optional)",
-  "select_photo": "Select Photo",
-  "uploading": "Uploading..."
-}
+    "share_your_photos": "Share your photos",
+    "caption": "Caption (optional)",
+    "select_photo": "Select Photo",
+    "uploading": "Uploading..."
+  },
+  "profile": {
+    "title": "My Profile",
+    "display_name": "Display Name",
+    "bio": "Bio",
+    "my_photos": "My Photos",
+    "view_my_photos": "View all my photos"
+  }
 }
