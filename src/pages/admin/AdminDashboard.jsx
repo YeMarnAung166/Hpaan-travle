@@ -7,6 +7,7 @@ export default function AdminDashboard() {
   const [stats, setStats] = useState({
     itineraries: 0,
     businesses: 0,
+    events: 0,
     reviews: 0,
   });
   const [loading, setLoading] = useState(true);
@@ -14,15 +15,17 @@ export default function AdminDashboard() {
 
   useEffect(() => {
     const fetchStats = async () => {
-      const [itineraries, businesses, reviews] = await Promise.all([
+      const [itineraries, businesses, events, reviews] = await Promise.all([
         supabase.from('itineraries').select('*', { count: 'exact', head: true }),
         supabase.from('businesses').select('*', { count: 'exact', head: true }),
+        supabase.from('events').select('*', { count: 'exact', head: true }),
         supabase.from('business_reviews').select('*', { count: 'exact', head: true }),
       ]);
-      
+
       setStats({
         itineraries: itineraries.count || 0,
         businesses: businesses.count || 0,
+        events: events.count || 0,
         reviews: reviews.count || 0,
       });
       setLoading(false);
@@ -35,6 +38,7 @@ export default function AdminDashboard() {
   const statCards = [
     { title: t('admin.itineraries'), value: stats.itineraries, link: '/admin/itineraries', color: 'bg-blue-500' },
     { title: t('admin.businesses'), value: stats.businesses, link: '/admin/businesses', color: 'bg-green-500' },
+    { title: t('admin.events'), value: stats.events, link: '/admin/events', color: 'bg-yellow-500' },
     { title: t('admin.reviews'), value: stats.reviews, link: '/admin/reviews', color: 'bg-purple-500' },
   ];
 

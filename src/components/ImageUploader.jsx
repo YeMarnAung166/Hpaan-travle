@@ -88,14 +88,18 @@ export default function ImageUploader({ folderPath, onUploadComplete, existingIm
         {preview && (
           <div className="relative">
             <img src={preview} alt="Preview" className="w-32 h-32 object-cover rounded-lg border" />
-            <button onClick={handleRemove} className="absolute -top-2 -right-2 bg-error text-white rounded-full w-6 h-6 text-xs">✕</button>
+            <button type="button" onClick={handleRemove} className="absolute -top-2 -right-2 bg-error text-white rounded-full w-6 h-6 text-xs">✕</button>
           </div>
         )}
-        <Button variant="outline" onClick={() => fileInputRef.current.click()} disabled={uploading}>
+        <Button variant="outline" type="button" onClick={() => fileInputRef.current.click()} disabled={uploading}>
           {preview ? (t('image.change') || 'Change') : (t('image.select') || 'Select')}
         </Button>
         <input type="file" ref={fileInputRef} onChange={handleFileChange} accept="image/jpeg,image/png,image/webp" className="hidden" />
-        {selectedFile && !uploading && <Button variant="primary" onClick={handleUpload}>{t('image.upload') || 'Upload'}</Button>}
+        {selectedFile && !uploading && (
+          <Button variant="primary" type="button" onClick={handleUpload}>
+            {t('image.upload') || 'Upload'}
+          </Button>
+        )}
       </div>
       {(compressing || uploading) && <div className="text-sm text-text-soft">Uploading...</div>}
       {error && <div className="message-error text-sm">{error}</div>}

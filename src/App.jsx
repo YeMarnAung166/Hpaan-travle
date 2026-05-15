@@ -27,6 +27,7 @@ import AdminItineraries from './pages/admin/AdminItineraries';
 import AdminBusinesses from './pages/admin/AdminBusinesses';
 import AdminEvents from './pages/admin/AdminEvents';
 import AdminReviews from './pages/admin/AdminReviews';
+import AdminUserPhotos from './pages/admin/AdminUserPhotos';
 
 function App() {
   const [user, setUser] = useState(null);
@@ -77,6 +78,7 @@ function App() {
                       <Route path="businesses" element={<AdminBusinesses />} />
                       <Route path="events" element={<AdminEvents />} />
                       <Route path="reviews" element={<AdminReviews />} />
+                      <Route path="user-photos" element={<AdminUserPhotos />} />
                     </Route>
                   </Routes>
                 </main>

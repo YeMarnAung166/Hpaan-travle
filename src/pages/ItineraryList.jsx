@@ -84,11 +84,11 @@ export default function ItineraryList() {
 
   return (
     <div className="container-custom">
-      <h1 className="page-title">Upcomming Events</h1>
+      <h1 className="page-title">{t("home.upcoming_events")}</h1>
       <div className="mb-8">
         <UpcomingEventsWidget />
       </div>
-      <h1 className="page-title">Weather</h1>
+      <h1 className="page-title">{t("home.weather")}</h1>
       <div className="mb-8">
         <WeatherWidget />
       </div>
