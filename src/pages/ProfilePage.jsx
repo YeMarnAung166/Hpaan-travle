@@ -6,25 +6,36 @@ import AvatarUpload from '../components/AvatarUpload';
 import Button from '../components/ui/Button';
 import Input from '../components/ui/Input';
 import { Link } from 'react-router-dom';
+import { supabase } from '../supabaseClient';
 
 export default function ProfilePage() {
   const user = useUser();
   const { t } = useLanguage();
   const { profile, loading, updateProfile, refresh } = useProfileContext();
-
-  // Local state for form fields – initialised from profile when it loads
   const [displayName, setDisplayName] = useState('');
   const [bio, setBio] = useState('');
   const [saving, setSaving] = useState(false);
   const [message, setMessage] = useState('');
+  const [photoCount, setPhotoCount] = useState(0);
 
-  // Populate local state only when profile loads (and not on every render)
   useEffect(() => {
     if (profile) {
       setDisplayName(profile.display_name || '');
       setBio(profile.bio || '');
     }
-  }, [profile]); // Only runs when profile object changes (stable now)
+  }, [profile]);
+
+  useEffect(() => {
+    const fetchPhotoCount = async () => {
+      if (!user) return;
+      const { count, error } = await supabase
+        .from('user_photos')
+        .select('*', { count: 'exact', head: true })
+        .eq('user_id', user.id);
+      if (!error) setPhotoCount(count || 0);
+    };
+    fetchPhotoCount();
+  }, [user]);
 
   if (!user) {
     return (
@@ -42,7 +53,6 @@ export default function ProfilePage() {
     setMessage(success ? 'Profile updated!' : 'Update failed');
     setSaving(false);
     setTimeout(() => setMessage(''), 3000);
-    if (success) refresh(); // refresh context to ensure consistency (optional)
   };
 
   const handleAvatarUpload = async (url) => {
@@ -51,37 +61,57 @@ export default function ProfilePage() {
   };
 
   return (
-    <div className="container-custom max-w-2xl">
+    <div className="container-custom max-w-5xl">
       <h1 className="page-title">{t('profile.title') || 'My Profile'}</h1>
-      <div className="bg-white rounded-xl shadow-md p-6 space-y-6">
-        <AvatarUpload avatarUrl={profile?.avatar_url} onUpload={handleAvatarUpload} />
-        <Input
-          label={t('profile.display_name') || 'Display Name'}
-          value={displayName}
-          onChange={(e) => setDisplayName(e.target.value)}
-          placeholder="How you want to be seen"
-        />
-        <div className="mb-4">
-          <label className="block text-sm font-medium text-text mb-1">{t('profile.bio') || 'Bio'}</label>
-          <textarea
-            value={bio}
-            onChange={(e) => setBio(e.target.value)}
-            rows="4"
-            className="w-full border border-neutral-mid rounded-lg px-3 py-2 focus:ring-2 focus:ring-primary/50"
-            placeholder="Tell others about yourself"
-          />
-        </div>
-        <Button variant="primary" onClick={handleSave} disabled={saving} className="w-full md:w-auto">
-          {saving ? t('common.saving') || 'Saving...' : t('common.save') || 'Save Changes'}
-        </Button>
-        {message && <p className="text-success text-sm">{message}</p>}
-      </div>
+      <div className="bg-white rounded-xl shadow-md overflow-hidden">
+        <div className="flex flex-col md:flex-row">
+          {/* Sidebar with avatar */}
+          <div className="md:w-64 bg-neutral-light p-6 flex flex-col items-center border-b md:border-b-0 md:border-r border-neutral-mid">
+            <AvatarUpload avatarUrl={profile?.avatar_url} onUpload={handleAvatarUpload} />
+            <div className="mt-4 text-center">
+              <p className="text-text-soft text-sm">
+                {t('profile.member_since') || 'Member since'}{' '}
+                {new Date(user.created_at).toLocaleDateString()}
+              </p>
+              <div className="mt-3 pt-3 border-t border-neutral-mid">
+                <Link
+                  to={`/user-photos/${user.id}`}
+                  className="text-primary hover:underline text-sm"
+                >
+                  {t('profile.view_my_photos')} ({photoCount})
+                </Link>
+              </div>
+            </div>
+          </div>
 
-      <div className="mt-12">
-        <h2 className="text-2xl font-serif font-semibold mb-4">{t('profile.my_photos') || 'My Photos'}</h2>
-        <Link to={`/user-photos/${user.id}`} className="btn btn-secondary">
-          {t('profile.view_my_photos') || 'View all my photos'}
-        </Link>
+          {/* Main form */}
+          <div className="flex-1 p-6">
+            <Input
+              label={t('profile.display_name') || 'Display Name'}
+              value={displayName}
+              onChange={(e) => setDisplayName(e.target.value)}
+              placeholder="How you want to be seen"
+            />
+            <div className="mb-4">
+              <label className="block text-sm font-medium text-text mb-1">
+                {t('profile.bio') || 'Bio'}
+              </label>
+              <textarea
+                value={bio}
+                onChange={(e) => setBio(e.target.value)}
+                rows="4"
+                className="w-full border border-neutral-mid rounded-lg px-3 py-2 focus:ring-2 focus:ring-primary/50"
+                placeholder="Tell others about yourself"
+              />
+            </div>
+            <div className="flex justify-end">
+              <Button variant="primary" onClick={handleSave} disabled={saving}>
+                {saving ? t('common.saving') || 'Saving...' : t('common.save') || 'Save Changes'}
+              </Button>
+            </div>
+            {message && <p className="text-success text-sm mt-2">{message}</p>}
+          </div>
+        </div>
       </div>
     </div>
   );

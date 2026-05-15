@@ -29,31 +29,11 @@ export default function AdminReviews() {
   };
 
   const columns = [
-    {
-      key: 'created_at',
-      label: 'Date',
-      render: (value) => new Date(value).toLocaleDateString(),
-    },
-    {
-      key: 'businesses',
-      label: 'Business',
-      render: (_, item) => item.businesses?.name || 'Unknown',
-    },
+    { key: 'created_at', label: 'Date', render: (val) => new Date(val).toLocaleDateString() },
+    { key: 'businesses', label: 'Business', render: (_, item) => item.businesses?.name || 'Unknown' },
     { key: 'user_email', label: 'User' },
-    {
-      key: 'rating',
-      label: 'Rating',
-      render: (value) => '★'.repeat(value) + '☆'.repeat(5 - value),
-    },
-    {
-      key: 'comment',
-      label: 'Comment',
-      render: (value) => (
-        <div className="max-w-xs truncate" title={value}>
-          {value || '—'}
-        </div>
-      ),
-    },
+    { key: 'rating', label: 'Rating', render: (val) => '★'.repeat(val) + '☆'.repeat(5 - val) },
+    { key: 'comment', label: 'Comment', render: (val) => <div className="max-w-xs truncate">{val || '—'}</div> },
   ];
 
   if (loading) return <div className="spinner mx-auto"></div>;
@@ -67,7 +47,6 @@ export default function AdminReviews() {
       onEdit={() => alert('Reviews cannot be edited')}
       onDelete={handleDelete}
       addButtonLabel="+ Add (Not Available)"
-      searchPlaceholder={t('common.search')}
     />
   );
 }

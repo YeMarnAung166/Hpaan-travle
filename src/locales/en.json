@@ -15,11 +15,14 @@
     "events": "Events",
     "tips": "Travel Tips",
     "history": "History",
-    "profile": "Profile"
+    "profile": "Profile",
+    "back": "back"
   },
   "home": {
     "title": "Travel Itineraries",
-    "subtitle": "Explore the best of Hpa‑An"
+    "subtitle": "Explore the best of Hpa‑An",
+    "upcoming_events": "Upcoming Events",
+    "weather": "Weather"
   },
   "business": {
     "title": "Local Businesses",
@@ -109,7 +112,12 @@
     "actions": "Actions",
     "empty": "No data found.",
     "confirm_delete": "Are you sure you want to delete this item?",
-    "loading": "Loading..."
+    "loading": "Loading...",
+    "user_photos": "User Photos (Moderate)",
+    "moderate_photos": "Moderate User Photos",
+    "no_pending": "No pending photos.",
+    "approve": "Approve",
+    "user": "User"
   },
   "pagination": {
     "previous": "Previous",
@@ -179,13 +187,19 @@
     "share_your_photos": "Share your photos",
     "caption": "Caption (optional)",
     "select_photo": "Select Photo",
-    "uploading": "Uploading..."
+    "uploading": "Uploading...",
+    "no_photos": "No photos yet.",
+    "back_to_profile": "Back to Profile",
+    "delete_photo": "Delete Photo",
+    "confirm_delete": "Are you sure you want to delete this photo?",
+    "failed_delete": "Failed to delete photo"
   },
   "profile": {
     "title": "My Profile",
     "display_name": "Display Name",
     "bio": "Bio",
     "my_photos": "My Photos",
-    "view_my_photos": "View all my photos"
+    "member_since": "Member since",
+    "view_my_photos": "View my photos"
   }
 }
