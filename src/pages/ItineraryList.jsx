@@ -40,21 +40,30 @@ export default function ItineraryList() {
 
   const applyFiltersAndSearch = () => {
     let results = [...itineraries];
+    
+    // 🔍 Search in both English and Burmese fields
     if (searchTerm) {
+      const term = searchTerm.toLowerCase();
       results = results.filter(
         (i) =>
-          i.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-          i.description.toLowerCase().includes(searchTerm.toLowerCase()),
+          i.title.toLowerCase().includes(term) ||
+          (i.title_my && i.title_my.toLowerCase().includes(term)) ||
+          i.description.toLowerCase().includes(term) ||
+          (i.description_my && i.description_my.toLowerCase().includes(term))
       );
     }
+    
+    // Duration filter
     if (filters.duration && filters.duration !== "all") {
       if (filters.duration === "3+")
         results = results.filter((i) => getDurationDays(i.duration) >= 3);
       else
         results = results.filter(
-          (i) => getDurationDays(i.duration) === parseInt(filters.duration),
+          (i) => getDurationDays(i.duration) === parseInt(filters.duration)
         );
     }
+    
+    // Sorting
     const sorts = {
       newest: (a, b) => b.id - a.id,
       oldest: (a, b) => a.id - b.id,

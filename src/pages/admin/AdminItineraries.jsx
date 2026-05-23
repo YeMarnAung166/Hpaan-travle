@@ -21,9 +21,11 @@ export default function AdminItineraries() {
     image: '',
     days: [],
     days_my: [],
+    waypoints: [],
   });
   const [daysJson, setDaysJson] = useState('');
   const [daysMyJson, setDaysMyJson] = useState('');
+  const [waypointsJson, setWaypointsJson] = useState('');
 
   useEffect(() => { fetchItineraries(); }, []);
 
@@ -56,19 +58,29 @@ export default function AdminItineraries() {
     } catch (err) {}
   };
 
+  const handleWaypointsChange = (e) => {
+    setWaypointsJson(e.target.value);
+    try {
+      const waypoints = JSON.parse(e.target.value);
+      setFormData({ ...formData, waypoints });
+    } catch (err) {}
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setSubmitting(true);
+    const submitData = { ...formData };
     if (editingItem) {
-      await supabase.from('itineraries').update(formData).eq('id', editingItem.id);
+      await supabase.from('itineraries').update(submitData).eq('id', editingItem.id);
     } else {
-      await supabase.from('itineraries').insert([formData]);
+      await supabase.from('itineraries').insert([submitData]);
     }
     setModalOpen(false);
     setEditingItem(null);
-    setFormData({ title: '', title_my: '', duration: '', description: '', description_my: '', image: '', days: [], days_my: [] });
+    setFormData({ title: '', title_my: '', duration: '', description: '', description_my: '', image: '', days: [], days_my: [], waypoints: [] });
     setDaysJson('');
     setDaysMyJson('');
+    setWaypointsJson('');
     fetchItineraries();
     setSubmitting(false);
   };
@@ -84,9 +96,11 @@ export default function AdminItineraries() {
       image: item.image || '',
       days: item.days || [],
       days_my: item.days_my || [],
+      waypoints: item.waypoints || [],
     });
     setDaysJson(JSON.stringify(item.days || [], null, 2));
     setDaysMyJson(JSON.stringify(item.days_my || [], null, 2));
+    setWaypointsJson(JSON.stringify(item.waypoints || [], null, 2));
     setModalOpen(true);
   };
 
@@ -116,6 +130,7 @@ export default function AdminItineraries() {
         onEdit={handleEdit}
         onDelete={handleDelete}
       />
+
       <FormModal
         isOpen={modalOpen}
         onClose={() => { setModalOpen(false); setEditingItem(null); }}
@@ -132,6 +147,7 @@ export default function AdminItineraries() {
           <label className="block text-sm font-medium mb-1">Days (JSON - English)</label>
           <textarea placeholder='[{"day":1,"activities":["Activity 1","Activity 2"]}]' value={daysJson} onChange={handleDaysChange} rows="6" className="w-full border rounded px-3 py-2 font-mono text-sm" required />
         </div>
+
         {/* Burmese Fields */}
         <div className="border-b pb-3 mb-3">
           <h3 className="font-semibold mb-2">မြန်မာ (Burmese)</h3>
@@ -140,9 +156,18 @@ export default function AdminItineraries() {
           <label className="block text-sm font-medium mb-1">နေ့စဉ်လုပ်ဆောင်မှုများ (မြန်မာ) - JSON</label>
           <textarea placeholder='[{"day":1,"activities":["လုပ်ဆောင်ချက် ၁","လုပ်ဆောင်ချက် ၂"]}]' value={daysMyJson} onChange={handleDaysMyChange} rows="6" className="w-full border rounded px-3 py-2 font-mono text-sm" />
         </div>
-        {/* Media */}
+
+        {/* Waypoints & Media */}
         <div>
-          <h3 className="font-semibold mb-2">Media</h3>
+          <h3 className="font-semibold mb-2">Route (Waypoints) & Media</h3>
+          <label className="block text-sm font-medium mb-1">Waypoints (JSON – lat/lng array)</label>
+          <textarea
+            placeholder='[{"lat":16.881,"lng":97.673},{"lat":16.868,"lng":97.700}]'
+            value={waypointsJson}
+            onChange={handleWaypointsChange}
+            rows="4"
+            className="w-full border rounded px-3 py-2 font-mono text-sm mb-3"
+          />
           <ImageUploader
             folderPath={`itineraries/${editingItem?.id || 'temp'}`}
             existingImageUrl={formData.image}
