@@ -11,6 +11,8 @@ import BusinessReviews from '../components/BusinessReviews';
 import SocialShare from '../components/SocialShare';
 import Button from '../components/ui/Button';
 import LocationControl from '../components/LocationControl';
+import UserPhotoUpload from '../components/UserPhotoUpload';
+import UserPhotoGallery from '../components/UserPhotoGallery';
 
 // Fix Leaflet default marker icons
 delete L.Icon.Default.prototype._getIconUrl;
@@ -89,7 +91,7 @@ export default function BusinessDetail() {
 
   return (
     <div className="bg-neutral-light min-h-screen">
-      {/* Hero section (unchanged) */}
+      {/* Hero Section */}
       <div className="relative h-[40vh] sm:h-[50vh] overflow-hidden">
         <img src={business.image} alt={name} className="w-full h-full object-cover" />
         <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/30 to-transparent" />
@@ -112,10 +114,10 @@ export default function BusinessDetail() {
         </div>
       </div>
 
-      {/* Main content */}
+      {/* Main Content Area */}
       <div className="container mx-auto px-4 py-8 lg:py-12">
         <div className="flex flex-col lg:flex-row gap-8">
-          {/* Left column */}
+          {/* Left Column – Business Information */}
           <div className="flex-1">
             <h1 className="text-3xl lg:text-4xl font-serif font-bold text-text mb-2">{name}</h1>
             <div className="flex items-center gap-2 text-text-soft mb-4">
@@ -129,7 +131,11 @@ export default function BusinessDetail() {
               <p className="text-text-soft leading-relaxed">{description}</p>
             </div>
 
-            {/* Embedded map with location button */}
+            {/* User Photos (Upload & Gallery) */}
+            <UserPhotoUpload businessId={business.id} onUploadComplete={() => window.location.reload()} />
+            <UserPhotoGallery businessId={business.id} />
+
+            {/* Embedded Map */}
             {hasCoordinates && (
               <div className="mt-6 mb-6">
                 <h3 className="text-xl font-semibold text-text mb-3">
@@ -152,7 +158,6 @@ export default function BusinessDetail() {
                     <LocationControl />
                   </MapContainer>
                 </div>
-                {/* Directions button */}
                 <button
                   onClick={handleGetDirections}
                   className="btn btn-secondary mt-3 inline-flex items-center gap-1"
@@ -165,29 +170,45 @@ export default function BusinessDetail() {
               </div>
             )}
 
+            {/* Reviews */}
             <BusinessReviews businessId={business.id} />
           </div>
 
-          {/* Right sticky sidebar (unchanged) */}
+          {/* Right Column – Sticky Contact & Share */}
           <div className="lg:w-80">
             <div className="sticky top-24 space-y-6">
               <div className="bg-white rounded-2xl shadow-lg p-6 border border-neutral-mid">
                 <h3 className="font-semibold text-text mb-4">Contact & booking</h3>
                 <div className="space-y-3">
-                  <a href={`tel:${business.phone}`} className="flex justify-between p-3 bg-neutral-light rounded-xl hover:bg-neutral-mid transition">
+                  <a
+                    href={`tel:${business.phone}`}
+                    className="flex justify-between p-3 bg-neutral-light rounded-xl hover:bg-neutral-mid transition"
+                  >
                     <span className="text-text">{business.phone}</span>
                     <svg className="w-5 h-5 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
                     </svg>
                   </a>
-                  <a href={`https://wa.me/${business.phone.replace(/[^0-9]/g, '')}`} target="_blank" rel="noopener noreferrer" className="flex justify-center">
-                    <Button variant="primary" size="md" className="w-full">WhatsApp</Button>
+                  <a
+                    href={`https://wa.me/${business.phone.replace(/[^0-9]/g, '')}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="flex justify-center"
+                  >
+                    <Button variant="primary" size="md" className="w-full">
+                      WhatsApp
+                    </Button>
                   </a>
                 </div>
               </div>
               <div className="bg-white rounded-2xl shadow-lg p-6 border border-neutral-mid">
                 <h3 className="font-semibold text-text mb-3">Share</h3>
-                <SocialShare title={name} url={window.location.href} description={description} image={business.image} />
+                <SocialShare
+                  title={name}
+                  url={window.location.href}
+                  description={description}
+                  image={business.image}
+                />
               </div>
             </div>
           </div>

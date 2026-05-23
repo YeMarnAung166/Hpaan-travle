@@ -1,4 +1,4 @@
-import { createContext, useContext, useEffect, useState, useCallback, useRef } from 'react';
+import { createContext, useContext, useEffect, useState, useCallback } from 'react';
 import { supabase } from '../supabaseClient';
 import { useUser } from './UserContext';
 
@@ -10,16 +10,13 @@ export const ProfileProvider = ({ children }) => {
   const user = useUser();
   const [profile, setProfile] = useState(null);
   const [loading, setLoading] = useState(true);
-  const fetchingRef = useRef(false);
 
-  const fetchProfile = useCallback(async (force = false) => {
+  const fetchProfile = useCallback(async () => {
     if (!user) {
       setProfile(null);
       setLoading(false);
       return;
     }
-    if (fetchingRef.current && !force) return;
-    fetchingRef.current = true;
     setLoading(true);
     const { data, error } = await supabase
       .from('profiles')
@@ -46,14 +43,9 @@ export const ProfileProvider = ({ children }) => {
         setProfile(defaultProfile);
       }
     } else {
-      // Compare with current profile to avoid unnecessary updates
-      setProfile(prev => {
-        if (prev && JSON.stringify(prev) === JSON.stringify(data)) return prev;
-        return data;
-      });
+      setProfile(data);
     }
     setLoading(false);
-    fetchingRef.current = false;
   }, [user]);
 
   useEffect(() => {
@@ -74,7 +66,7 @@ export const ProfileProvider = ({ children }) => {
   }, [user]);
 
   const refresh = useCallback(() => {
-    fetchProfile(true);
+    fetchProfile();
   }, [fetchProfile]);
 
   return (
