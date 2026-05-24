@@ -39,6 +39,25 @@ const attractionIcon = new L.Icon({
   shadowSize: [41, 41],
 });
 
+// Red teardrop icon for user location (same as LocationControl)
+const userIcon = L.divIcon({
+  html: `
+    <svg width="32" height="32" viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <filter id="shadow" x="-20%" y="-20%" width="140%" height="140%">
+          <feDropShadow dx="1" dy="2" stdDeviation="2" flood-opacity="0.3"/>
+        </filter>
+      </defs>
+      <path d="M16 2 C10 2 5 7 5 13 C5 21 15 29 16 30 C17 29 27 21 27 13 C27 7 22 2 16 2 Z" fill="#E53935" filter="url(#shadow)"/>
+      <circle cx="16" cy="13" r="4" fill="white"/>
+    </svg>
+  `,
+  iconSize: [32, 32],
+  iconAnchor: [16, 32],
+  popupAnchor: [0, -20],
+  className: 'user-location-marker',
+});
+
 // Component for search box
 function GeocoderControl({ onPlaceSelected }) {
   const map = useMap();
@@ -64,16 +83,16 @@ export default function MapPage() {
   const [routeEnd, setRouteEnd] = useState(null);
   const [routingActive, setRoutingActive] = useState(false);
   const [searchParams] = useSearchParams();
+  const [userLocation, setUserLocation] = useState(null);
+  const [mapInstance, setMapInstance] = useState(null);
 
   useEffect(() => {
     const fetchData = async () => {
-      // Fetch businesses with lat/lng
       const { data: bizData } = await supabase
         .from('businesses')
         .select('id, name, name_my, description, description_my, lat, lng, category, image');
       if (bizData) setBusinesses(bizData.filter(b => b.lat && b.lng));
 
-      // Static attractions (or fetch from a table)
       setAttractions([
         { id: 1, name: 'Saddan Cave', lat: 16.881, lng: 97.673, description: 'Large cave with hidden pagoda.' },
         { id: 2, name: 'Mount Zwegabin', lat: 16.868, lng: 97.700, description: 'Famous mountain with panoramic views.' },
@@ -84,7 +103,26 @@ export default function MapPage() {
     fetchData();
   }, []);
 
-  // Parse URL params for directions (e.g., ?start=lat,lng&end=lat,lng)
+  // Automatically get user location when map loads
+  useEffect(() => {
+    if (!mapInstance) return;
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(
+        (position) => {
+          const { latitude, longitude } = position.coords;
+          setUserLocation({ lat: latitude, lng: longitude });
+          mapInstance.flyTo([latitude, longitude], 13);
+          // Add marker manually (will be rendered via state)
+        },
+        (error) => {
+          console.warn('Geolocation error:', error);
+          // Silently fail, no marker
+        }
+      );
+    }
+  }, [mapInstance]);
+
+  // Parse URL params for directions
   useEffect(() => {
     const startParam = searchParams.get('start');
     const endParam = searchParams.get('end');
@@ -98,11 +136,11 @@ export default function MapPage() {
   }, [searchParams]);
 
   const startRouting = (endCoords) => {
-    if (!window.userLocation) {
-      alert('Please click the location button first to get your position.');
+    if (!userLocation) {
+      alert('Please allow location access or click the location button first.');
       return;
     }
-    setRouteStart(window.userLocation);
+    setRouteStart(userLocation);
     setRouteEnd(endCoords);
     setRoutingActive(true);
   };
@@ -127,14 +165,13 @@ export default function MapPage() {
         zoom={12}
         style={{ height: '100%', width: '100%' }}
         className="z-0"
+        ref={setMapInstance}
       >
-        {/* Base street map layer */}
         <TileLayer
           attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OSM</a>'
           url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
         />
 
-        {/* Marker cluster group with tooltips */}
         <MarkerClusterGroup chunkedLoading>
           {allMarkers.map((marker) => (
             <Marker
@@ -142,12 +179,9 @@ export default function MapPage() {
               position={[marker.lat, marker.lng]}
               icon={marker.icon}
             >
-              {/* Tooltip showing the name on hover */}
               <Tooltip direction="top" offset={[0, -20]} opacity={0.9} sticky>
                 <strong>{marker.name}</strong>
               </Tooltip>
-
-              {/* Popup with details and actions */}
               <Popup>
                 <div className="text-center min-w-[200px]">
                   <strong>{marker.name}</strong>
@@ -179,18 +213,23 @@ export default function MapPage() {
           ))}
         </MarkerClusterGroup>
 
-        {/* Routing machine for directions */}
+        {/* User location marker */}
+        {userLocation && (
+          <Marker position={[userLocation.lat, userLocation.lng]} icon={userIcon}>
+            <Popup>You are here</Popup>
+          </Marker>
+        )}
+
         {routingActive && routeStart && routeEnd && (
           <RouteControl start={routeStart} end={routeEnd} onClose={clearRouting} />
         )}
 
-        {/* Search box */}
         <GeocoderControl />
+        <LocationControl onLocationFound={(loc) => {
+          setUserLocation(loc);
+          mapInstance?.flyTo([loc.lat, loc.lng], 15);
+        }} />
 
-        {/* Location button (red teardrop) */}
-        <LocationControl />
-
-        {/* Clear route button */}
         {routingActive && (
           <div className="leaflet-control leaflet-bar" style={{ position: 'absolute', bottom: 20, right: 20, zIndex: 1000 }}>
             <button

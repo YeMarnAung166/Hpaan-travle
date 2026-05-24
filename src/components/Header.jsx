@@ -23,7 +23,7 @@ export default function Header({ onLoginClick, onLogoutClick }) {
   }, [user, refresh]);
 
   const navLinks = [
-    { to: '/', label: t('nav.itineraries') },
+    { to: '/', label: t('nav.destinations') }, 
     { to: '/map', label: t('nav.map') },
     { to: '/business', label: t('nav.directory') },
     { to: '/events', label: t('nav.events') },

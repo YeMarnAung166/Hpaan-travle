@@ -6,7 +6,7 @@ export default function AdminLayout() {
   const { t } = useLanguage();
   const navItems = [
     { path: "/admin", label: t("admin.dashboard") },
-    { path: "/admin/itineraries", label: t("admin.itineraries") },
+    { path: '/admin/destinations', label: t('admin.destinations') || 'Destinations' },
     { path: "/admin/businesses", label: t("admin.businesses") },
     { path: "/admin/events", label: t("admin.events") },
     { path: "/admin/reviews", label: t("admin.reviews") },

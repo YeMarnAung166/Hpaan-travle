@@ -1,9 +1,10 @@
+// src/components/UserPhotoGallery.jsx
 import { useEffect, useState } from 'react';
 import { supabase } from '../supabaseClient';
 import { useUser } from '../context/UserContext';
 import { useLanguage } from '../context/LanguageContext';
 
-export default function UserPhotoGallery({ businessId, itineraryId }) {
+export default function UserPhotoGallery({ businessId, itineraryId, destinationId }) {
   const [photos, setPhotos] = useState([]);
   const [loading, setLoading] = useState(true);
   const [selectedPhoto, setSelectedPhoto] = useState(null);
@@ -12,7 +13,7 @@ export default function UserPhotoGallery({ businessId, itineraryId }) {
 
   useEffect(() => {
     fetchPhotos();
-  }, [businessId, itineraryId]);
+  }, [businessId, itineraryId, destinationId]);
 
   const fetchPhotos = async () => {
     setLoading(true);
@@ -23,6 +24,7 @@ export default function UserPhotoGallery({ businessId, itineraryId }) {
 
     if (businessId) query = query.eq('business_id', businessId);
     else if (itineraryId) query = query.eq('itinerary_id', itineraryId);
+    else if (destinationId) query = query.eq('destination_id', destinationId);
     else {
       setPhotos([]);
       setLoading(false);
@@ -33,7 +35,6 @@ export default function UserPhotoGallery({ businessId, itineraryId }) {
     if (error) {
       console.error('Error fetching user photos:', error);
     } else if (data && data.length > 0) {
-      // Fetch profiles for these users separately
       const userIds = [...new Set(data.map(p => p.user_id))];
       const { data: profiles, error: profilesError } = await supabase
         .from('profiles')
@@ -44,7 +45,6 @@ export default function UserPhotoGallery({ businessId, itineraryId }) {
       } else {
         const profilesMap = {};
         profiles.forEach(p => { profilesMap[p.id] = p; });
-        // Attach profile to each photo
         const photosWithProfiles = data.map(photo => ({
           ...photo,
           profile: profilesMap[photo.user_id] || null

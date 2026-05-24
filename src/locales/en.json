@@ -4,7 +4,7 @@
     "tagline": "Discover the beauty of Hpa‑An, Myanmar"
   },
   "nav": {
-    "itineraries": "Itineraries",
+    "destinations": "Destinations",
     "map": "Map",
     "directory": "Directory",
     "favorites": "Favorites",
@@ -18,8 +18,14 @@
     "profile": "Profile",
     "back": "back"
   },
+  "destinations": {
+    "title": "Places to Visit",
+    "subtitle": "Discover the best attractions in Hpa‑An",
+    "view_details": "View Details",
+    "back": "Back to destinations",
+    "not_found": "Destination not found"
+  },
   "home": {
-    "title": "Travel Itineraries",
     "subtitle": "Explore the best of Hpa‑An",
     "upcoming_events": "Upcoming Events",
     "weather": "Weather"
@@ -40,17 +46,9 @@
     "description": "Description",
     "category": "Category"
   },
-  "itinerary": {
-    "view_details": "View Details",
-    "duration": "Duration",
-    "day": "Day",
-    "days": "Days",
-    "back": "Back to itineraries",
-    "not_found": "Itinerary not found"
-  },
   "favorites": {
+    "destinations": "Destinations",
     "title": "My Favorites",
-    "itineraries": "Itineraries",
     "businesses": "Businesses",
     "empty": "You haven't saved any favorites yet.",
     "login_required": "Please log in to see your favorites"
@@ -101,7 +99,7 @@
   "admin": {
     "title": "Admin Panel",
     "dashboard": "Dashboard",
-    "itineraries": "Itineraries",
+    "destinations": "Destinations",
     "businesses": "Businesses",
     "inquiries": "Inquiries",
     "reviews": "Reviews",

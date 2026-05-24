@@ -2,13 +2,13 @@ import { useEffect, useState } from 'react';
 import { supabase } from '../supabaseClient';
 import { useUser } from '../context/UserContext';
 import { useLanguage } from '../context/LanguageContext';
-import ItineraryCard from '../components/ItineraryCard';
 import BusinessCard from '../components/BusinessCard';
+import DestinationCard from '../components/DestinationCard';
 
 export default function Favorites() {
   const user = useUser();
   const { t } = useLanguage();
-  const [favorites, setFavorites] = useState({ itineraries: [], businesses: [] });
+  const [favorites, setFavorites] = useState({ destinations: [], businesses: [] });
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -28,17 +28,17 @@ export default function Favorites() {
         return;
       }
 
-      const itinIds = favData.filter(f => f.item_type === 'itinerary').map(f => f.item_id);
+      const destIds = favData.filter(f => f.item_type === 'destination').map(f => f.item_id);
       const bizIds = favData.filter(f => f.item_type === 'business').map(f => f.item_id);
 
-      let itineraries = [];
+      let destinations = [];
       let businesses = [];
-      if (itinIds.length) {
-        const { data: itinData } = await supabase
-          .from('itineraries')
+      if (destIds.length) {
+        const { data: destData } = await supabase
+          .from('destinations')
           .select('*')
-          .in('id', itinIds);
-        if (itinData) itineraries = itinData;
+          .in('id', destIds);
+        if (destData) destinations = destData;
       }
       if (bizIds.length) {
         const { data: bizData } = await supabase
@@ -48,7 +48,7 @@ export default function Favorites() {
         if (bizData) businesses = bizData;
       }
 
-      setFavorites({ itineraries, businesses });
+      setFavorites({ destinations, businesses });
       setLoading(false);
     };
     fetchFavorites();
@@ -74,13 +74,13 @@ export default function Favorites() {
     <div className="container-custom">
       <h1 className="page-title">{t('favorites.title')}</h1>
 
-      <h2 className="section-title">{t('favorites.itineraries')}</h2>
-      {favorites.itineraries.length === 0 ? (
+      <h2 className="section-title">{t('favorites.destinations')}</h2>
+      {favorites.destinations.length === 0 ? (
         <p className="text-text-soft">{t('favorites.empty')}</p>
       ) : (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 mb-8">
-          {favorites.itineraries.map(it => (
-            <ItineraryCard key={it.id} itinerary={it} />
+          {favorites.destinations.map(dest => (
+            <DestinationCard key={dest.id} destination={dest} />
           ))}
         </div>
       )}

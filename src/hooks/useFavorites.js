@@ -1,12 +1,13 @@
+// src/hooks/useFavorites.js
 import { useState, useEffect } from 'react';
 import { supabase } from '../supabaseClient';
 
 export function useFavorites(userId) {
-  const [favorites, setFavorites] = useState({ itineraries: new Set(), businesses: new Set() });
+  const [favorites, setFavorites] = useState({ businesses: new Set(), destinations: new Set() });
 
   useEffect(() => {
     if (!userId) {
-      setFavorites({ itineraries: new Set(), businesses: new Set() });
+      setFavorites({ businesses: new Set(), destinations: new Set() });
       return;
     }
 
@@ -16,13 +17,13 @@ export function useFavorites(userId) {
         .select('item_type, item_id')
         .eq('user_id', userId);
       if (error) return;
-      const favItins = new Set();
       const favBiz = new Set();
+      const favDests = new Set();
       data.forEach((fav) => {
-        if (fav.item_type === 'itinerary') favItins.add(fav.item_id);
-        else if (fav.item_type === 'business') favBiz.add(fav.item_id);
+        if (fav.item_type === 'business') favBiz.add(fav.item_id);
+        else if (fav.item_type === 'destination') favDests.add(fav.item_id);
       });
-      setFavorites({ itineraries: favItins, businesses: favBiz });
+      setFavorites({ businesses: favBiz, destinations: favDests });
     };
     fetchFavorites();
   }, [userId]);
@@ -33,7 +34,7 @@ export function useFavorites(userId) {
       return false;
     }
 
-    const isFavorite = favorites[itemType === 'itinerary' ? 'itineraries' : 'businesses'].has(itemId);
+    const isFavorite = favorites[itemType === 'business' ? 'businesses' : 'destinations'].has(itemId);
     if (isFavorite) {
       const { error } = await supabase
         .from('user_favorites')
@@ -42,13 +43,12 @@ export function useFavorites(userId) {
         .eq('item_type', itemType)
         .eq('item_id', itemId);
       if (error) return false;
-      // update local state
       setFavorites((prev) => {
-        const newSet = new Set(prev[itemType === 'itinerary' ? 'itineraries' : 'businesses']);
+        const newSet = new Set(prev[itemType === 'business' ? 'businesses' : 'destinations']);
         newSet.delete(itemId);
         return {
           ...prev,
-          [itemType === 'itinerary' ? 'itineraries' : 'businesses']: newSet,
+          [itemType === 'business' ? 'businesses' : 'destinations']: newSet,
         };
       });
       return false;
@@ -58,11 +58,11 @@ export function useFavorites(userId) {
         .insert({ user_id: userId, item_type: itemType, item_id: itemId });
       if (error) return false;
       setFavorites((prev) => {
-        const newSet = new Set(prev[itemType === 'itinerary' ? 'itineraries' : 'businesses']);
+        const newSet = new Set(prev[itemType === 'business' ? 'businesses' : 'destinations']);
         newSet.add(itemId);
         return {
           ...prev,
-          [itemType === 'itinerary' ? 'itineraries' : 'businesses']: newSet,
+          [itemType === 'business' ? 'businesses' : 'destinations']: newSet,
         };
       });
       return true;
