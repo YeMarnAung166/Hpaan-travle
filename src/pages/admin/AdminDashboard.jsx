@@ -1,3 +1,4 @@
+// src/pages/admin/AdminDashboard.jsx
 import { useEffect, useState } from 'react';
 import { supabase } from '../../supabaseClient';
 import { Link } from 'react-router-dom';
@@ -9,17 +10,25 @@ export default function AdminDashboard() {
     businesses: 0,
     events: 0,
     reviews: 0,
+    pendingPhotos: 0,
   });
   const [loading, setLoading] = useState(true);
   const { t } = useLanguage();
 
   useEffect(() => {
     const fetchStats = async () => {
-      const [destinations, businesses, events, reviews] = await Promise.all([
+      const [
+        destinations,
+        businesses,
+        events,
+        reviews,
+        pendingPhotos,
+      ] = await Promise.all([
         supabase.from('destinations').select('*', { count: 'exact', head: true }),
         supabase.from('businesses').select('*', { count: 'exact', head: true }),
         supabase.from('events').select('*', { count: 'exact', head: true }),
         supabase.from('business_reviews').select('*', { count: 'exact', head: true }),
+        supabase.from('user_photos').select('*', { count: 'exact', head: true }).eq('moderated', false),
       ]);
 
       setStats({
@@ -27,6 +36,7 @@ export default function AdminDashboard() {
         businesses: businesses.count || 0,
         events: events.count || 0,
         reviews: reviews.count || 0,
+        pendingPhotos: pendingPhotos.count || 0,
       });
       setLoading(false);
     };
@@ -36,16 +46,17 @@ export default function AdminDashboard() {
   if (loading) return <div className="spinner mx-auto"></div>;
 
   const statCards = [
-    { title: t('admin.destinations'), value: stats.destinations, link: '/admin/destinations', color: 'bg-blue-500' },
-    { title: t('admin.businesses'), value: stats.businesses, link: '/admin/businesses', color: 'bg-green-500' },
-    { title: t('admin.events'), value: stats.events, link: '/admin/events', color: 'bg-yellow-500' },
-    { title: t('admin.reviews'), value: stats.reviews, link: '/admin/reviews', color: 'bg-purple-500' },
+    { title: t('admin.destinations') || 'Destinations', value: stats.destinations, link: '/admin/destinations', color: 'bg-blue-500' },
+    { title: t('admin.businesses') || 'Businesses', value: stats.businesses, link: '/admin/businesses', color: 'bg-green-500' },
+    { title: t('admin.events') || 'Events', value: stats.events, link: '/admin/events', color: 'bg-yellow-500' },
+    { title: t('admin.reviews') || 'Reviews', value: stats.reviews, link: '/admin/reviews', color: 'bg-purple-500' },
+    { title: t('admin.pending_photos') || 'Pending Photos', value: stats.pendingPhotos, link: '/admin/user-photos', color: 'bg-orange-500' },
   ];
 
   return (
     <div>
       <h2 className="text-2xl font-bold mb-6">{t('admin.dashboard')}</h2>
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
         {statCards.map((card) => (
           <Link
             key={card.title}

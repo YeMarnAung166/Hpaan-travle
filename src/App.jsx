@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { supabase } from "./supabaseClient";
 import { ThemeProvider } from "./context/ThemeContext";
 import { LanguageProvider } from "./context/LanguageContext";
@@ -9,8 +9,8 @@ import AuthModal from "./components/AuthModal";
 import Header from "./components/Header";
 import Footer from "./components/Footer";
 import ScrollToTop from "./components/ScrollToTop";
-import DestinationList from './pages/DestinationList';
-import DestinationDetail from './pages/DestinationDetail';
+import DestinationList from "./pages/DestinationList";
+import DestinationDetail from "./pages/DestinationDetail";
 import MapPage from "./pages/MapPage";
 import BusinessList from "./pages/BusinessList";
 import BusinessDetail from "./pages/BusinessDetail";
@@ -18,7 +18,6 @@ import Favorites from "./pages/Favorites";
 import EventsPage from "./pages/EventsPage";
 import TravelTipsPage from "./pages/TravelTipsPage";
 import HistoryPage from "./pages/HistoryPage";
-import ProfilePage from "./pages/ProfilePage";
 import UserPhotosPage from "./pages/UserPhotosPage";
 import ProtectedRoute from "./components/ProtectedRoute";
 import AdminLayout from "./pages/admin/AdminLayout";
@@ -28,6 +27,8 @@ import AdminBusinesses from "./pages/admin/AdminBusinesses";
 import AdminEvents from "./pages/admin/AdminEvents";
 import AdminReviews from "./pages/admin/AdminReviews";
 import AdminUserPhotos from "./pages/admin/AdminUserPhotos";
+import UserReviewsPage from "./pages/UserReviewsPage";
+import MyAccountPage from "./pages/MyAccountPage";
 
 function App() {
   const [user, setUser] = useState(null);
@@ -64,7 +65,10 @@ function App() {
                 <main className="flex-grow">
                   <Routes>
                     <Route path="/" element={<DestinationList />} />
-                    <Route path="/destination/:id" element={<DestinationDetail />} />
+                    <Route
+                      path="/destination/:id"
+                      element={<DestinationDetail />}
+                    />
                     <Route path="/map" element={<MapPage />} />
                     <Route path="/business" element={<BusinessList />} />
                     <Route path="/business/:id" element={<BusinessDetail />} />
@@ -72,7 +76,16 @@ function App() {
                     <Route path="/events" element={<EventsPage />} />
                     <Route path="/tips" element={<TravelTipsPage />} />
                     <Route path="/history" element={<HistoryPage />} />
-                    <Route path="/profile" element={<ProfilePage />} />
+                    <Route path="/user-reviews" element={<UserReviewsPage />} />
+                    <Route path="/account" element={<MyAccountPage />} />
+                    <Route
+                      path="/profile"
+                      element={<Navigate to="/account" replace />}
+                    />
+                    <Route
+                      path="/dashboard"
+                      element={<Navigate to="/account" replace />}
+                    />
                     <Route
                       path="/user-photos/:userId"
                       element={<UserPhotosPage />}

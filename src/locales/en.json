@@ -16,7 +16,8 @@
     "tips": "Travel Tips",
     "history": "History",
     "profile": "Profile",
-    "back": "back"
+    "back": "back",
+    "dashboard": "Dashboard"
   },
   "destinations": {
     "title": "Places to Visit",
@@ -115,7 +116,8 @@
     "moderate_photos": "Moderate User Photos",
     "no_pending": "No pending photos.",
     "approve": "Approve",
-    "user": "User"
+    "user": "User",
+    "pending_photos": "Pending Photos"
   },
   "pagination": {
     "previous": "Previous",
