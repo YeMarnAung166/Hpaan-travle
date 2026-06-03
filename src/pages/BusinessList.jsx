@@ -3,6 +3,7 @@ import { supabase } from '../supabaseClient';
 import BusinessCard from '../components/BusinessCard';
 import SearchAndFilter from '../components/SearchAndFilter';
 import { useLanguage } from '../context/LanguageContext';
+import { useSearchParams } from 'react-router-dom';
 
 export default function BusinessList() {
   const [allBusinesses, setAllBusinesses] = useState([]);
@@ -12,6 +13,15 @@ export default function BusinessList() {
   const [filters, setFilters] = useState({});
   const [sortBy, setSortBy] = useState('newest');
   const { t } = useLanguage();
+  const [searchParams] = useSearchParams();
+
+  // Read category from URL and apply filter on mount
+  useEffect(() => {
+    const urlCategory = searchParams.get('category');
+    if (urlCategory && ['accommodation', 'restaurant', 'transport', 'tours'].includes(urlCategory)) {
+      setFilters(prev => ({ ...prev, category: urlCategory }));
+    }
+  }, [searchParams]);
 
   useEffect(() => {
     fetchBusinesses();
@@ -54,7 +64,6 @@ export default function BusinessList() {
   const applyFiltersAndSearch = async () => {
     let results = [...allBusinesses];
 
-    // 🔍 Search in both English and Burmese fields
     if (searchTerm) {
       const term = searchTerm.toLowerCase();
       results = results.filter(
@@ -68,12 +77,10 @@ export default function BusinessList() {
       );
     }
 
-    // Category filter
     if (filters.category && filters.category !== 'all') {
       results = results.filter(business => business.category === filters.category);
     }
 
-    // Rating filter
     if (filters.minRating > 0) {
       const businessIds = results.map(b => b.id);
       const ratings = await fetchRatings(businessIds);
@@ -82,7 +89,6 @@ export default function BusinessList() {
       );
     }
 
-    // Sorting
     const sortFunctions = {
       newest: (a, b) => b.id - a.id,
       oldest: (a, b) => a.id - b.id,

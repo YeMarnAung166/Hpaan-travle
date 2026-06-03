@@ -4,6 +4,7 @@
     "tagline": "Discover the beauty of Hpa‑An, Myanmar"
   },
   "nav": {
+    "home": "Home",
     "destinations": "Destinations",
     "map": "Map",
     "directory": "Directory",
@@ -19,17 +20,30 @@
     "back": "back",
     "dashboard": "Dashboard"
   },
+  "home": {
+  "hero_title": "Discover the Hidden Gem of Myanmar",
+  "hero_subtitle": "Explore limestone mountains, ancient caves, and authentic Kayin culture in Hpa‑An.",
+  "explore_destinations": "Explore Destinations",
+  "view_businesses": "View Local Businesses",
+  "popular_destinations": "Popular Destinations",
+  "popular_subtitle": "Must‑visit places recommended by travelers",
+  "view_all_destinations": "View all destinations",
+  "directory_summary": "Explore Local Businesses",
+  "directory_subtitle": "Find accommodation, restaurants, transport, and tours",
+  "listings": "listings",
+  "nature": "Breathtaking Nature",
+  "culture": "Rich Culture",
+  "cuisine": "Delicious Cuisine",
+  "cta_title": "Ready to Explore Hpa‑An?",
+  "cta_subtitle": "Start planning your trip with our curated guides and local insights.",
+  "start_journey": "Start Your Journey"
+},
   "destinations": {
     "title": "Places to Visit",
     "subtitle": "Discover the best attractions in Hpa‑An",
     "view_details": "View Details",
     "back": "Back to destinations",
     "not_found": "Destination not found"
-  },
-  "home": {
-    "subtitle": "Explore the best of Hpa‑An",
-    "upcoming_events": "Upcoming Events",
-    "weather": "Weather"
   },
   "business": {
     "title": "Local Businesses",

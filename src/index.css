@@ -31,6 +31,9 @@
   a {
     @apply transition-colors;
   }
+  .btn-primary {
+    @apply border border-white text-white hover:bg-white hover:text-primary transition;
+  }
 }
 
 @layer components {
