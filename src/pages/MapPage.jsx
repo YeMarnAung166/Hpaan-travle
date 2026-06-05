@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import { MapContainer, TileLayer, Marker, Popup, Tooltip, useMap } from 'react-leaflet';
 import MarkerClusterGroup from 'react-leaflet-markercluster';
 import L from 'leaflet';
@@ -11,6 +11,7 @@ import LocationControl from '../components/LocationControl';
 import RouteControl from '../components/RouteControl';
 import { supabase } from '../supabaseClient';
 import { Link, useSearchParams } from 'react-router-dom';
+import LoadingSpinner from '../components/ui/LoadingSpinner';
 
 // Fix default marker icons
 delete L.Icon.Default.prototype._getIconUrl;
@@ -39,26 +40,21 @@ const attractionIcon = new L.Icon({
   shadowSize: [41, 41],
 });
 
-// Red teardrop icon for user location (same as LocationControl)
+// Red teardrop for user location (separate from route start marker)
 const userIcon = L.divIcon({
   html: `
     <svg width="32" height="32" viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg">
-      <defs>
-        <filter id="shadow" x="-20%" y="-20%" width="140%" height="140%">
-          <feDropShadow dx="1" dy="2" stdDeviation="2" flood-opacity="0.3"/>
-        </filter>
-      </defs>
-      <path d="M16 2 C10 2 5 7 5 13 C5 21 15 29 16 30 C17 29 27 21 27 13 C27 7 22 2 16 2 Z" fill="#E53935" filter="url(#shadow)"/>
+      <path d="M16 2 C10 2 5 7 5 13 C5 21 15 29 16 30 C17 29 27 21 27 13 C27 7 22 2 16 2 Z" fill="#E53935" stroke="#B71C1C" stroke-width="1"/>
       <circle cx="16" cy="13" r="4" fill="white"/>
     </svg>
   `,
   iconSize: [32, 32],
   iconAnchor: [16, 32],
   popupAnchor: [0, -20],
-  className: 'user-location-marker',
+  className: 'custom-marker',
 });
 
-// Component for search box
+// Search box component (geocoder)
 function GeocoderControl({ onPlaceSelected }) {
   const map = useMap();
   useEffect(() => {
@@ -85,7 +81,9 @@ export default function MapPage() {
   const [searchParams] = useSearchParams();
   const [userLocation, setUserLocation] = useState(null);
   const [mapInstance, setMapInstance] = useState(null);
+  const [mapReady, setMapReady] = useState(false);
 
+  // Fetch markers
   useEffect(() => {
     const fetchData = async () => {
       const { data: bizData } = await supabase
@@ -103,26 +101,7 @@ export default function MapPage() {
     fetchData();
   }, []);
 
-  // Automatically get user location when map loads
-  useEffect(() => {
-    if (!mapInstance) return;
-    if (navigator.geolocation) {
-      navigator.geolocation.getCurrentPosition(
-        (position) => {
-          const { latitude, longitude } = position.coords;
-          setUserLocation({ lat: latitude, lng: longitude });
-          mapInstance.flyTo([latitude, longitude], 13);
-          // Add marker manually (will be rendered via state)
-        },
-        (error) => {
-          console.warn('Geolocation error:', error);
-          // Silently fail, no marker
-        }
-      );
-    }
-  }, [mapInstance]);
-
-  // Parse URL params for directions
+  // URL params for directions
   useEffect(() => {
     const startParam = searchParams.get('start');
     const endParam = searchParams.get('end');
@@ -134,6 +113,27 @@ export default function MapPage() {
       setRoutingActive(true);
     }
   }, [searchParams]);
+
+  // Auto‑locate user when map is ready
+  useEffect(() => {
+    if (!mapReady || !mapInstance) return;
+    const locate = () => {
+      if (!navigator.geolocation) return;
+      navigator.geolocation.getCurrentPosition(
+        (pos) => {
+          const { latitude, longitude } = pos.coords;
+          setUserLocation({ lat: latitude, lng: longitude });
+          // Fly to user location only if no route is active
+          if (!routingActive) {
+            mapInstance.flyTo([latitude, longitude], 13);
+          }
+        },
+        (err) => console.warn('Geolocation error:', err)
+      );
+    };
+    const timer = setTimeout(locate, 500);
+    return () => clearTimeout(timer);
+  }, [mapReady, mapInstance, routingActive]);
 
   const startRouting = (endCoords) => {
     if (!userLocation) {
@@ -151,7 +151,7 @@ export default function MapPage() {
     setRoutingActive(false);
   };
 
-  if (loading) return <div className="spinner mx-auto my-12"></div>;
+  if (loading) return <LoadingSpinner size="lg" />;
 
   const allMarkers = [
     ...attractions.map(a => ({ ...a, type: 'attraction', icon: attractionIcon })),
@@ -165,7 +165,10 @@ export default function MapPage() {
         zoom={12}
         style={{ height: '100%', width: '100%' }}
         className="z-0"
-        ref={setMapInstance}
+        ref={(map) => {
+          setMapInstance(map);
+          if (map) setMapReady(true);
+        }}
       >
         <TileLayer
           attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OSM</a>'
@@ -213,22 +216,37 @@ export default function MapPage() {
           ))}
         </MarkerClusterGroup>
 
-        {/* User location marker */}
-        {userLocation && (
+        {routingActive && routeStart && routeEnd && (
+          <RouteControl start={routeStart} end={routeEnd} onRouteReady={() => {}} />
+        )}
+
+        {/* Search box – now properly placed and styled */}
+        <GeocoderControl />
+
+        {/* Location button (custom control) */}
+        <LocationControl
+          onLocationFound={(loc) => {
+            setUserLocation(loc);
+            if (!routingActive) {
+              mapInstance?.flyTo([loc.lat, loc.lng], 15);
+            }
+          }}
+        />
+
+        {/* User location marker (red teardrop) – only if no route is active or as a separate visual */}
+        {userLocation && !routingActive && (
           <Marker position={[userLocation.lat, userLocation.lng]} icon={userIcon}>
             <Popup>You are here</Popup>
           </Marker>
         )}
 
-        {routingActive && routeStart && routeEnd && (
-          <RouteControl start={routeStart} end={routeEnd} onClose={clearRouting} />
+        {/* When route is active, we still show the route's start marker (red) and end marker (green) – already in RouteControl */}
+        {/* To avoid duplication, we hide the separate user marker when route is active */}
+        {userLocation && routingActive && (
+          <Marker position={[userLocation.lat, userLocation.lng]} icon={userIcon}>
+            <Popup>Your location (start)</Popup>
+          </Marker>
         )}
-
-        <GeocoderControl />
-        <LocationControl onLocationFound={(loc) => {
-          setUserLocation(loc);
-          mapInstance?.flyTo([loc.lat, loc.lng], 15);
-        }} />
 
         {routingActive && (
           <div className="leaflet-control leaflet-bar" style={{ position: 'absolute', bottom: 20, right: 20, zIndex: 1000 }}>

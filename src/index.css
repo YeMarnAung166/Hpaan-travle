@@ -47,3 +47,13 @@
     @apply text-2xl font-semibold text-text mb-4;
   }
 }
+
+/* ===== Map marker transparency fix ===== */
+.custom-marker {
+  background: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+}
+.leaflet-marker-icon.custom-marker {
+  background: transparent !important;
+}
