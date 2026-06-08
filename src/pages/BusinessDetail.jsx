@@ -13,6 +13,7 @@ import Button from '../components/ui/Button';
 import LocationControl from '../components/LocationControl';
 import UserPhotoUpload from '../components/UserPhotoUpload';
 import UserPhotoGallery from '../components/UserPhotoGallery';
+import AddToTripButton from '../components/AddToTripButton';
 
 // Fix Leaflet default marker icons
 delete L.Icon.Default.prototype._getIconUrl;
@@ -169,7 +170,7 @@ export default function BusinessDetail() {
                 </button>
               </div>
             )}
-
+            <AddToTripButton itemType="business" itemId={business.id} itemName={name} />
             {/* Reviews */}
             <BusinessReviews businessId={business.id} />
           </div>

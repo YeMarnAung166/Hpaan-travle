@@ -17,46 +17,21 @@ export default function AuthModal({ isOpen, onClose }) {
     setLoading(true);
     setError("");
 
-    console.log("Attempting", mode, "with email:", email);
-
     if (mode === "login") {
-      const { data, error: signInError } =
-        await supabase.auth.signInWithPassword({ email, password });
-      console.log("Login response:", { data, error: signInError });
-      if (signInError) {
-        setError(signInError.message);
-      } else {
-        onClose();
-      }
+      const { error: signInError } = await supabase.auth.signInWithPassword({ email, password });
+      if (signInError) setError(signInError.message);
+      else onClose();
     } else {
-      const { data, error: signUpError } = await supabase.auth.signUp({
-        email,
-        password,
-      });
-      console.log("Signup response:", { data, error: signUpError });
-      if (signUpError) {
-        setError(signUpError.message);
-      } else {
-        onClose();
-      }
+      const { error: signUpError } = await supabase.auth.signUp({ email, password });
+      if (signUpError) setError(signUpError.message);
+      else onClose();
     }
     setLoading(false);
   };
 
-  // Inside your AuthModal component
   const handleGoogleLogin = async () => {
     const { error } = await supabase.auth.signInWithOAuth({
       provider: "google",
-      options: {
-        redirectTo: `${window.location.origin}/account`,
-      },
-    });
-    if (error) setError(error.message);
-  };
-
-  const handleFacebookLogin = async () => {
-    const { error } = await supabase.auth.signInWithOAuth({
-      provider: "facebook",
       options: {
         redirectTo: `${window.location.origin}/account`,
       },
@@ -102,40 +77,37 @@ export default function AuthModal({ isOpen, onClose }) {
             {loading
               ? t("auth.processing")
               : mode === "login"
-                ? t("auth.login")
-                : t("auth.signup")}
+              ? t("auth.login")
+              : t("auth.signup")}
           </Button>
-          <div className="space-y-3">
-            <Button
-              variant="outline"
-              type="button" // Crucial: This prevents the button from trying to submit the form.
-              onClick={handleGoogleLogin}
-              className="w-full"
-              disabled={loading}
-            >
-              <img
-                src="/google-icon.svg"
-                alt="Google"
-                className="w-4 h-4 mr-2"
-              />{" "}
-              Continue with Google
-            </Button>
-            <Button
-              variant="outline"
-              type="button"
-              onClick={handleFacebookLogin}
-              className="w-full"
-              disabled={loading}
-            >
-              <img
-                src="/facebook-icon.svg"
-                alt="Facebook"
-                className="w-4 h-4 mr-2"
-              />{" "}
-              Continue with Facebook
-            </Button>
-          </div>
         </form>
+
+        {/* Divider */}
+        <div className="relative my-4">
+          <div className="absolute inset-0 flex items-center">
+            <div className="w-full border-t border-neutral-mid"></div>
+          </div>
+          <div className="relative flex justify-center text-xs">
+            <span className="bg-white dark:bg-neutral-dark px-2 text-text-soft">
+              or continue with
+            </span>
+          </div>
+        </div>
+
+        {/* Social Login Buttons - only Google */}
+        <div className="space-y-3">
+          <Button
+            variant="outline"
+            type="button"
+            onClick={handleGoogleLogin}
+            className="w-full flex items-center justify-center gap-2"
+            disabled={loading}
+          >
+            <span className="text-lg">🌐</span>
+            <span>Continue with Google</span>
+          </Button>
+        </div>
+
         <div className="mt-4 text-center text-sm text-text-soft">
           {mode === "login" ? (
             <>
@@ -159,6 +131,7 @@ export default function AuthModal({ isOpen, onClose }) {
             </>
           )}
         </div>
+
         <button
           onClick={onClose}
           className="absolute top-3 right-3 text-text-soft hover:text-text transition"
