@@ -1,3 +1,18 @@
+// src/pages/MapPage.jsx
+// Suppress Leaflet's deprecated mouse event warnings
+if (typeof window !== 'undefined') {
+  const originalWarn = console.warn;
+  console.warn = (...args) => {
+    if (
+      typeof args[0] === 'string' &&
+      (args[0].includes('mozPressure') || args[0].includes('mozInputSource'))
+    ) {
+      return;
+    }
+    originalWarn(...args);
+  };
+}
+
 import { useEffect, useState, useRef } from 'react';
 import { MapContainer, TileLayer, Marker, Popup, Tooltip, useMap } from 'react-leaflet';
 import MarkerClusterGroup from 'react-leaflet-markercluster';
@@ -21,7 +36,7 @@ L.Icon.Default.mergeOptions({
   shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-shadow.png',
 });
 
-// Custom icons
+// Custom icons (unchanged)
 const businessIcon = new L.Icon({
   iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-green.png',
   iconSize: [25, 41],
@@ -40,7 +55,7 @@ const attractionIcon = new L.Icon({
   shadowSize: [41, 41],
 });
 
-// Red teardrop for user location (separate from route start marker)
+// Red teardrop for user location
 const userIcon = L.divIcon({
   html: `
     <svg width="32" height="32" viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg">
@@ -123,7 +138,6 @@ export default function MapPage() {
         (pos) => {
           const { latitude, longitude } = pos.coords;
           setUserLocation({ lat: latitude, lng: longitude });
-          // Fly to user location only if no route is active
           if (!routingActive) {
             mapInstance.flyTo([latitude, longitude], 13);
           }
@@ -220,10 +234,8 @@ export default function MapPage() {
           <RouteControl start={routeStart} end={routeEnd} onRouteReady={() => {}} />
         )}
 
-        {/* Search box – now properly placed and styled */}
         <GeocoderControl />
 
-        {/* Location button (custom control) */}
         <LocationControl
           onLocationFound={(loc) => {
             setUserLocation(loc);
@@ -233,15 +245,12 @@ export default function MapPage() {
           }}
         />
 
-        {/* User location marker (red teardrop) – only if no route is active or as a separate visual */}
         {userLocation && !routingActive && (
           <Marker position={[userLocation.lat, userLocation.lng]} icon={userIcon}>
             <Popup>You are here</Popup>
           </Marker>
         )}
 
-        {/* When route is active, we still show the route's start marker (red) and end marker (green) – already in RouteControl */}
-        {/* To avoid duplication, we hide the separate user marker when route is active */}
         {userLocation && routingActive && (
           <Marker position={[userLocation.lat, userLocation.lng]} icon={userIcon}>
             <Popup>Your location (start)</Popup>

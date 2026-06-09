@@ -57,26 +57,12 @@ export default function HomePage() {
     <div>
       {/* Hero Section with Video Background */}
       <section className="relative h-[70vh] sm:h-[80vh] overflow-hidden">
-        {/* Video background */}
-        <video
-          autoPlay
-          loop
-          muted
-          playsInline
-          className="absolute top-0 left-0 w-full h-full object-cover"
-          poster="https://images.unsplash.com/photo-1583417319070-4a69db38a482?w=1600"
-        >
-          <source
-            src="https://hqzodqvstvdemmqxphbv.supabase.co/storage/v1/object/public/hpaan-assets/static/homepage.mp4"
-            type="video/mp4"
-          />
-          {/* Fallback image if video fails */}
+        
           <img
-            src="https://hqzodqvstvdemmqxphbv.supabase.co/storage/v1/object/public/hpaan-assets/static/history.jpg"
+            src="https://hqzodqvstvdemmqxphbv.supabase.co/storage/v1/object/public/hpaan-assets/static/home.jpg"
             alt="Hpa-An landscape"
             className="absolute top-0 left-0 w-full h-full object-cover"
           />
-        </video>
 
         {/* Dark overlay for text readability */}
         <div className="absolute inset-0 bg-black/50" />
