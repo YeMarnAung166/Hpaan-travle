@@ -177,7 +177,7 @@ export default function Header({ onLoginClick, onLogoutClick }) {
                   ) : (
                     <span className="text-2xl">👤</span>
                   )}
-                  <span>{t('nav.profile')}</span>
+                  <span>{displayName}</span>   {/* ✅ Fixed: now shows user's name */}
                 </Link>
                 <Button variant="outline" size="sm" className="w-full" onClick={() => { onLogoutClick(); closeMenu(); }}>
                   {t('nav.logout')}

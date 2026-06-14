@@ -14,7 +14,15 @@ if (typeof window !== 'undefined') {
 }
 
 import { useEffect, useState, useRef } from 'react';
-import { MapContainer, TileLayer, Marker, Popup, Tooltip, useMap } from 'react-leaflet';
+import {
+  MapContainer,
+  TileLayer,
+  Marker,
+  Popup,
+  Tooltip,
+  Polyline,
+  useMap,
+} from 'react-leaflet';
 import MarkerClusterGroup from 'react-leaflet-markercluster';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
@@ -36,7 +44,7 @@ L.Icon.Default.mergeOptions({
   shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-shadow.png',
 });
 
-// Custom icons (unchanged)
+// Custom icons
 const businessIcon = new L.Icon({
   iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-green.png',
   iconSize: [25, 41],
@@ -97,6 +105,7 @@ export default function MapPage() {
   const [userLocation, setUserLocation] = useState(null);
   const [mapInstance, setMapInstance] = useState(null);
   const [mapReady, setMapReady] = useState(false);
+  const [tripWaypoints, setTripWaypoints] = useState(null); // for custom route from trip
 
   // Fetch markers
   useEffect(() => {
@@ -126,6 +135,21 @@ export default function MapPage() {
       setRouteStart({ lat: startLat, lng: startLng });
       setRouteEnd({ lat: endLat, lng: endLng });
       setRoutingActive(true);
+    }
+  }, [searchParams]);
+
+  // Parse waypoints from URL (for trip route)
+  useEffect(() => {
+    const waypointsParam = searchParams.get('waypoints');
+    if (waypointsParam) {
+      try {
+        const waypoints = JSON.parse(decodeURIComponent(waypointsParam));
+        if (Array.isArray(waypoints) && waypoints.length >= 2) {
+          setTripWaypoints(waypoints);
+        }
+      } catch (e) {
+        console.error('Failed to parse waypoints', e);
+      }
     }
   }, [searchParams]);
 
@@ -229,6 +253,16 @@ export default function MapPage() {
             </Marker>
           ))}
         </MarkerClusterGroup>
+
+        {/* Trip waypoints polyline */}
+        {tripWaypoints && tripWaypoints.length >= 2 && (
+          <Polyline
+            positions={tripWaypoints.map(p => [p.lat, p.lng])}
+            color="#FF5733"
+            weight={5}
+            opacity={0.9}
+          />
+        )}
 
         {routingActive && routeStart && routeEnd && (
           <RouteControl start={routeStart} end={routeEnd} onRouteReady={() => {}} />
