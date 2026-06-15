@@ -46,13 +46,17 @@ export default function TripsPage() {
   };
 
   const deleteTrip = async (id) => {
-    if (!confirm('Delete this trip?')) return;
+    if (!confirm(t('trips.delete_confirm'))) return;
     const { error } = await supabase.from('trips').delete().eq('id', id);
     if (!error) setTrips(trips.filter(t => t.id !== id));
   };
 
   if (!user) {
-    return <div className="container-custom text-center"><p>Please log in to view your trips.</p></div>;
+    return (
+      <div className="container-custom text-center">
+        <p>{t('auth.login_required') || 'Please log in to view your trips.'}</p>
+      </div>
+    );
   }
 
   if (loading) return <LoadingSpinner size="lg" />;
@@ -60,26 +64,26 @@ export default function TripsPage() {
   return (
     <div className="container-custom max-w-4xl">
       <div className="flex justify-between items-center mb-6 flex-wrap gap-2">
-        <h1 className="page-title text-2xl sm:text-3xl">My Trip Plans</h1>
+        <h1 className="page-title text-2xl sm:text-3xl">{t('trips.title')}</h1>
       </div>
 
       <div className="bg-white rounded-xl shadow-md p-4 mb-8">
         <div className="flex flex-col sm:flex-row gap-2">
           <input
             type="text"
-            placeholder="Trip name (e.g., 'Weekend Adventure')"
+            placeholder={t('trips.placeholder')}
             value={newTitle}
             onChange={(e) => setNewTitle(e.target.value)}
             className="flex-1 border rounded-lg px-3 py-2"
           />
           <Button onClick={createTrip} disabled={creating || !newTitle.trim()} className="w-full sm:w-auto">
-            + New Trip
+            + {t('trips.new_trip')}
           </Button>
         </div>
       </div>
 
       {trips.length === 0 ? (
-        <p className="text-text-soft text-center">You haven't created any trips yet.</p>
+        <p className="text-text-soft text-center">{t('trips.empty')}</p>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           {trips.map(trip => (

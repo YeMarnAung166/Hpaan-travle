@@ -44,7 +44,6 @@ L.Icon.Default.mergeOptions({
   shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-shadow.png',
 });
 
-// Custom icons
 const businessIcon = new L.Icon({
   iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-green.png',
   iconSize: [25, 41],
@@ -63,7 +62,6 @@ const attractionIcon = new L.Icon({
   shadowSize: [41, 41],
 });
 
-// Red teardrop for user location
 const userIcon = L.divIcon({
   html: `
     <svg width="32" height="32" viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg">
@@ -77,7 +75,6 @@ const userIcon = L.divIcon({
   className: 'custom-marker',
 });
 
-// Search box component (geocoder)
 function GeocoderControl({ onPlaceSelected }) {
   const map = useMap();
   useEffect(() => {
@@ -105,16 +102,16 @@ export default function MapPage() {
   const [userLocation, setUserLocation] = useState(null);
   const [mapInstance, setMapInstance] = useState(null);
   const [mapReady, setMapReady] = useState(false);
-  const [tripWaypoints, setTripWaypoints] = useState(null); // for custom route from trip
+  const [tripWaypoints, setTripWaypoints] = useState(null);
+  const [tripRouteCoords, setTripRouteCoords] = useState([]);
+  const [tripRouteLoading, setTripRouteLoading] = useState(false);
 
-  // Fetch markers
   useEffect(() => {
     const fetchData = async () => {
       const { data: bizData } = await supabase
         .from('businesses')
         .select('id, name, name_my, description, description_my, lat, lng, category, image');
       if (bizData) setBusinesses(bizData.filter(b => b.lat && b.lng));
-
       setAttractions([
         { id: 1, name: 'Saddan Cave', lat: 16.881, lng: 97.673, description: 'Large cave with hidden pagoda.' },
         { id: 2, name: 'Mount Zwegabin', lat: 16.868, lng: 97.700, description: 'Famous mountain with panoramic views.' },
@@ -125,7 +122,6 @@ export default function MapPage() {
     fetchData();
   }, []);
 
-  // URL params for directions
   useEffect(() => {
     const startParam = searchParams.get('start');
     const endParam = searchParams.get('end');
@@ -135,10 +131,12 @@ export default function MapPage() {
       setRouteStart({ lat: startLat, lng: startLng });
       setRouteEnd({ lat: endLat, lng: endLng });
       setRoutingActive(true);
+      if (!userLocation) {
+        setUserLocation({ lat: startLat, lng: startLng });
+      }
     }
-  }, [searchParams]);
+  }, [searchParams, userLocation]);
 
-  // Parse waypoints from URL (for trip route)
   useEffect(() => {
     const waypointsParam = searchParams.get('waypoints');
     if (waypointsParam) {
@@ -146,6 +144,22 @@ export default function MapPage() {
         const waypoints = JSON.parse(decodeURIComponent(waypointsParam));
         if (Array.isArray(waypoints) && waypoints.length >= 2) {
           setTripWaypoints(waypoints);
+          setTripRouteLoading(true);
+          const coordinates = waypoints.map(p => `${p.lng},${p.lat}`).join(';');
+          const url = `https://router.project-osrm.org/route/v1/driving/${coordinates}?overview=full&geometries=geojson`;
+          fetch(url)
+            .then(res => res.json())
+            .then(data => {
+              if (data.routes && data.routes.length > 0) {
+                const coords = data.routes[0].geometry.coordinates.map(c => [c[1], c[0]]);
+                setTripRouteCoords(coords);
+              } else {
+                const coords = waypoints.map(p => [p.lat, p.lng]);
+                setTripRouteCoords(coords);
+              }
+            })
+            .catch(err => console.error('Route fetch error:', err))
+            .finally(() => setTripRouteLoading(false));
         }
       } catch (e) {
         console.error('Failed to parse waypoints', e);
@@ -153,9 +167,9 @@ export default function MapPage() {
     }
   }, [searchParams]);
 
-  // Auto‑locate user when map is ready
   useEffect(() => {
     if (!mapReady || !mapInstance) return;
+    if (routingActive && routeStart) return;
     const locate = () => {
       if (!navigator.geolocation) return;
       navigator.geolocation.getCurrentPosition(
@@ -171,7 +185,7 @@ export default function MapPage() {
     };
     const timer = setTimeout(locate, 500);
     return () => clearTimeout(timer);
-  }, [mapReady, mapInstance, routingActive]);
+  }, [mapReady, mapInstance, routingActive, routeStart]);
 
   const startRouting = (endCoords) => {
     if (!userLocation) {
@@ -184,9 +198,13 @@ export default function MapPage() {
   };
 
   const clearRouting = () => {
+    console.log('Clearing route...'); // for debugging
     setRouteStart(null);
     setRouteEnd(null);
     setRoutingActive(false);
+    // Optionally, also clear any trip route (if you want)
+    // setTripWaypoints(null);
+    // setTripRouteCoords([]);
   };
 
   if (loading) return <LoadingSpinner size="lg" />;
@@ -254,13 +272,16 @@ export default function MapPage() {
           ))}
         </MarkerClusterGroup>
 
-        {/* Trip waypoints polyline */}
-        {tripWaypoints && tripWaypoints.length >= 2 && (
+        {tripRouteCoords.length > 0 && !routingActive && (
+          <Polyline positions={tripRouteCoords} color="#FF5733" weight={5} opacity={0.9} />
+        )}
+        {tripWaypoints && !tripRouteLoading && tripRouteCoords.length === 0 && (
           <Polyline
             positions={tripWaypoints.map(p => [p.lat, p.lng])}
             color="#FF5733"
             weight={5}
-            opacity={0.9}
+            opacity={0.7}
+            dashArray="5, 5"
           />
         )}
 
@@ -290,19 +311,20 @@ export default function MapPage() {
             <Popup>Your location (start)</Popup>
           </Marker>
         )}
-
-        {routingActive && (
-          <div className="leaflet-control leaflet-bar" style={{ position: 'absolute', bottom: 20, right: 20, zIndex: 1000 }}>
-            <button
-              onClick={clearRouting}
-              className="bg-white p-2 rounded shadow text-sm font-medium hover:bg-gray-100"
-              style={{ width: '100px' }}
-            >
-              Clear Route
-            </button>
-          </div>
-        )}
       </MapContainer>
+
+      {/* Clear Route button – placed outside MapContainer for visibility */}
+      {routingActive && (
+        <div className="absolute bottom-5 right-5 z-[1000]">
+          <button
+            onClick={clearRouting}
+            className="bg-white text-gray-800 px-3 py-2 rounded-lg shadow-md hover:bg-gray-100 transition flex items-center gap-2"
+          >
+            <span className="text-red-500 text-lg">✕</span>
+            <span className="text-sm font-medium">Clear Route</span>
+          </button>
+        </div>
+      )}
     </div>
   );
 }

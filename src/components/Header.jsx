@@ -31,7 +31,7 @@ export default function Header({ onLoginClick, onLogoutClick }) {
     { to: "/history", label: t("nav.history") },
   ];
   if (user) {
-    navLinks.push({ to: "/trips", label: "My Trips" });
+    navLinks.push({ to: "/trips", label: t("nav.trips") || "My Trips" });  // ✅ Added trips link
     navLinks.push({ to: "/favorites", label: t("nav.favorites") });
   }
 
@@ -177,7 +177,7 @@ export default function Header({ onLoginClick, onLogoutClick }) {
                   ) : (
                     <span className="text-2xl">👤</span>
                   )}
-                  <span>{displayName}</span>   {/* ✅ Fixed: now shows user's name */}
+                  <span>{displayName}</span>
                 </Link>
                 <Button variant="outline" size="sm" className="w-full" onClick={() => { onLogoutClick(); closeMenu(); }}>
                   {t('nav.logout')}

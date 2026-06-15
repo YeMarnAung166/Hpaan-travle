@@ -114,7 +114,7 @@ export default function TripDetailPage() {
       .single();
     if (error) {
       setItems(prev => prev.filter(i => i.id !== tempId));
-      alert('Error adding item');
+      alert(t('trips.error_adding'));
     } else {
       setItems(prev => prev.map(i => i.id === tempId ? { ...data, data: newItem.data } : i));
     }
@@ -122,13 +122,13 @@ export default function TripDetailPage() {
   };
 
   const removeItem = async (itemId) => {
-    if (!confirm('Remove from trip?')) return;
+    if (!confirm(t('trips.remove_confirm'))) return;
     const originalItems = [...items];
     setItems(prev => prev.filter(i => i.id !== itemId));
     const { error } = await supabase.from('trip_items').delete().eq('id', itemId);
     if (error) {
       setItems(originalItems);
-      alert('Error removing item');
+      alert(t('trips.error_removing'));
     }
   };
 
@@ -141,7 +141,7 @@ export default function TripDetailPage() {
       .eq('id', itemId);
     if (error) {
       setNotes(prev => ({ ...prev, [itemId]: null }));
-      alert('Error saving note');
+      alert(t('trips.error_saving_note'));
     }
   };
 
@@ -163,7 +163,7 @@ export default function TripDetailPage() {
   const viewOnMap = () => {
     const waypoints = items.filter(i => i.data?.lat && i.data?.lng).map(i => ({ lat: i.data.lat, lng: i.data.lng }));
     if (waypoints.length === 0) {
-      alert('No locations with coordinates in this trip');
+      alert(t('trips.location_missing'));
       return;
     }
     const waypointsParam = encodeURIComponent(JSON.stringify(waypoints));
@@ -173,7 +173,7 @@ export default function TripDetailPage() {
   const shareTrip = () => {
     const url = `${window.location.origin}/trip/${id}`;
     navigator.clipboard.writeText(url);
-    alert('Trip link copied!');
+    alert(t('trips.trip_link_copied'));
   };
 
   if (loading) return <LoadingSpinner size="lg" />;
@@ -195,7 +195,6 @@ export default function TripDetailPage() {
 
   return (
     <div className="container-custom max-w-4xl">
-      {/* Header with title and buttons */}
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-4">
         {editingTitle ? (
           <div className="w-full">
@@ -214,32 +213,33 @@ export default function TripDetailPage() {
               rows="2"
             />
             <div className="mt-2 flex gap-2">
-              <Button size="sm" onClick={updateTrip}>Save</Button>
-              <Button size="sm" variant="outline" onClick={() => setEditingTitle(false)}>Cancel</Button>
+              <Button size="sm" onClick={updateTrip}>{t('common.save')}</Button>
+              <Button size="sm" variant="outline" onClick={() => setEditingTitle(false)}>{t('common.cancel')}</Button>
             </div>
           </div>
         ) : (
           <div>
             <h1 className="text-2xl sm:text-3xl font-bold text-text break-words">{trip.title}</h1>
             {trip.description && <p className="text-text-soft mt-1">{trip.description}</p>}
-            <button onClick={() => setEditingTitle(true)} className="text-primary text-sm mt-1">✏️ Edit</button>
+            <button onClick={() => setEditingTitle(true)} className="text-primary text-sm mt-1">
+              ✏️ {t('trips.edit_trip')}
+            </button>
           </div>
         )}
         <div className="flex gap-2 flex-wrap justify-end">
-          <Button size="sm" variant="outline" onClick={shareTrip}>🔗 Share</Button>
-          <Button size="sm" onClick={viewOnMap} disabled={items.length === 0}>🗺️ Map</Button>
-          <Link to="/trips" className="text-primary text-sm self-center">← Back</Link>
+          <Button size="sm" variant="outline" onClick={shareTrip}>🔗 {t('trips.share')}</Button>
+          <Button size="sm" onClick={viewOnMap} disabled={items.length === 0}>🗺️ {t('trips.view_on_map')}</Button>
+          <Link to="/trips" className="text-primary text-sm self-center">← {t('trips.back')}</Link>
         </div>
       </div>
 
-      {/* Places list with drag and drop */}
       <div className="mt-6">
         <div className="flex justify-between items-center mb-3 flex-wrap gap-2">
-          <h2 className="text-xl font-semibold">Places in this trip</h2>
-          <Button size="sm" onClick={() => setShowAddModal(true)}>+ Add Place</Button>
+          <h2 className="text-xl font-semibold">{t('trips.places_title')}</h2>
+          <Button size="sm" onClick={() => setShowAddModal(true)}>+ {t('trips.add_place')}</Button>
         </div>
         {items.length === 0 ? (
-          <p className="text-text-soft">No places added yet. Click "Add Place" to start.</p>
+          <p className="text-text-soft">{t('trips.no_places')}</p>
         ) : (
           <DragDropContext onDragEnd={onDragEnd}>
             <Droppable droppableId="trip-items">
@@ -259,9 +259,7 @@ export default function TripDetailPage() {
                               <span className="font-medium break-words">{getName(item)}</span>
                               <span className="text-xs text-text-soft ml-2 capitalize">{item.item_type}</span>
                             </Link>
-                            <button onClick={() => removeItem(item.id)} className="text-red-500 hover:text-red-700 p-1">
-                              ✕
-                            </button>
+                            <button onClick={() => removeItem(item.id)} className="text-red-500 hover:text-red-700 p-1">✕</button>
                           </div>
                           <div className="mt-2">
                             {editingNoteId === item.id ? (
@@ -271,12 +269,12 @@ export default function TripDetailPage() {
                                   value={notes[item.id] || ''}
                                   onChange={(e) => setNotes({ ...notes, [item.id]: e.target.value })}
                                   className="flex-1 border rounded px-2 py-1 text-sm"
-                                  placeholder="Add a note..."
+                                  placeholder={t('trips.note_placeholder')}
                                   autoFocus
                                 />
                                 <div className="flex gap-1">
-                                  <button onClick={() => saveNote(item.id)} className="text-primary text-sm">Save</button>
-                                  <button onClick={() => setEditingNoteId(null)} className="text-gray-500 text-sm">Cancel</button>
+                                  <button onClick={() => saveNote(item.id)} className="text-primary text-sm">{t('trips.save_note')}</button>
+                                  <button onClick={() => setEditingNoteId(null)} className="text-gray-500 text-sm">{t('trips.cancel_note')}</button>
                                 </div>
                               </div>
                             ) : (
@@ -284,10 +282,10 @@ export default function TripDetailPage() {
                                 {notes[item.id] ? (
                                   <div className="flex justify-between flex-wrap gap-2">
                                     <span className="break-words">📝 {notes[item.id]}</span>
-                                    <button onClick={() => setEditingNoteId(item.id)} className="text-primary text-xs">Edit</button>
+                                    <button onClick={() => setEditingNoteId(item.id)} className="text-primary text-xs">{t('trips.edit_note')}</button>
                                   </div>
                                 ) : (
-                                  <button onClick={() => setEditingNoteId(item.id)} className="text-primary text-xs">+ Add note</button>
+                                  <button onClick={() => setEditingNoteId(item.id)} className="text-primary text-xs">+ {t('trips.add_note')}</button>
                                 )}
                               </div>
                             )}
@@ -304,28 +302,27 @@ export default function TripDetailPage() {
         )}
       </div>
 
-      {/* Add modal – mobile optimised */}
       {showAddModal && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
           <div className="bg-white rounded-xl p-6 w-full max-w-md max-h-[90vh] overflow-y-auto">
-            <h3 className="text-xl font-semibold mb-4">Add a place</h3>
+            <h3 className="text-xl font-semibold mb-4">{t('trips.add_modal_title')}</h3>
             <div className="flex gap-2 mb-3">
               <button
                 className={`flex-1 px-3 py-1 rounded ${addType === 'destination' ? 'bg-primary text-white' : 'bg-gray-200'}`}
                 onClick={() => setAddType('destination')}
               >
-                Destination
+                {t('trips.destination')}
               </button>
               <button
                 className={`flex-1 px-3 py-1 rounded ${addType === 'business' ? 'bg-primary text-white' : 'bg-gray-200'}`}
                 onClick={() => setAddType('business')}
               >
-                Business
+                {t('trips.business')}
               </button>
             </div>
             <input
               type="text"
-              placeholder="Search..."
+              placeholder={t('trips.search_placeholder')}
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               className="w-full border rounded px-3 py-2 mb-3"
@@ -343,10 +340,10 @@ export default function TripDetailPage() {
                   </button>
                 );
               })}
-              {filteredAvailable.length === 0 && <p className="text-text-soft text-center">No results</p>}
+              {filteredAvailable.length === 0 && <p className="text-text-soft text-center">{t('trips.no_results')}</p>}
             </div>
             <div className="mt-4 flex justify-end">
-              <Button variant="outline" onClick={() => setShowAddModal(false)}>Cancel</Button>
+              <Button variant="outline" onClick={() => setShowAddModal(false)}>{t('trips.cancel')}</Button>
             </div>
           </div>
         </div>
