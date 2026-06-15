@@ -31,7 +31,6 @@ export default function TripDetailPage() {
   }, [id, user]);
 
   const fetchTrip = async () => {
-    // Fetch trip details
     const { data: tripData, error: tripError } = await supabase
       .from('trips')
       .select('*')
@@ -45,7 +44,6 @@ export default function TripDetailPage() {
     setTitle(tripData.title);
     setDescription(tripData.description || '');
 
-    // Fetch items with joined data
     const { data: itemsData, error: itemsError } = await supabase
       .from('trip_items')
       .select('*')
@@ -75,7 +73,6 @@ export default function TripDetailPage() {
       setNotes(notesMap);
     }
 
-    // Fetch available places
     const { data: dests } = await supabase.from('destinations').select('id, name, name_my');
     const { data: bizs } = await supabase.from('businesses').select('id, name, name_my');
     setAvailableDestinations(dests || []);
@@ -96,7 +93,6 @@ export default function TripDetailPage() {
 
   const addItem = async (itemType, itemId) => {
     const newOrderIndex = items.length;
-    // Optimistically add to local state (temporary id)
     const tempId = Date.now();
     const newItem = {
       id: tempId,
@@ -117,11 +113,9 @@ export default function TripDetailPage() {
       .select()
       .single();
     if (error) {
-      // revert on error
       setItems(prev => prev.filter(i => i.id !== tempId));
       alert('Error adding item');
     } else {
-      // replace temp item with real one
       setItems(prev => prev.map(i => i.id === tempId ? { ...data, data: newItem.data } : i));
     }
     setShowAddModal(false);
@@ -129,7 +123,6 @@ export default function TripDetailPage() {
 
   const removeItem = async (itemId) => {
     if (!confirm('Remove from trip?')) return;
-    // Optimistic removal
     const originalItems = [...items];
     setItems(prev => prev.filter(i => i.id !== itemId));
     const { error } = await supabase.from('trip_items').delete().eq('id', itemId);
@@ -141,14 +134,12 @@ export default function TripDetailPage() {
 
   const saveNote = async (itemId) => {
     const newNotes = notes[itemId] || null;
-    // Optimistic update
     setEditingNoteId(null);
     const { error } = await supabase
       .from('trip_items')
       .update({ notes: newNotes })
       .eq('id', itemId);
     if (error) {
-      // revert in state
       setNotes(prev => ({ ...prev, [itemId]: null }));
       alert('Error saving note');
     }
@@ -156,25 +147,17 @@ export default function TripDetailPage() {
 
   const onDragEnd = async (result) => {
     if (!result.destination) return;
-
-    // Reorder local state
     const reordered = Array.from(items);
     const [movedItem] = reordered.splice(result.source.index, 1);
     reordered.splice(result.destination.index, 0, movedItem);
     setItems(reordered);
-
-    // Update order_index in database for all affected items
-    const updates = reordered.map((item, idx) => ({
-      id: item.id,
-      order_index: idx,
-    }));
+    const updates = reordered.map((item, idx) => ({ id: item.id, order_index: idx }));
     await Promise.all(updates.map(update =>
       supabase
         .from('trip_items')
         .update({ order_index: update.order_index })
         .eq('id', update.id)
     ));
-    // No need to fetchTrip()
   };
 
   const viewOnMap = () => {
@@ -212,14 +195,15 @@ export default function TripDetailPage() {
 
   return (
     <div className="container-custom max-w-4xl">
-      <div className="flex justify-between items-start mb-4 flex-wrap gap-2">
+      {/* Header with title and buttons */}
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-4">
         {editingTitle ? (
-          <div className="flex-1 mr-2">
+          <div className="w-full">
             <input
               type="text"
               value={title}
               onChange={(e) => setTitle(e.target.value)}
-              className="text-2xl font-bold border rounded px-2 py-1 w-full"
+              className="text-2xl sm:text-3xl font-bold border rounded px-2 py-1 w-full"
               autoFocus
             />
             <textarea
@@ -235,21 +219,22 @@ export default function TripDetailPage() {
             </div>
           </div>
         ) : (
-          <div className="flex-1">
-            <h1 className="text-2xl sm:text-3xl font-bold text-text">{trip.title}</h1>
+          <div>
+            <h1 className="text-2xl sm:text-3xl font-bold text-text break-words">{trip.title}</h1>
             {trip.description && <p className="text-text-soft mt-1">{trip.description}</p>}
             <button onClick={() => setEditingTitle(true)} className="text-primary text-sm mt-1">✏️ Edit</button>
           </div>
         )}
-        <div className="flex gap-2">
+        <div className="flex gap-2 flex-wrap justify-end">
           <Button size="sm" variant="outline" onClick={shareTrip}>🔗 Share</Button>
-          <Button size="sm" onClick={viewOnMap} disabled={items.length === 0}>🗺️ View on Map</Button>
+          <Button size="sm" onClick={viewOnMap} disabled={items.length === 0}>🗺️ Map</Button>
           <Link to="/trips" className="text-primary text-sm self-center">← Back</Link>
         </div>
       </div>
 
+      {/* Places list with drag and drop */}
       <div className="mt-6">
-        <div className="flex justify-between items-center mb-3">
+        <div className="flex justify-between items-center mb-3 flex-wrap gap-2">
           <h2 className="text-xl font-semibold">Places in this trip</h2>
           <Button size="sm" onClick={() => setShowAddModal(true)}>+ Add Place</Button>
         </div>
@@ -269,16 +254,18 @@ export default function TripDetailPage() {
                           {...provided.dragHandleProps}
                           className="bg-white rounded-lg shadow p-3"
                         >
-                          <div className="flex justify-between items-center">
-                            <Link to={getLink(item)} className="flex-1">
-                              <span className="font-medium">{getName(item)}</span>
+                          <div className="flex flex-wrap justify-between items-center gap-2">
+                            <Link to={getLink(item)} className="flex-1 min-w-0">
+                              <span className="font-medium break-words">{getName(item)}</span>
                               <span className="text-xs text-text-soft ml-2 capitalize">{item.item_type}</span>
                             </Link>
-                            <button onClick={() => removeItem(item.id)} className="text-red-500 hover:text-red-700">✕</button>
+                            <button onClick={() => removeItem(item.id)} className="text-red-500 hover:text-red-700 p-1">
+                              ✕
+                            </button>
                           </div>
                           <div className="mt-2">
                             {editingNoteId === item.id ? (
-                              <div className="flex gap-1">
+                              <div className="flex flex-col sm:flex-row gap-1">
                                 <input
                                   type="text"
                                   value={notes[item.id] || ''}
@@ -287,14 +274,16 @@ export default function TripDetailPage() {
                                   placeholder="Add a note..."
                                   autoFocus
                                 />
-                                <button onClick={() => saveNote(item.id)} className="text-primary text-sm">Save</button>
-                                <button onClick={() => setEditingNoteId(null)} className="text-gray-500 text-sm">Cancel</button>
+                                <div className="flex gap-1">
+                                  <button onClick={() => saveNote(item.id)} className="text-primary text-sm">Save</button>
+                                  <button onClick={() => setEditingNoteId(null)} className="text-gray-500 text-sm">Cancel</button>
+                                </div>
                               </div>
                             ) : (
                               <div className="text-sm text-text-soft">
                                 {notes[item.id] ? (
-                                  <div className="flex justify-between">
-                                    <span>📝 {notes[item.id]}</span>
+                                  <div className="flex justify-between flex-wrap gap-2">
+                                    <span className="break-words">📝 {notes[item.id]}</span>
                                     <button onClick={() => setEditingNoteId(item.id)} className="text-primary text-xs">Edit</button>
                                   </div>
                                 ) : (
@@ -315,20 +304,20 @@ export default function TripDetailPage() {
         )}
       </div>
 
-      {/* Add modal (unchanged) */}
+      {/* Add modal – mobile optimised */}
       {showAddModal && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
-          <div className="bg-white rounded-xl p-6 w-full max-w-md">
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-xl p-6 w-full max-w-md max-h-[90vh] overflow-y-auto">
             <h3 className="text-xl font-semibold mb-4">Add a place</h3>
             <div className="flex gap-2 mb-3">
               <button
-                className={`px-3 py-1 rounded ${addType === 'destination' ? 'bg-primary text-white' : 'bg-gray-200'}`}
+                className={`flex-1 px-3 py-1 rounded ${addType === 'destination' ? 'bg-primary text-white' : 'bg-gray-200'}`}
                 onClick={() => setAddType('destination')}
               >
                 Destination
               </button>
               <button
-                className={`px-3 py-1 rounded ${addType === 'business' ? 'bg-primary text-white' : 'bg-gray-200'}`}
+                className={`flex-1 px-3 py-1 rounded ${addType === 'business' ? 'bg-primary text-white' : 'bg-gray-200'}`}
                 onClick={() => setAddType('business')}
               >
                 Business

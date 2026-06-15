@@ -59,12 +59,12 @@ export default function TripsPage() {
 
   return (
     <div className="container-custom max-w-4xl">
-      <div className="flex justify-between items-center mb-6">
-        <h1 className="page-title">My Trip Plans</h1>
+      <div className="flex justify-between items-center mb-6 flex-wrap gap-2">
+        <h1 className="page-title text-2xl sm:text-3xl">My Trip Plans</h1>
       </div>
 
       <div className="bg-white rounded-xl shadow-md p-4 mb-8">
-        <div className="flex gap-2">
+        <div className="flex flex-col sm:flex-row gap-2">
           <input
             type="text"
             placeholder="Trip name (e.g., 'Weekend Adventure')"
@@ -72,7 +72,7 @@ export default function TripsPage() {
             onChange={(e) => setNewTitle(e.target.value)}
             className="flex-1 border rounded-lg px-3 py-2"
           />
-          <Button onClick={createTrip} disabled={creating || !newTitle.trim()}>
+          <Button onClick={createTrip} disabled={creating || !newTitle.trim()} className="w-full sm:w-auto">
             + New Trip
           </Button>
         </div>
@@ -85,11 +85,11 @@ export default function TripsPage() {
           {trips.map(trip => (
             <div key={trip.id} className="bg-white rounded-xl shadow-md p-4 flex justify-between items-center">
               <Link to={`/trip/${trip.id}`} className="flex-1">
-                <h3 className="text-lg font-semibold text-text">{trip.title}</h3>
+                <h3 className="text-lg font-semibold text-text break-words">{trip.title}</h3>
                 {trip.description && <p className="text-text-soft text-sm line-clamp-1">{trip.description}</p>}
                 <p className="text-xs text-text-soft mt-1">{new Date(trip.created_at).toLocaleDateString()}</p>
               </Link>
-              <button onClick={() => deleteTrip(trip.id)} className="text-red-500 hover:text-red-700 p-2">
+              <button onClick={() => deleteTrip(trip.id)} className="text-red-500 hover:text-red-700 p-2 ml-2 flex-shrink-0">
                 🗑️
               </button>
             </div>
