@@ -20,6 +20,7 @@ export default function AdminDestinations() {
     lat: "",
     lng: "",
     image: "",
+    video_url: "",
   });
 
   useEffect(() => {
@@ -80,6 +81,7 @@ export default function AdminDestinations() {
       lat: item.lat ?? "",
       lng: item.lng ?? "",
       image: item.image || "",
+      video_url: item.video_url || "",
     });
     setModalOpen(true);
   };
@@ -212,6 +214,17 @@ export default function AdminDestinations() {
               }))
             }
           />
+          <div>
+            <h3 className="font-semibold mb-2">Video</h3>
+            <input
+              type="url"
+              name="video_url"
+              placeholder="YouTube video URL (e.g., https://www.youtube.com/watch?v=...)"
+              value={formData.video_url}
+              onChange={handleInputChange}
+              className="w-full border rounded px-3 py-2"
+            />
+          </div>
         </div>
       </FormModal>
     </>

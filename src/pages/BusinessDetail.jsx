@@ -14,6 +14,7 @@ import LocationControl from '../components/LocationControl';
 import UserPhotoUpload from '../components/UserPhotoUpload';
 import UserPhotoGallery from '../components/UserPhotoGallery';
 import AddToTripButton from '../components/AddToTripButton';
+import { getYouTubeEmbedUrl } from '../utils/videoHelpers';
 
 // Fix Leaflet default marker icons
 delete L.Icon.Default.prototype._getIconUrl;
@@ -52,6 +53,7 @@ export default function BusinessDetail() {
   const address = getLocalized(business, 'address', 'address_my');
   const hasCoordinates = business?.lat && business?.lng;
   const mapCenter = hasCoordinates ? [business.lat, business.lng] : [16.89, 97.65];
+  const videoEmbedUrl = getYouTubeEmbedUrl(business?.video_url);
 
   const handleGetDirections = () => {
     if (!hasCoordinates) {
@@ -131,6 +133,27 @@ export default function BusinessDetail() {
             <div className="prose prose-lg max-w-none mb-8">
               <p className="text-text-soft leading-relaxed">{description}</p>
             </div>
+            {/* Add to Trip Button */}
+            <AddToTripButton itemType="business" itemId={business.id} itemName={name} />
+
+            {/* Embedded Video – now using business.video_url */}
+            {videoEmbedUrl && (
+              <div className="mt-6 mb-6">
+                <h3 className="text-xl font-semibold text-text mb-3">
+                  {language === 'my' ? 'ဗီဒီယို' : 'Video'}
+                </h3>
+                <div className="relative w-full pb-[56.25%] h-0 rounded-lg overflow-hidden shadow-md">
+                  <iframe
+                    src={videoEmbedUrl}
+                    className="absolute top-0 left-0 w-full h-full"
+                    frameBorder="0"
+                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                    allowFullScreen
+                    title={`Video for ${name}`}
+                  />
+                </div>
+              </div>
+            )}
 
             {/* User Photos (Upload & Gallery) */}
             <UserPhotoUpload businessId={business.id} onUploadComplete={() => window.location.reload()} />
@@ -143,12 +166,7 @@ export default function BusinessDetail() {
                   {language === 'my' ? 'တည်နေရာ' : 'Location'}
                 </h3>
                 <div className="h-80 w-full rounded-lg overflow-hidden shadow-md z-0">
-                  <MapContainer
-                    center={mapCenter}
-                    zoom={15}
-                    style={{ height: '100%', width: '100%' }}
-                    className="z-0"
-                  >
+                  <MapContainer center={mapCenter} zoom={15} style={{ height: '100%', width: '100%' }} className="z-0">
                     <TileLayer
                       url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
                       attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
@@ -170,7 +188,8 @@ export default function BusinessDetail() {
                 </button>
               </div>
             )}
-            <AddToTripButton itemType="business" itemId={business.id} itemName={name} />
+
+
             {/* Reviews */}
             <BusinessReviews businessId={business.id} />
           </div>
@@ -181,10 +200,7 @@ export default function BusinessDetail() {
               <div className="bg-white rounded-2xl shadow-lg p-6 border border-neutral-mid">
                 <h3 className="font-semibold text-text mb-4">Contact & booking</h3>
                 <div className="space-y-3">
-                  <a
-                    href={`tel:${business.phone}`}
-                    className="flex justify-between p-3 bg-neutral-light rounded-xl hover:bg-neutral-mid transition"
-                  >
+                  <a href={`tel:${business.phone}`} className="flex justify-between p-3 bg-neutral-light rounded-xl hover:bg-neutral-mid transition">
                     <span className="text-text">{business.phone}</span>
                     <svg className="w-5 h-5 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
@@ -204,12 +220,7 @@ export default function BusinessDetail() {
               </div>
               <div className="bg-white rounded-2xl shadow-lg p-6 border border-neutral-mid">
                 <h3 className="font-semibold text-text mb-3">Share</h3>
-                <SocialShare
-                  title={name}
-                  url={window.location.href}
-                  description={description}
-                  image={business.image}
-                />
+                <SocialShare title={name} url={window.location.href} description={description} image={business.image} />
               </div>
             </div>
           </div>
