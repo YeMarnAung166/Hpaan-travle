@@ -21,6 +21,7 @@
     "back": "back",
     "dashboard": "Dashboard"
   },
+  
   "home": {
   "hero_title": "Discover the Hidden Gem of Myanmar",
   "hero_subtitle": "Explore limestone mountains, ancient caves, and authentic Kayin culture in Hpa‑An.",
@@ -70,8 +71,21 @@
     "login_required": "Please log in to see your favorites"
   },
   "map": {
-    "title": "Map"
-  },
+  "title": "Map",
+  "search_placeholder": "Search for a place...",
+  "you_are_here": "You are here",
+  "your_location_start": "Your location (start)",
+  "clear_route": "Clear Route",
+  "km_away": "km away",
+  "street": "Street",
+  "satellite": "Satellite",
+  "terrain": "Terrain",
+  "street_view": "Street View",
+  "street_view_loading": "Loading street view...",
+  "street_view_unavailable": "No street view available for this location",
+  "close": "Close",
+  "drag_to_look": "Drag to look around • Zoom to explore"
+},
   "reviews": {
     "title": "Reviews & Ratings",
     "average": "Average Rating",

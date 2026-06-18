@@ -22,6 +22,7 @@ import {
   Tooltip,
   Polyline,
   useMap,
+  LayersControl,
 } from 'react-leaflet';
 import MarkerClusterGroup from 'react-leaflet-markercluster';
 import L from 'leaflet';
@@ -35,6 +36,7 @@ import RouteControl from '../components/RouteControl';
 import { supabase } from '../supabaseClient';
 import { Link, useSearchParams } from 'react-router-dom';
 import LoadingSpinner from '../components/ui/LoadingSpinner';
+import { useLanguage } from '../context/LanguageContext';
 
 // Fix default marker icons
 delete L.Icon.Default.prototype._getIconUrl;
@@ -75,23 +77,38 @@ const userIcon = L.divIcon({
   className: 'custom-marker',
 });
 
+// Helper function to calculate distance in km using Haversine formula
+function getDistance(lat1, lng1, lat2, lng2) {
+  const R = 6371;
+  const dLat = (lat2 - lat1) * Math.PI / 180;
+  const dLng = (lng2 - lng1) * Math.PI / 180;
+  const a = Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+            Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
+            Math.sin(dLng / 2) * Math.sin(dLng / 2);
+  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+  return R * c;
+}
+
+// Geocoder component
 function GeocoderControl({ onPlaceSelected }) {
   const map = useMap();
+  const { t } = useLanguage();
   useEffect(() => {
     const geocoder = L.Control.geocoder({
       defaultMarkGeocode: false,
-      placeholder: 'Search for a place...',
+      placeholder: t('map.search_placeholder'),
     }).on('markgeocode', (e) => {
       const center = e.geocode.center;
       map.flyTo(center, 15);
       if (onPlaceSelected) onPlaceSelected(center);
     }).addTo(map);
     return () => geocoder.remove();
-  }, [map, onPlaceSelected]);
+  }, [map, onPlaceSelected, t]);
   return null;
 }
 
 export default function MapPage() {
+  const { t } = useLanguage();
   const [attractions, setAttractions] = useState([]);
   const [businesses, setBusinesses] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -198,13 +215,9 @@ export default function MapPage() {
   };
 
   const clearRouting = () => {
-    console.log('Clearing route...'); // for debugging
     setRouteStart(null);
     setRouteEnd(null);
     setRoutingActive(false);
-    // Optionally, also clear any trip route (if you want)
-    // setTripWaypoints(null);
-    // setTripRouteCoords([]);
   };
 
   if (loading) return <LoadingSpinner size="lg" />;
@@ -226,11 +239,31 @@ export default function MapPage() {
           if (map) setMapReady(true);
         }}
       >
-        <TileLayer
-          attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OSM</a>'
-          url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-        />
+        {/* ===== LAYER TOGGLE ===== */}
+        <LayersControl position="topright">
+          <LayersControl.BaseLayer name={t('map.street')} checked>
+            <TileLayer
+              attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OSM</a>'
+              url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+            />
+          </LayersControl.BaseLayer>
+          <LayersControl.BaseLayer name={t('map.satellite')}>
+            <TileLayer
+              attribution='&copy; <a href="https://www.esri.com/">Esri</a>'
+              url="https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}"
+              maxZoom={19}
+            />
+          </LayersControl.BaseLayer>
+          <LayersControl.BaseLayer name={t('map.terrain')}>
+            <TileLayer
+              attribution='&copy; <a href="https://opentopomap.org/">OpenTopoMap</a>'
+              url="https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png"
+              maxZoom={17}
+            />
+          </LayersControl.BaseLayer>
+        </LayersControl>
 
+        {/* ===== MARKERS WITH CLUSTERING AND DISTANCE ===== */}
         <MarkerClusterGroup chunkedLoading>
           {allMarkers.map((marker) => (
             <Marker
@@ -245,6 +278,12 @@ export default function MapPage() {
                 <div className="text-center min-w-[200px]">
                   <strong>{marker.name}</strong>
                   {marker.description && <p className="text-sm mt-1">{marker.description}</p>}
+                  {/* Distance from user */}
+                  {userLocation && (
+                    <p className="text-xs text-text-soft mt-1">
+                      {getDistance(userLocation.lat, userLocation.lng, marker.lat, marker.lng).toFixed(1)} {t('map.km_away')}
+                    </p>
+                  )}
                   {marker.type === 'business' && (
                     <>
                       <Link to={`/business/${marker.id}`} className="inline-block mt-2 text-green-600 text-sm hover:underline">
@@ -272,6 +311,7 @@ export default function MapPage() {
           ))}
         </MarkerClusterGroup>
 
+        {/* ===== TRIP ROUTE ===== */}
         {tripRouteCoords.length > 0 && !routingActive && (
           <Polyline positions={tripRouteCoords} color="#FF5733" weight={5} opacity={0.9} />
         )}
@@ -285,12 +325,15 @@ export default function MapPage() {
           />
         )}
 
+        {/* ===== DIRECTION ROUTE ===== */}
         {routingActive && routeStart && routeEnd && (
           <RouteControl start={routeStart} end={routeEnd} onRouteReady={() => {}} />
         )}
 
+        {/* ===== GEOCODER ===== */}
         <GeocoderControl />
 
+        {/* ===== LOCATION CONTROL ===== */}
         <LocationControl
           onLocationFound={(loc) => {
             setUserLocation(loc);
@@ -300,20 +343,20 @@ export default function MapPage() {
           }}
         />
 
+        {/* ===== USER LOCATION MARKER ===== */}
         {userLocation && !routingActive && (
           <Marker position={[userLocation.lat, userLocation.lng]} icon={userIcon}>
-            <Popup>You are here</Popup>
+            <Popup>{t('map.you_are_here')}</Popup>
           </Marker>
         )}
-
         {userLocation && routingActive && (
           <Marker position={[userLocation.lat, userLocation.lng]} icon={userIcon}>
-            <Popup>Your location (start)</Popup>
+            <Popup>{t('map.your_location_start')}</Popup>
           </Marker>
         )}
       </MapContainer>
 
-      {/* Clear Route button – placed outside MapContainer for visibility */}
+      {/* ===== CLEAR ROUTE BUTTON ===== */}
       {routingActive && (
         <div className="absolute bottom-5 right-5 z-[1000]">
           <button
@@ -321,7 +364,7 @@ export default function MapPage() {
             className="bg-white text-gray-800 px-3 py-2 rounded-lg shadow-md hover:bg-gray-100 transition flex items-center gap-2"
           >
             <span className="text-red-500 text-lg">✕</span>
-            <span className="text-sm font-medium">Clear Route</span>
+            <span className="text-sm font-medium">{t('map.clear_route')}</span>
           </button>
         </div>
       )}
