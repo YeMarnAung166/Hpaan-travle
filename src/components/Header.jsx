@@ -41,13 +41,17 @@ export default function Header({ onLoginClick, onLogoutClick }) {
     navLinks.push({ to: "/favorites", label: t("nav.favorites") });
   }
 
-  const activeLinkClass = ({ isActive }) =>
+  // Desktop link styles – adapt to transparency
+  const desktopLinkClass = ({ isActive }) =>
     isActive
       ? `font-semibold border-b-2 ${isTransparent ? 'border-white text-white' : 'border-primary text-primary'}`
       : `transition ${isTransparent ? 'text-white/80 hover:text-white' : 'text-text hover:text-primary'}`;
 
-  const mobileActiveLinkClass = ({ isActive }) =>
-    isActive ? `font-semibold ${isTransparent ? 'text-white' : 'text-primary'}` : `transition ${isTransparent ? 'text-white/80' : 'text-text'}`;
+  // Mobile link styles – always dark (on white background)
+  const mobileLinkClass = ({ isActive }) =>
+    isActive
+      ? 'font-semibold text-primary'
+      : 'text-text hover:text-primary transition';
 
   const avatarUrl = profile?.avatar_url;
   const displayName = profile?.display_name || user?.email?.split('@')[0] || 'User';
@@ -60,7 +64,7 @@ export default function Header({ onLoginClick, onLogoutClick }) {
           : 'bg-white dark:bg-neutral-dark border-b border-neutral-mid shadow-sm'
       }`}
     >
-      <div className="container mx-auto px-4 py-3">
+      <div className="container mx-auto px-4 py-3 relative">
         {/* Top row: Logo centered, actions on far right */}
         <div className="flex justify-between items-center relative">
           <div className="flex-1 flex justify-start md:justify-center">
@@ -166,28 +170,26 @@ export default function Header({ onLoginClick, onLogoutClick }) {
         {/* Bottom row: Navigation links (desktop) */}
         <nav className="hidden md:flex items-center justify-center gap-6 mt-2">
           {navLinks.map(link => (
-            <NavLink key={link.to} to={link.to} className={activeLinkClass} end={link.to === '/'}>
+            <NavLink key={link.to} to={link.to} className={desktopLinkClass} end={link.to === '/'}>
               {link.label}
             </NavLink>
           ))}
           {user && isUserAdmin(user) && (
-            <NavLink to="/admin" className={activeLinkClass}>
+            <NavLink to="/admin" className={desktopLinkClass}>
               {t('nav.admin')}
             </NavLink>
           )}
         </nav>
 
-        {/* Mobile dropdown menu */}
+        {/* Mobile dropdown – absolutely positioned, white card with dark text */}
         {isMenuOpen && (
-          <div className={`md:hidden border-t ${
-            isTransparent ? 'border-white/10 bg-black/50 backdrop-blur-md' : 'border-neutral-mid bg-white dark:bg-neutral-dark'
-          } py-3 mt-2`}>
-            <div className="container mx-auto px-4 flex flex-col space-y-3">
+          <div className="md:hidden absolute left-0 right-0 top-full mt-1 z-50 bg-white dark:bg-neutral-dark rounded-xl shadow-xl border border-neutral-mid dark:border-neutral-700 overflow-hidden">
+            <div className="container mx-auto px-4 py-3 flex flex-col space-y-3">
               {navLinks.map(link => (
                 <NavLink
                   key={link.to}
                   to={link.to}
-                  className={mobileActiveLinkClass}
+                  className={mobileLinkClass}
                   onClick={closeMenu}
                   end={link.to === '/'}
                 >
@@ -195,28 +197,22 @@ export default function Header({ onLoginClick, onLogoutClick }) {
                 </NavLink>
               ))}
               {user && isUserAdmin(user) && (
-                <NavLink to="/admin" className={mobileActiveLinkClass} onClick={closeMenu}>
+                <NavLink to="/admin" className={mobileLinkClass} onClick={closeMenu}>
                   {t('nav.admin')}
                 </NavLink>
               )}
-              <div className={`flex items-center gap-4 pt-2 border-t ${
-                isTransparent ? 'border-white/10' : 'border-neutral-mid'
-              }`}>
+              <div className="flex items-center gap-4 pt-2 border-t border-neutral-mid">
                 <button
                   onClick={() => setTheme(theme === 'light' ? 'dark' : 'light')}
-                  className={`p-2 rounded-full transition ${
-                    isTransparent ? 'text-white hover:bg-white/20' : 'text-text hover:bg-neutral-light'
-                  }`}
+                  className="p-2 rounded-full bg-neutral-light text-text hover:bg-neutral-mid transition"
                 >
                   {theme === 'light' ? '🌙' : '☀️'}
                 </button>
-                <div className={`flex gap-1 rounded-full p-0.5 ${isTransparent ? '' : 'bg-neutral-light'}`}>
+                <div className="flex gap-1 bg-neutral-light rounded-full p-0.5">
                   <button
                     onClick={() => setLanguage('en')}
                     className={`px-2 py-1 text-sm rounded-full transition ${
-                      language === 'en'
-                        ? isTransparent ? 'bg-white text-primary' : 'bg-primary text-white'
-                        : isTransparent ? 'text-white' : 'text-text'
+                      language === 'en' ? 'bg-primary text-white' : 'text-text hover:bg-neutral-mid'
                     }`}
                   >
                     EN
@@ -224,9 +220,7 @@ export default function Header({ onLoginClick, onLogoutClick }) {
                   <button
                     onClick={() => setLanguage('my')}
                     className={`px-2 py-1 text-sm rounded-full transition ${
-                      language === 'my'
-                        ? isTransparent ? 'bg-white text-primary' : 'bg-primary text-white'
-                        : isTransparent ? 'text-white' : 'text-text'
+                      language === 'my' ? 'bg-primary text-white' : 'text-text hover:bg-neutral-mid'
                     }`}
                   >
                     မြန်
@@ -235,24 +229,22 @@ export default function Header({ onLoginClick, onLogoutClick }) {
               </div>
               {user ? (
                 <div className="pt-2 space-y-2">
-                  <Link to="/account" className={`flex items-center gap-3 py-2 transition ${
-                    isTransparent ? 'text-white' : 'text-text'
-                  }`} onClick={closeMenu}>
+                  <Link
+                    to="/account"
+                    className="flex items-center gap-3 py-2 text-text hover:text-primary transition"
+                    onClick={closeMenu}
+                  >
                     {avatarUrl ? (
                       <img src={avatarUrl} alt="Avatar" className="w-8 h-8 rounded-full" />
                     ) : (
                       <span className="text-2xl">👤</span>
                     )}
-                    <span>{displayName}</span>
+                    <span className="font-medium">{displayName}</span>
                   </Link>
                   <Button
                     variant="outline"
                     size="sm"
-                    className={`w-full ${
-                      isTransparent
-                        ? 'border-white text-white hover:bg-white/20'
-                        : 'border-primary text-primary hover:bg-primary/10'
-                    }`}
+                    className="w-full border-primary text-primary hover:bg-primary/10"
                     onClick={() => { onLogoutClick(); closeMenu(); }}
                   >
                     {t('nav.logout')}
@@ -261,11 +253,7 @@ export default function Header({ onLoginClick, onLogoutClick }) {
               ) : (
                 <button
                   onClick={() => { onLoginClick(); closeMenu(); }}
-                  className={`w-full text-center py-2 rounded-full font-medium transition ${
-                    isTransparent
-                      ? 'bg-white text-primary hover:bg-gray-100'
-                      : 'bg-primary text-white hover:bg-primary-light'
-                  }`}
+                  className="w-full text-center py-2 rounded-full font-medium bg-primary text-white hover:bg-primary-light transition"
                 >
                   {t('nav.login')}
                 </button>

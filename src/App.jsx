@@ -11,6 +11,7 @@ import Footer from './components/Footer';
 import ScrollToTop from './components/ScrollToTop';
 import ProtectedRoute from './components/ProtectedRoute';
 import LoadingSpinner from './components/ui/LoadingSpinner';
+import GenerateItinerary from './pages/GenerateItinerary';
 
 // Lazy load pages
 const HomePage = lazy(() => import('./pages/HomePage'));
@@ -76,7 +77,7 @@ function App() {
                         {/* Trip Planner routes */}
                         <Route path="/trips" element={<TripsPage />} />
                         <Route path="/trip/:id" element={<TripDetailPage />} />
-
+                        <Route path="/generate-itinerary" element={<GenerateItinerary />} />
                         {/* Admin routes */}
                         <Route
                           path="/admin"
