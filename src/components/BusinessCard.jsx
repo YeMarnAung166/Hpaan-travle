@@ -1,5 +1,5 @@
-// src/components/BusinessCard.jsx
 import { Link } from "react-router-dom";
+import { motion, useMotionValue, useTransform, AnimatePresence } from "framer-motion";
 import { useUser } from "../context/UserContext";
 import { useFavorites } from "../hooks/useFavorites";
 import { useLanguage } from "../context/LanguageContext";
@@ -57,30 +57,54 @@ export default function BusinessCard({ business }) {
     setShowShare(false);
   };
 
+  const x = useMotionValue(0);
+  const y = useMotionValue(0);
+  const rotateX = useTransform(y, [-0.5, 0.5], [5, -5]);
+  const rotateY = useTransform(x, [-0.5, 0.5], [-5, 5]);
+
+  function handleMouseMove(e) {
+    const rect = e.currentTarget.getBoundingClientRect();
+    const xVal = (e.clientX - rect.left) / rect.width - 0.5;
+    const yVal = (e.clientY - rect.top) / rect.height - 0.5;
+    x.set(xVal);
+    y.set(yVal);
+  }
+
+  function handleMouseLeave() {
+    x.set(0);
+    y.set(0);
+  }
+
   return (
-    <div className="group relative bg-white rounded-xl overflow-hidden shadow-md hover:shadow-xl transition-all duration-300">
-      {/* Image with hover zoom and gradient overlay */}
+    <motion.div
+      className="group relative bg-white dark:bg-neutral-dark rounded-xl overflow-hidden shadow-md hover:shadow-xl transition-shadow duration-300"
+      style={{ perspective: 1000, rotateX, rotateY }}
+      onMouseMove={handleMouseMove}
+      onMouseLeave={handleMouseLeave}
+      whileHover={{ y: -6 }}
+      transition={{ type: 'spring', stiffness: 300, damping: 20 }}
+    >
       <div className="relative overflow-hidden h-48">
         <img
           src={business.image}
           alt={name}
-          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+          className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
         />
-        {/* Gradient overlay to make text readable if overlaid, but we don't overlay text */}
-        <div className="absolute inset-0 bg-gradient-to-t from-black/20 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+        <div className="absolute inset-0 bg-gradient-to-tr from-transparent via-white/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
       </div>
 
-      {/* Card content */}
       <div className="p-4">
         <div className="flex justify-between items-start gap-2 mb-1">
-          <h3 className="text-lg font-serif font-semibold text-gray-800 line-clamp-1">
+          <h3 className="text-lg font-serif font-semibold text-text line-clamp-1">
             {name}
           </h3>
           {user && (
-            <button
+            <motion.button
+              whileHover={{ scale: 1.2 }}
+              whileTap={{ scale: 0.9 }}
               onClick={() => toggleFavorite("business", business.id)}
-              className={`flex-shrink-0 transition-all duration-200 hover:scale-110 ${
-                isSaved ? "text-red-500" : "text-gray-400"
+              className={`flex-shrink-0 transition-colors duration-200 ${
+                isSaved ? "text-red-500" : "text-gray-400 hover:text-red-400"
               }`}
               title={isSaved ? "Remove from favorites" : "Save to favorites"}
             >
@@ -97,11 +121,10 @@ export default function BusinessCard({ business }) {
                   d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"
                 />
               </svg>
-            </button>
+            </motion.button>
           )}
         </div>
 
-        {/* Rating and address row */}
         <div className="flex flex-wrap items-center gap-2 mb-2">
           {avgRating && (
             <div className="flex items-center gap-1">
@@ -109,7 +132,7 @@ export default function BusinessCard({ business }) {
               <span className="text-xs text-text-soft">({ratingCount})</span>
             </div>
           )}
-          <div className="flex items-center text-xs text-gray-400">
+          <div className="flex items-center text-xs text-text-soft">
             <svg
               className="w-3 h-3 mr-0.5"
               fill="none"
@@ -143,23 +166,20 @@ export default function BusinessCard({ business }) {
             className="inline-flex items-center text-amber-600 font-medium hover:text-amber-700 transition-colors text-sm"
           >
             {t("business.details")}
-            <svg
+            <motion.svg
               className="w-3.5 h-3.5 ml-1"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
+              fill="none" stroke="currentColor" viewBox="0 0 24 24"
+              animate={{ x: [0, 3, 0] }}
+              transition={{ duration: 1.5, repeat: Infinity, ease: 'easeInOut' }}
             >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth="2"
-                d="M9 5l7 7-7 7"
-              />
-            </svg>
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5l7 7-7 7" />
+            </motion.svg>
           </Link>
 
           <div className="relative">
-            <button
+            <motion.button
+              whileHover={{ scale: 1.15 }}
+              whileTap={{ scale: 0.9 }}
               onClick={() => setShowShare(!showShare)}
               className="text-gray-400 hover:text-amber-500 transition-colors p-1"
               title={t("social.share") || "Share"}
@@ -177,40 +197,37 @@ export default function BusinessCard({ business }) {
                   d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z"
                 />
               </svg>
-            </button>
+            </motion.button>
 
-            {/* Share dropdown */}
-            {showShare && (
-              <div className="absolute bottom-full right-0 mb-2 bg-white rounded-xl shadow-lg p-1 z-10 border border-gray-100 min-w-[120px]">
-                <button
-                  onClick={() => handleShare("facebook")}
-                  className="flex items-center gap-2 w-full px-3 py-1.5 text-sm text-gray-700 hover:bg-gray-50 rounded-lg transition"
+            <AnimatePresence>
+              {showShare && (
+                <motion.div
+                  initial={{ opacity: 0, scale: 0.9, y: 5 }}
+                  animate={{ opacity: 1, scale: 1, y: 0 }}
+                  exit={{ opacity: 0, scale: 0.9, y: 5 }}
+                  transition={{ duration: 0.15 }}
+                  className="absolute bottom-full right-0 mb-2 bg-white dark:bg-neutral-dark rounded-xl shadow-lg p-1 z-10 border border-neutral-mid min-w-[120px]"
                 >
-                  <span className="text-blue-600">📘</span> Facebook
-                </button>
-                <button
-                  onClick={() => handleShare("whatsapp")}
-                  className="flex items-center gap-2 w-full px-3 py-1.5 text-sm text-gray-700 hover:bg-gray-50 rounded-lg transition"
-                >
-                  <span className="text-green-500">💬</span> WhatsApp
-                </button>
-                <button
-                  onClick={() => handleShare("twitter")}
-                  className="flex items-center gap-2 w-full px-3 py-1.5 text-sm text-gray-700 hover:bg-gray-50 rounded-lg transition"
-                >
-                  <span className="text-sky-500">🐦</span> Twitter
-                </button>
-                <button
-                  onClick={() => handleShare("telegram")}
-                  className="flex items-center gap-2 w-full px-3 py-1.5 text-sm text-gray-700 hover:bg-gray-50 rounded-lg transition"
-                >
-                  <span className="text-blue-400">✈️</span> Telegram
-                </button>
-              </div>
-            )}
+                  {[
+                    { name: "Facebook", icon: "📘", color: "text-blue-600", action: "facebook" },
+                    { name: "WhatsApp", icon: "💬", color: "text-green-500", action: "whatsapp" },
+                    { name: "Twitter", icon: "🐦", color: "text-sky-500", action: "twitter" },
+                    { name: "Telegram", icon: "✈️", color: "text-blue-400", action: "telegram" },
+                  ].map(item => (
+                    <button
+                      key={item.name}
+                      onClick={() => handleShare(item.action)}
+                      className="flex items-center gap-2 w-full px-3 py-1.5 text-sm text-text hover:bg-neutral-light rounded-lg transition"
+                    >
+                      <span className={item.color}>{item.icon}</span> {item.name}
+                    </button>
+                  ))}
+                </motion.div>
+              )}
+            </AnimatePresence>
           </div>
         </div>
       </div>
-    </div>
+    </motion.div>
   );
 }

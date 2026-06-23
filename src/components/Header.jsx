@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { NavLink, Link, useLocation } from 'react-router-dom';
+import { motion, AnimatePresence } from 'framer-motion';
 import { useUser } from '../context/UserContext';
 import { useLanguage } from '../context/LanguageContext';
 import { useTheme } from '../context/ThemeContext';
@@ -41,11 +42,12 @@ export default function Header({ onLoginClick, onLogoutClick }) {
     navLinks.push({ to: "/favorites", label: t("nav.favorites") });
   }
 
-  // Desktop link styles – adapt to transparency
   const desktopLinkClass = ({ isActive }) =>
-    isActive
-      ? `font-semibold border-b-2 ${isTransparent ? 'border-white text-white' : 'border-primary text-primary'}`
-      : `transition ${isTransparent ? 'text-white/80 hover:text-white' : 'text-text hover:text-primary'}`;
+    `relative px-1 py-1 font-medium transition ${
+      isActive
+        ? isTransparent ? 'text-white' : 'text-primary'
+        : isTransparent ? 'text-white/80 hover:text-white' : 'text-text hover:text-primary'
+    }`;
 
   // Mobile link styles – always dark (on white background)
   const mobileLinkClass = ({ isActive }) =>
@@ -58,10 +60,10 @@ export default function Header({ onLoginClick, onLogoutClick }) {
 
   return (
     <header
-      className={`sticky top-0 z-50 w-full transition-all duration-300 ${
+      className={`sticky top-0 z-50 w-full transition-all duration-500 ${
         isTransparent
           ? 'bg-transparent shadow-none border-transparent'
-          : 'bg-white dark:bg-neutral-dark border-b border-neutral-mid shadow-sm'
+          : 'bg-white/80 dark:bg-neutral-dark/80 backdrop-blur-xl border-b border-neutral-mid/50 shadow-sm'
       }`}
     >
       <div className="container mx-auto px-4 py-3 relative">
@@ -171,96 +173,142 @@ export default function Header({ onLoginClick, onLogoutClick }) {
         <nav className="hidden md:flex items-center justify-center gap-6 mt-2">
           {navLinks.map(link => (
             <NavLink key={link.to} to={link.to} className={desktopLinkClass} end={link.to === '/'}>
-              {link.label}
+              {({ isActive }) => (
+                <span className="relative">
+                  {link.label}
+                  <motion.span
+                    className={`absolute -bottom-1 left-0 right-0 h-0.5 rounded-full ${
+                      isTransparent ? 'bg-white' : 'bg-primary'
+                    }`}
+                    initial={{ scaleX: 0 }}
+                    animate={{ scaleX: isActive ? 1 : 0 }}
+                    transition={{ duration: 0.3, ease: 'easeOut' }}
+                    layoutId="nav-underline"
+                  />
+                </span>
+              )}
             </NavLink>
           ))}
           {user && isUserAdmin(user) && (
             <NavLink to="/admin" className={desktopLinkClass}>
-              {t('nav.admin')}
+              {({ isActive }) => (
+                <span className="relative">
+                  {t('nav.admin')}
+                  <motion.span
+                    className={`absolute -bottom-1 left-0 right-0 h-0.5 rounded-full ${
+                      isTransparent ? 'bg-white' : 'bg-primary'
+                    }`}
+                    initial={{ scaleX: 0 }}
+                    animate={{ scaleX: isActive ? 1 : 0 }}
+                    transition={{ duration: 0.3, ease: 'easeOut' }}
+                  />
+                </span>
+              )}
             </NavLink>
           )}
         </nav>
 
-        {/* Mobile dropdown – absolutely positioned, white card with dark text */}
-        {isMenuOpen && (
-          <div className="md:hidden absolute left-0 right-0 top-full mt-1 z-50 bg-white dark:bg-neutral-dark rounded-xl shadow-xl border border-neutral-mid dark:border-neutral-700 overflow-hidden">
-            <div className="container mx-auto px-4 py-3 flex flex-col space-y-3">
-              {navLinks.map(link => (
-                <NavLink
-                  key={link.to}
-                  to={link.to}
-                  className={mobileLinkClass}
-                  onClick={closeMenu}
-                  end={link.to === '/'}
-                >
-                  {link.label}
-                </NavLink>
-              ))}
-              {user && isUserAdmin(user) && (
-                <NavLink to="/admin" className={mobileLinkClass} onClick={closeMenu}>
-                  {t('nav.admin')}
-                </NavLink>
-              )}
-              <div className="flex items-center gap-4 pt-2 border-t border-neutral-mid">
-                <button
-                  onClick={() => setTheme(theme === 'light' ? 'dark' : 'light')}
-                  className="p-2 rounded-full bg-neutral-light text-text hover:bg-neutral-mid transition"
-                >
-                  {theme === 'light' ? '🌙' : '☀️'}
-                </button>
-                <div className="flex gap-1 bg-neutral-light rounded-full p-0.5">
-                  <button
-                    onClick={() => setLanguage('en')}
-                    className={`px-2 py-1 text-sm rounded-full transition ${
-                      language === 'en' ? 'bg-primary text-white' : 'text-text hover:bg-neutral-mid'
-                    }`}
+        <AnimatePresence>
+          {isMenuOpen && (
+            <motion.div
+              initial={{ opacity: 0, y: -10, scale: 0.97 }}
+              animate={{ opacity: 1, y: 0, scale: 1 }}
+              exit={{ opacity: 0, y: -10, scale: 0.97 }}
+              transition={{ duration: 0.2, ease: 'easeOut' }}
+              className="md:hidden absolute left-0 right-0 top-full mt-1 z-50 bg-white/90 dark:bg-neutral-dark/90 backdrop-blur-xl rounded-xl shadow-xl border border-neutral-mid/50 overflow-hidden"
+            >
+              <div className="container mx-auto px-4 py-3 flex flex-col space-y-3">
+                {navLinks.map((link, i) => (
+                  <motion.div
+                    key={link.to}
+                    initial={{ opacity: 0, x: -10 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ delay: i * 0.03, duration: 0.2 }}
                   >
-                    EN
-                  </button>
-                  <button
-                    onClick={() => setLanguage('my')}
-                    className={`px-2 py-1 text-sm rounded-full transition ${
-                      language === 'my' ? 'bg-primary text-white' : 'text-text hover:bg-neutral-mid'
-                    }`}
+                    <NavLink
+                      to={link.to}
+                      className={mobileLinkClass}
+                      onClick={closeMenu}
+                      end={link.to === '/'}
+                    >
+                      {link.label}
+                    </NavLink>
+                  </motion.div>
+                ))}
+                {user && isUserAdmin(user) && (
+                  <motion.div
+                    initial={{ opacity: 0, x: -10 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ delay: navLinks.length * 0.03, duration: 0.2 }}
                   >
-                    မြန်
+                    <NavLink to="/admin" className={mobileLinkClass} onClick={closeMenu}>
+                      {t('nav.admin')}
+                    </NavLink>
+                  </motion.div>
+                )}
+                <div className="flex items-center gap-4 pt-2 border-t border-neutral-mid">
+                  <button
+                    onClick={() => setTheme(theme === 'light' ? 'dark' : 'light')}
+                    className="p-2 rounded-full bg-neutral-light text-text hover:bg-neutral-mid transition"
+                  >
+                    {theme === 'light' ? '🌙' : '☀️'}
                   </button>
+                  <div className="flex gap-1 bg-neutral-light rounded-full p-0.5">
+                    <button
+                      onClick={() => setLanguage('en')}
+                      className={`px-2 py-1 text-sm rounded-full transition ${
+                        language === 'en' ? 'bg-primary text-white' : 'text-text hover:bg-neutral-mid'
+                      }`}
+                    >
+                      EN
+                    </button>
+                    <button
+                      onClick={() => setLanguage('my')}
+                      className={`px-2 py-1 text-sm rounded-full transition ${
+                        language === 'my' ? 'bg-primary text-white' : 'text-text hover:bg-neutral-mid'
+                      }`}
+                    >
+                      မြန်
+                    </button>
+                  </div>
                 </div>
+                {user ? (
+                  <div className="pt-2 space-y-2">
+                    <Link
+                      to="/account"
+                      className="flex items-center gap-3 py-2 text-text hover:text-primary transition"
+                      onClick={closeMenu}
+                    >
+                      {avatarUrl ? (
+                        <img src={avatarUrl} alt="Avatar" className="w-8 h-8 rounded-full" />
+                      ) : (
+                        <span className="text-2xl">👤</span>
+                      )}
+                      <span className="font-medium">{displayName}</span>
+                    </Link>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      className="w-full"
+                      onClick={() => { onLogoutClick(); closeMenu(); }}
+                    >
+                      {t('nav.logout')}
+                    </Button>
+                  </div>
+                ) : (
+                  <motion.button
+                    whileHover={{ scale: 1.02 }}
+                    whileTap={{ scale: 0.98 }}
+                    onClick={() => { onLoginClick(); closeMenu(); }}
+                    className="w-full text-center py-2 rounded-full font-medium bg-primary text-white hover:bg-primary-light transition"
+                  >
+                    {t('nav.login')}
+                  </motion.button>
+                )}
               </div>
-              {user ? (
-                <div className="pt-2 space-y-2">
-                  <Link
-                    to="/account"
-                    className="flex items-center gap-3 py-2 text-text hover:text-primary transition"
-                    onClick={closeMenu}
-                  >
-                    {avatarUrl ? (
-                      <img src={avatarUrl} alt="Avatar" className="w-8 h-8 rounded-full" />
-                    ) : (
-                      <span className="text-2xl">👤</span>
-                    )}
-                    <span className="font-medium">{displayName}</span>
-                  </Link>
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    className="w-full border-primary text-primary hover:bg-primary/10"
-                    onClick={() => { onLogoutClick(); closeMenu(); }}
-                  >
-                    {t('nav.logout')}
-                  </Button>
-                </div>
-              ) : (
-                <button
-                  onClick={() => { onLoginClick(); closeMenu(); }}
-                  className="w-full text-center py-2 rounded-full font-medium bg-primary text-white hover:bg-primary-light transition"
-                >
-                  {t('nav.login')}
-                </button>
-              )}
-            </div>
-          </div>
-        )}
+            </motion.div>
+          )}
+        </AnimatePresence>
       </div>
     </header>
   );

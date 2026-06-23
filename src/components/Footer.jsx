@@ -1,5 +1,5 @@
-// src/components/Footer.jsx
 import { Link } from 'react-router-dom';
+import { motion } from 'framer-motion';
 import { useLanguage } from '../context/LanguageContext';
 import { useUser } from '../context/UserContext';
 import { Mail, Phone, MapPin } from 'lucide-react';
@@ -52,12 +52,28 @@ export default function Footer() {
   }
   extraLinks.push({ to: '/admin', label: t('nav.admin') });
 
+  const containerVariants = {
+    hidden: { opacity: 0 },
+    visible: { transition: { staggerChildren: 0.06, delayChildren: 0.1 } },
+  };
+  const itemVariants = {
+    hidden: { opacity: 0, y: 20 },
+    visible: { opacity: 1, y: 0, transition: { duration: 0.5, ease: [0.25, 0.1, 0.25, 1] } },
+  };
+
   return (
-    <footer className="bg-gray-900 text-white border-t border-primary/20">
+    <footer className="bg-gray-900 text-white relative overflow-hidden">
+      {/* Top wave divider */}
+      <div className="absolute top-0 left-0 right-0 h-8 bg-gradient-to-b from-transparent to-gray-900/50" />
       <div className="container mx-auto px-4 py-12">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
-          {/* Brand & Social */}
-          <div>
+        <motion.div
+          initial="hidden"
+          whileInView="visible"
+          viewport={{ once: true, margin: '-60px' }}
+          variants={containerVariants}
+          className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8"
+        >
+          <motion.div variants={itemVariants}>
             <h3 className="text-2xl font-serif font-bold text-white mb-3">
               Hpa‑An Travel
             </h3>
@@ -65,42 +81,34 @@ export default function Footer() {
               {t('footer.description') || 'Your ultimate travel guide to Hpa‑An, Myanmar. Discover limestone mountains, ancient caves, and authentic Kayin culture.'}
             </p>
             <div className="flex gap-3 mt-4">
-              <a href="#" className="text-gray-400 hover:text-white transition" aria-label="Facebook">
-                <FacebookIcon />
-              </a>
-              <a href="#" className="text-gray-400 hover:text-white transition" aria-label="Instagram">
-                <InstagramIcon />
-              </a>
-              <a href="#" className="text-gray-400 hover:text-white transition" aria-label="Twitter">
-                <TwitterIcon />
-              </a>
-              <a href="#" className="text-gray-400 hover:text-white transition" aria-label="YouTube">
-                <YoutubeIcon />
-              </a>
+              {[FacebookIcon, InstagramIcon, TwitterIcon, YoutubeIcon].map((Icon, i) => (
+                <motion.a
+                  key={i}
+                  href="#"
+                  whileHover={{ scale: 1.2, y: -2 }}
+                  className="text-gray-400 hover:text-white transition p-1"
+                  aria-label="Social"
+                >
+                  <Icon />
+                </motion.a>
+              ))}
             </div>
-          </div>
+          </motion.div>
 
-          {/* Quick Links – two columns */}
-          <div>
+          <motion.div variants={itemVariants}>
             <h4 className="text-lg font-semibold text-white mb-3">
               {t('footer.quick_links') || 'Quick Links'}
             </h4>
             <div className="grid grid-cols-2 gap-x-4 gap-y-2">
-              {mainLinks.map(link => (
-                <Link key={link.to} to={link.to} className="text-gray-300 hover:text-white transition text-sm">
-                  {link.label}
-                </Link>
-              ))}
-              {extraLinks.map(link => (
+              {[...mainLinks, ...extraLinks].map(link => (
                 <Link key={link.to} to={link.to} className="text-gray-300 hover:text-white transition text-sm">
                   {link.label}
                 </Link>
               ))}
             </div>
-          </div>
+          </motion.div>
 
-          {/* Contact */}
-          <div>
+          <motion.div variants={itemVariants}>
             <h4 className="text-lg font-semibold text-white mb-3">
               {t('footer.contact') || 'Contact'}
             </h4>
@@ -122,10 +130,9 @@ export default function Footer() {
                 <span>Hpa‑An, Kayin State, Myanmar</span>
               </li>
             </ul>
-          </div>
+          </motion.div>
 
-          {/* Currency Converter & Language */}
-          <div>
+          <motion.div variants={itemVariants}>
             <CurrencyConverter />
             <div className="mt-4">
               <h4 className="text-sm font-semibold text-white mb-2">
@@ -154,26 +161,30 @@ export default function Footer() {
                 </button>
               </div>
             </div>
-          </div>
-        </div>
+          </motion.div>
+        </motion.div>
 
-        {/* Bottom bar */}
-        <div className="border-t border-white/10 mt-8 pt-6 flex flex-col md:flex-row justify-between items-center gap-4 text-sm text-gray-400">
+        <motion.div
+          initial={{ opacity: 0 }}
+          whileInView={{ opacity: 1 }}
+          viewport={{ once: true }}
+          className="border-t border-white/10 mt-8 pt-6 flex flex-col md:flex-row justify-between items-center gap-4 text-sm text-gray-400"
+        >
           <p>
             &copy; {new Date().getFullYear()} Hpa‑An Travel. {t('footer.rights') || 'All rights reserved.'}
           </p>
           <div className="flex gap-4">
-            <Link to="/privacy" className="hover:text-white transition">
-              {t('footer.privacy') || 'Privacy Policy'}
-            </Link>
-            <Link to="/terms" className="hover:text-white transition">
-              {t('footer.terms') || 'Terms of Service'}
-            </Link>
-            <Link to="/contact" className="hover:text-white transition">
-              {t('footer.contact_us') || 'Contact Us'}
-            </Link>
+            {[
+              { to: '/privacy', label: t('footer.privacy') || 'Privacy Policy' },
+              { to: '/terms', label: t('footer.terms') || 'Terms of Service' },
+              { to: '/contact', label: t('footer.contact_us') || 'Contact Us' },
+            ].map(link => (
+              <Link key={link.to} to={link.to} className="hover:text-white transition">
+                {link.label}
+              </Link>
+            ))}
           </div>
-        </div>
+        </motion.div>
       </div>
     </footer>
   );
