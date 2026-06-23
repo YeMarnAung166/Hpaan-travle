@@ -3,6 +3,17 @@ import react from '@vitejs/plugin-react';
 import { VitePWA } from 'vite-plugin-pwa';
 
 export default defineConfig({
+  build: {
+    rollupOptions: {
+      output: {
+        manualChunks: {
+          leaflet: ['leaflet', 'react-leaflet', 'leaflet-routing-machine', 'leaflet-control-geocoder', 'leaflet.markercluster', 'react-leaflet-markercluster', 'leaflet-pegman'],
+          supabase: ['@supabase/supabase-js'],
+          router: ['react-router-dom'],
+        },
+      },
+    },
+  },
   plugins: [
     react(),
     VitePWA({
@@ -29,7 +40,7 @@ export default defineConfig({
         globPatterns: ['**/*.{js,css,html,ico,png,svg}'],
         runtimeCaching: [
           {
-            urlPattern: /^https:\/\/sb_publishable_zdxc6cn8FeGylZT2TkxLRA_rSMoroLW\.supabase\.co\/rest\/v1\/.*/i,
+            urlPattern: /^https:\/\/hqzodqvstvdemmqxphbv\.supabase\.co\/rest\/v1\/.*/i,
             handler: 'NetworkFirst',
             options: {
               cacheName: 'api-cache',

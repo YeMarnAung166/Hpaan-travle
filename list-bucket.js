@@ -1,9 +1,18 @@
 import 'dotenv/config';
 import { createClient } from '@supabase/supabase-js';
 
+const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
+if (!serviceRoleKey) {
+  console.error('Error: SUPABASE_SERVICE_ROLE_KEY is not set.');
+  console.error('Set it via the environment:');
+  console.error('  $env:SUPABASE_SERVICE_ROLE_KEY="your-key" (PowerShell)');
+  console.error('  export SUPABASE_SERVICE_ROLE_KEY="your-key"  (bash)');
+  process.exit(1);
+}
+
 const supabase = createClient(
   process.env.VITE_SUPABASE_URL,
-  process.env.SUPABASE_SERVICE_ROLE_KEY
+  serviceRoleKey
 );
 
 async function listFiles() {
