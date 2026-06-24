@@ -1,15 +1,16 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useMemo } from 'react';
 import { supabase } from '../../supabaseClient';
 import { useLanguage } from '../../context/LanguageContext';
 
 export default function AdminUserPhotos() {
   const [photos, setPhotos] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [searchTerm, setSearchTerm] = useState('');
+  const [currentPage, setCurrentPage] = useState(1);
+  const perPage = 12;
   const { t, language } = useLanguage();
 
-  useEffect(() => {
-    fetchPhotos();
-  }, []);
+  useEffect(() => { fetchPhotos(); }, []);
 
   const fetchPhotos = async () => {
     const { data, error } = await supabase
@@ -21,106 +22,143 @@ export default function AdminUserPhotos() {
     setLoading(false);
   };
 
+  const processed = useMemo(() => {
+    if (!searchTerm) return photos;
+    const term = searchTerm.toLowerCase();
+    return photos.filter((photo) => {
+      const targetName = photo.businesses?.name || photo.itineraries?.title || '';
+      const caption = photo.caption || '';
+      const email = photo.user_email || '';
+      return targetName.toLowerCase().includes(term)
+        || caption.toLowerCase().includes(term)
+        || email.toLowerCase().includes(term);
+    });
+  }, [photos, searchTerm]);
+
+  const totalPages = Math.ceil(processed.length / perPage);
+  const paginated = processed.slice((currentPage - 1) * perPage, currentPage * perPage);
+
+  const pageNumbers = useMemo(() => {
+    const pages = [];
+    if (totalPages <= 5) { for (let i = 1; i <= totalPages; i++) pages.push(i); return pages; }
+    pages.push(1);
+    let start = Math.max(2, currentPage - 1);
+    let end = Math.min(totalPages - 1, currentPage + 1);
+    if (currentPage <= 2) start = 2;
+    if (currentPage >= totalPages - 1) end = totalPages - 1;
+    if (start > 2) pages.push('...');
+    for (let i = start; i <= end; i++) pages.push(i);
+    if (end < totalPages - 1) pages.push('...');
+    pages.push(totalPages);
+    return pages;
+  }, [totalPages, currentPage]);
+
   const handleApprove = async (id) => {
-    const { error } = await supabase
-      .from('user_photos')
-      .update({ moderated: true })
-      .eq('id', id);
+    const { error } = await supabase.from('user_photos').update({ moderated: true }).eq('id', id);
     if (error) alert(error.message);
     else fetchPhotos();
   };
 
   const handleDelete = async (id, imageUrl) => {
     if (!confirm(t('admin.confirm_delete'))) return;
-
-    // Optional: Delete the actual image file from storage
     if (imageUrl) {
-      // Extract the storage path from the URL
-      // Example URL: https://.../storage/v1/object/public/hpaan-assets/user-uploads/user_id/photo.jpg
       const urlParts = imageUrl.split('/');
-      const bucketIndex = urlParts.indexOf('object') + 2; // after 'object' comes bucket name
-      const filePath = urlParts.slice(bucketIndex + 1).join('/'); // relative path inside bucket
+      const bucketIndex = urlParts.indexOf('object') + 2;
+      const filePath = urlParts.slice(bucketIndex + 1).join('/');
       if (filePath) {
-        const { error: storageError } = await supabase.storage
-          .from('hpaan-assets') // change to your bucket name if different
-          .remove([filePath]);
+        const { error: storageError } = await supabase.storage.from('hpaan-assets').remove([filePath]);
         if (storageError) console.warn('Storage delete error:', storageError);
       }
     }
-
-    // Delete the database record
-    const { error } = await supabase
-      .from('user_photos')
-      .delete()
-      .eq('id', id);
-    if (error) {
-      console.error('Delete error:', error);
-      alert(`Delete failed: ${error.message}`);
-    } else {
-      fetchPhotos();
-    }
+    const { error } = await supabase.from('user_photos').delete().eq('id', id);
+    if (error) { console.error('Delete error:', error); alert(`Delete failed: ${error.message}`); }
+    else fetchPhotos();
   };
 
   if (loading) return <div className="spinner mx-auto"></div>;
 
   return (
     <div>
-      <h2 className="text-2xl font-bold mb-6">{t('admin.moderate_photos')}</h2>
-      {photos.length === 0 ? (
-        <p className="text-gray-500">{t('admin.no_pending')}</p>
-      ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-          {photos.map((photo) => {
-            let targetName = '';
-            if (photo.businesses) {
-              targetName = language === 'my' && photo.businesses.name_my
-                ? photo.businesses.name_my
-                : photo.businesses.name;
-            } else if (photo.itineraries) {
-              targetName = language === 'my' && photo.itineraries.title_my
-                ? photo.itineraries.title_my
-                : photo.itineraries.title;
-            } else {
-              targetName = 'N/A';
-            }
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 gap-4">
+        <h2 className="text-2xl font-bold">{t('admin.moderate_photos')}</h2>
+        <input
+          type="text"
+          placeholder={t('common.search')}
+          value={searchTerm}
+          onChange={(e) => { setSearchTerm(e.target.value); setCurrentPage(1); }}
+          className="px-3 py-2 border border-neutral-mid rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/50 w-full sm:w-64"
+        />
+      </div>
 
-            return (
-              <div key={photo.id} className="bg-white rounded-lg shadow p-4">
-                <img
-                  src={photo.image_url}
-                  alt="User upload"
-                  className="w-full h-48 object-cover rounded"
-                  onError={(e) => { e.target.src = '/fallback-image.jpg'; }}
-                />
-                <div className="mt-2">
-                  <p className="text-sm text-gray-600">
-                    <strong>{t('business.title')}:</strong> {targetName}
-                  </p>
-                  <p className="text-sm text-gray-600">
-                    <strong>{t('admin.user')}:</strong> {photo.user_email || photo.user_id}
-                  </p>
-                  {photo.caption && (
-                    <p className="text-sm text-gray-500 mt-1">"{photo.caption}"</p>
-                  )}
+      {processed.length === 0 ? (
+        <p className="text-center py-12 text-text-soft">{searchTerm ? t('common.no_results') : t('admin.no_pending')}</p>
+      ) : (
+        <>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            {paginated.map((photo) => {
+              let targetName = '';
+              if (photo.businesses) {
+                targetName = language === 'my' && photo.businesses.name_my
+                  ? photo.businesses.name_my : photo.businesses.name;
+              } else if (photo.itineraries) {
+                targetName = language === 'my' && photo.itineraries.title_my
+                  ? photo.itineraries.title_my : photo.itineraries.title;
+              } else { targetName = 'N/A'; }
+
+              return (
+                <div key={photo.id} className="bg-white dark:bg-neutral-dark rounded-xl border border-border p-4">
+                  <img
+                    src={photo.image_url}
+                    alt="User upload"
+                    className="w-full h-48 object-cover rounded"
+                    onError={(e) => { e.target.src = '/fallback-image.jpg'; }}
+                  />
+                  <div className="mt-2 space-y-1">
+                    <p className="text-sm text-text"><strong>{t('business.title')}:</strong> {targetName}</p>
+                    <p className="text-sm text-text"><strong>{t('admin.user')}:</strong> {photo.user_email || photo.user_id}</p>
+                    {photo.caption && <p className="text-sm text-text-soft">"{photo.caption}"</p>}
+                  </div>
+                  <div className="mt-3 flex gap-2">
+                    <button onClick={() => handleApprove(photo.id)} className="px-3 py-1 bg-green-600 text-white rounded hover:bg-green-700 transition text-sm">{t('admin.approve')}</button>
+                    <button onClick={() => handleDelete(photo.id, photo.image_url)} className="px-3 py-1 bg-red-600 text-white rounded hover:bg-red-700 transition text-sm">{t('admin.delete')}</button>
+                  </div>
                 </div>
-                <div className="mt-3 flex gap-2">
+              );
+            })}
+          </div>
+
+          {totalPages > 1 && (
+            <div className="flex justify-center items-center gap-1 mt-8">
+              <button
+                onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
+                disabled={currentPage === 1}
+                className="px-3 py-1.5 border border-border rounded text-sm disabled:opacity-40 hover:bg-overlay transition"
+              >
+                {t('pagination.previous')}
+              </button>
+              {pageNumbers.map((page, i) =>
+                page === '...' ? (
+                  <span key={`ellipsis-${i}`} className="px-2 text-text-soft text-sm">…</span>
+                ) : (
                   <button
-                    onClick={() => handleApprove(photo.id)}
-                    className="px-3 py-1 bg-green-600 text-white rounded hover:bg-green-700"
+                    key={page}
+                    onClick={() => setCurrentPage(page)}
+                    className={`w-8 h-8 rounded text-sm font-medium transition ${currentPage === page ? 'bg-primary text-white' : 'text-text hover:bg-overlay border border-border'}`}
                   >
-                    {t('admin.approve')}
+                    {page}
                   </button>
-                  <button
-                    onClick={() => handleDelete(photo.id, photo.image_url)}
-                    className="px-3 py-1 bg-red-600 text-white rounded hover:bg-red-700"
-                  >
-                    {t('admin.delete')}
-                  </button>
-                </div>
-              </div>
-            );
-          })}
-        </div>
+                )
+              )}
+              <button
+                onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
+                disabled={currentPage === totalPages}
+                className="px-3 py-1.5 border border-border rounded text-sm disabled:opacity-40 hover:bg-overlay transition"
+              >
+                {t('pagination.next')}
+              </button>
+            </div>
+          )}
+        </>
       )}
     </div>
   );

@@ -193,6 +193,8 @@
     "search": "Search...",
     "filters": "Filters",
     "clear": "Clear All",
+    "per_page": "Per page",
+    "results_of": "of",
     "no_results": "No results found.",
     "error": "Something went wrong",
     "loading": "Loading...",
