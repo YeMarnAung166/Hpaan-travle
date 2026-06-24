@@ -8,6 +8,9 @@
     "build": "vite build",
     "build:analyze": "vite build --mode analyze",
     "lint": "eslint .",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "test:coverage": "vitest run --coverage",
     "preview": "vite preview",
     "preview:dist": "vite preview dist",
     "format": "prettier --write \"src/**/*.{js,jsx,css,json}\"",
@@ -32,6 +35,9 @@
   },
   "devDependencies": {
     "@eslint/js": "^9.39.4",
+    "@testing-library/jest-dom": "^6.9.1",
+    "@testing-library/react": "^16.3.2",
+    "@testing-library/user-event": "^14.6.1",
     "@types/leaflet": "^1.9.21",
     "@types/react": "^19.2.14",
     "@types/react-dom": "^19.2.3",
@@ -41,11 +47,13 @@
     "eslint-plugin-react-hooks": "^7.0.1",
     "eslint-plugin-react-refresh": "^0.5.2",
     "globals": "^17.4.0",
+    "jsdom": "^29.1.1",
     "postcss": "^8.5.8",
     "prettier": "^3.3.3",
     "rollup-plugin-visualizer": "^5.12.0",
     "tailwindcss": "^3.4.19",
     "vite": "^7.3.1",
-    "vite-plugin-pwa": "^1.2.0"
+    "vite-plugin-pwa": "^1.2.0",
+    "vitest": "^4.1.9"
   }
 }

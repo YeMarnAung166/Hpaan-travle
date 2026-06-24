@@ -1,18 +1,3 @@
-// src/pages/MapPage.jsx
-// Suppress Leaflet's deprecated mouse event warnings
-if (typeof window !== 'undefined') {
-  const originalWarn = console.warn;
-  console.warn = (...args) => {
-    if (
-      typeof args[0] === 'string' &&
-      (args[0].includes('mozPressure') || args[0].includes('mozInputSource'))
-    ) {
-      return;
-    }
-    originalWarn(...args);
-  };
-}
-
 import { useEffect, useState, useRef } from 'react';
 import {
   MapContainer,

@@ -18,8 +18,8 @@ const Button = forwardRef(({
   const variants = {
     primary: 'bg-primary text-white shadow-soft hover:bg-primary-light hover:shadow-elevated focus:ring-gold/50',
     secondary: 'bg-secondary text-white shadow-soft hover:bg-secondary-light hover:shadow-elevated focus:ring-secondary/50',
-    outline: 'border border-primary/30 text-primary hover:bg-primary/5 hover:border-primary focus:ring-gold/50',
-    ghost: 'text-text-soft hover:text-text hover:bg-overlay focus:ring-gold/50',
+    outline: 'border border-primary/50 text-primary hover:bg-primary/10 hover:border-primary focus:ring-gold/50',
+    ghost: 'text-text-soft hover:text-text hover:bg-primary/8 focus:ring-gold/50',
     danger: 'bg-error text-white hover:bg-red-700 focus:ring-error/50',
     success: 'bg-success text-white hover:bg-green-700 focus:ring-success/50',
     glass: 'glass-card text-text hover:bg-glass-border focus:ring-gold/50',

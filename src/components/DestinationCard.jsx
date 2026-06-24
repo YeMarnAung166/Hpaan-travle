@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { motion, useMotionValue, useTransform } from 'framer-motion';
 import { useUser } from '../context/UserContext';
@@ -9,6 +10,7 @@ export default function DestinationCard({ destination }) {
   const { t, getLocalized } = useLanguage();
   const { favorites, toggleFavorite } = useFavorites(user?.id);
   const isSaved = favorites.destinations?.has(destination.id) || false;
+  const [imgError, setImgError] = useState(false);
 
   const x = useMotionValue(0);
   const y = useMotionValue(0);
@@ -33,7 +35,7 @@ export default function DestinationCard({ destination }) {
 
   return (
     <motion.div
-      className="group relative bg-white dark:bg-neutral-dark rounded-xl overflow-hidden shadow-md hover:shadow-xl transition-shadow duration-300"
+      className="group relative bg-white dark:bg-neutral-dark rounded-xl overflow-hidden shadow-md hover:shadow-xl transition-all duration-300"
       style={{ perspective: 1000, rotateX, rotateY }}
       onMouseMove={handleMouseMove}
       onMouseLeave={handleMouseLeave}
@@ -41,24 +43,31 @@ export default function DestinationCard({ destination }) {
       transition={{ type: 'spring', stiffness: 300, damping: 20 }}
     >
       <div className="relative overflow-hidden h-56">
-        <img
-          src={destination.image}
-          alt={name}
-          className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
-        />
-        <div className="absolute inset-0 bg-gradient-to-tr from-transparent via-white/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 -translate-x-full group-hover:translate-x-0" />
-        <div className="absolute bottom-0 left-0 right-0 h-32 bg-gradient-to-t from-primary/10 via-gold/5 to-transparent" />
-        <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
+        {imgError ? (
+          <div className="w-full h-full bg-neutral-mid dark:bg-neutral-dark flex items-center justify-center">
+            <svg className="w-12 h-12 text-text-soft/40" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+            </svg>
+          </div>
+        ) : (
+          <img
+            src={destination.image}
+            alt={name}
+            onError={() => setImgError(true)}
+            className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
+          />
+        )}
+        <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent" />
         <div className="absolute bottom-3 left-3 right-3">
-          <h3 className="text-white text-xl font-serif font-bold leading-tight line-clamp-2">{name}</h3>
+          <h3 className="text-white text-xl font-serif font-bold leading-tight line-clamp-2 drop-shadow-sm">{name}</h3>
         </div>
       </div>
       <div className="p-4">
-        <p className="text-text-soft text-sm line-clamp-2 mb-3">{description}</p>
+        <p className="text-text text-sm line-clamp-2 mb-3 leading-relaxed">{description}</p>
         <div className="flex justify-between items-center">
           <Link
             to={`/destination/${destination.id}`}
-            className="inline-flex items-center text-amber-600 font-medium hover:text-amber-700 transition-colors"
+            className="inline-flex items-center text-primary font-semibold hover:text-primary-light transition-colors text-sm"
           >
             {t('destinations.view_details')}
             <motion.svg
@@ -79,7 +88,7 @@ export default function DestinationCard({ destination }) {
               title={isSaved ? 'Remove from favorites' : 'Save to favorites'}
             >
               <svg
-                className={`w-6 h-6 ${isSaved ? 'text-red-500 fill-red-500' : 'text-gray-400'}`}
+                className={`w-6 h-6 ${isSaved ? 'text-red-500 fill-red-500' : 'text-gray-400 hover:text-red-400'}`}
                 fill={isSaved ? 'currentColor' : 'none'}
                 stroke="currentColor"
                 viewBox="0 0 24 24"

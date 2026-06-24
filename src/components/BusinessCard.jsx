@@ -157,7 +157,7 @@ export default function BusinessCard({ business }) {
           </div>
         </div>
 
-        <p className="text-sm text-text-soft mb-4 line-clamp-2">
+        <p className="text-sm text-text mb-4 line-clamp-2 leading-relaxed">
           {description}
         </p>
 

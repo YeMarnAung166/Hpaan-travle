@@ -83,12 +83,12 @@ export default function AuthModal({ isOpen, onClose }) {
         </form>
 
         {/* Divider */}
-        <div className="relative my-4">
+        <div className="relative my-5">
           <div className="absolute inset-0 flex items-center">
-            <div className="w-full border-t border-neutral-mid"></div>
+            <div className="w-full border-t border-border"></div>
           </div>
           <div className="relative flex justify-center text-xs">
-            <span className="bg-white dark:bg-neutral-dark px-2 text-text-soft">
+            <span className="bg-white dark:bg-neutral-dark px-3 text-text-soft font-medium">
               or continue with
             </span>
           </div>

@@ -3,11 +3,13 @@ import ReactDOM from 'react-dom/client';
 import App from './App';
 import './index.css';
 
-// In src/main.jsx or src/App.jsx
+// Suppress Leaflet's Firefox mouse event deprecation warnings
 const originalWarn = console.warn;
 console.warn = (...args) => {
-  if (typeof args[0] === 'string' &&
-      (args[0].includes('mozPressure') || args[0].includes('mozInputSource'))) {
+  if (
+    typeof args[0] === 'string' &&
+    (args[0].includes('mozPressure') || args[0].includes('mozInputSource'))
+  ) {
     return;
   }
   originalWarn(...args);

@@ -178,11 +178,6 @@ export default function HomePage() {
         </motion.div>
       </div>
 
-      {/* Section transition */}
-      <div className="relative h-16 -mb-8">
-        <div className="absolute inset-0 bg-gradient-to-b from-neutral-light dark:from-neutral-dark to-transparent" />
-      </div>
-
       <motion.section
         ref={destinationsRef}
         initial="hidden"
@@ -276,9 +271,10 @@ export default function HomePage() {
         initial="hidden"
         animate={whyVisitInView ? 'visible' : 'hidden'}
         variants={staggerContainer}
-        className="container mx-auto px-4 py-16"
+        className="bg-neutral-light dark:bg-neutral-dark/30 py-16"
       >
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+        <div className="container mx-auto px-4">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
           {[
             { icon: Mountain, title: t('home.nature') || 'Breathtaking Nature', desc: 'Limestone karsts, hidden caves, and the serene Thanlwin River.' },
             { icon: Heart, title: t('home.culture') || 'Rich Culture', desc: 'Experience Kayin traditions, festivals, and warm hospitality.' },
@@ -304,6 +300,7 @@ export default function HomePage() {
               <p className="text-text-soft">{item.desc}</p>
             </motion.div>
           ))}
+        </div>
         </div>
       </motion.section>
 
