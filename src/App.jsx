@@ -13,6 +13,7 @@ import Footer from './components/Footer';
 import ScrollToTop from './components/ScrollToTop';
 import ProtectedRoute from './components/ProtectedRoute';
 import LoadingSpinner from './components/ui/LoadingSpinner';
+import ErrorBoundary from './components/ErrorBoundary';
 import GenerateItinerary from './pages/GenerateItinerary';
 
 // Lazy load pages
@@ -40,6 +41,9 @@ const AdminBusinesses = lazy(() => import('./pages/admin/AdminBusinesses'));
 const AdminEvents = lazy(() => import('./pages/admin/AdminEvents'));
 const AdminReviews = lazy(() => import('./pages/admin/AdminReviews'));
 const AdminUserPhotos = lazy(() => import('./pages/admin/AdminUserPhotos'));
+
+// 404 page
+const NotFound = lazy(() => import('./pages/NotFound'));
 
 function AppContent({ showAuthModal, setShowAuthModal, handleLogout }) {
   const location = useLocation();
@@ -90,6 +94,7 @@ function AppContent({ showAuthModal, setShowAuthModal, handleLogout }) {
                     <Route path="reviews" element={<AdminReviews />} />
                     <Route path="user-photos" element={<AdminUserPhotos />} />
                   </Route>
+                  <Route path="*" element={<NotFound />} />
                 </Routes>
               </Suspense>
             </motion.div>
@@ -111,11 +116,13 @@ function App() {
         <UserProvider value={user}>
           <ProfileProvider>
             <BrowserRouter>
-              <AppContent
-                showAuthModal={showAuthModal}
-                setShowAuthModal={setShowAuthModal}
-                handleLogout={handleLogout}
-              />
+              <ErrorBoundary>
+                <AppContent
+                  showAuthModal={showAuthModal}
+                  setShowAuthModal={setShowAuthModal}
+                  handleLogout={handleLogout}
+                />
+              </ErrorBoundary>
             </BrowserRouter>
           </ProfileProvider>
         </UserProvider>

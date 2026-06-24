@@ -1,0 +1,15 @@
+# Hpa-An Travel Guide - robots.txt
+User-agent: *
+Allow: /
+
+# Sitemap
+Sitemap: https://hpaan.travel/sitemap.xml
+
+# Disallow admin and private routes
+Disallow: /admin/
+Disallow: /account/
+Disallow: /profile/
+Disallow: /favorites/
+Disallow: /trips/
+Disallow: /user-photos/
+Disallow: /user-reviews/

@@ -4,8 +4,95 @@
     <meta charset="UTF-8" />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <link href="https://fonts.googleapis.com/css2?family=Inter:opsz@14..32&family=Playfair+Display:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <title>hpaan-travel</title>
+
+    <!-- Preconnect for faster font loading -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+
+    <!-- Optimized Google Fonts: print media + onload swap -->
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:opsz@14..32&family=Playfair+Display:wght@400;500;600;700&display=swap"
+      rel="stylesheet"
+      media="print"
+      onload="this.media='all'"
+    />
+    <noscript>
+      <link
+        href="https://fonts.googleapis.com/css2?family=Inter:opsz@14..32&family=Playfair+Display:wght@400;500;600;700&display=swap"
+        rel="stylesheet"
+      />
+    </noscript>
+
+    <!-- Theme flash prevention: applies dark class before paint -->
+    <script>
+      (function() {
+        try {
+          var theme = localStorage.getItem('theme');
+          var prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+          if (theme === 'dark' || (!theme && prefersDark)) {
+            document.documentElement.classList.add('dark');
+          }
+        } catch (e) {}
+      })();
+    </script>
+
+    <!-- SEO Meta -->
+    <title>Hpa-An Travel Guide | Explore Kayin State, Myanmar</title>
+    <meta name="description" content="Discover Hpa-An, Myanmar's hidden gem. Explore limestone mountains, ancient caves, authentic Kayin culture, and local businesses. Your ultimate travel companion for Hpa-An." />
+    <meta name="theme-color" content="#1A3A3A" />
+
+    <!-- Open Graph / Facebook -->
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content="https://hpaan.travel/" />
+    <meta property="og:title" content="Hpa-An Travel Guide | Explore Kayin State, Myanmar" />
+    <meta property="og:description" content="Discover limestone mountains, ancient caves, authentic Kayin culture, and local businesses in Hpa-An, Myanmar." />
+    <meta property="og:image" content="https://hqzodqvstvdemmqxphbv.supabase.co/storage/v1/object/public/hpaan-assets/static/home.jpg" />
+    <meta property="og:site_name" content="Hpa-An Travel" />
+    <meta property="og:locale" content="en_US" />
+
+    <!-- Twitter -->
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:url" content="https://hpaan.travel/" />
+    <meta name="twitter:title" content="Hpa-An Travel Guide | Explore Kayin State, Myanmar" />
+    <meta name="twitter:description" content="Discover limestone mountains, ancient caves, authentic Kayin culture, and local businesses in Hpa-An, Myanmar." />
+    <meta name="twitter:image" content="https://hqzodqvstvdemmqxphbv.supabase.co/storage/v1/object/public/hpaan-assets/static/home.jpg" />
+
+    <!-- PWA -->
+    <link rel="manifest" href="/manifest.webmanifest" />
+    <link rel="apple-touch-icon" href="/pwa-192x192.png" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+    <meta name="apple-mobile-web-app-title" content="HpaAnGuide" />
+
+    <!-- Content Security Policy (report-only for now) -->
+    <meta http-equiv="Content-Security-Policy-Report-Only" content="default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://apis.google.com https://www.gstatic.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: https: blob:; connect-src 'self' https://hqzodqvstvdemmqxphbv.supabase.co https://api.openweathermap.org https://tile.openstreetmap.org https://nominatim.openstreetmap.org; frame-src https://accounts.google.com;" />
+
+    <!-- Structured Data (JSON-LD) -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "TravelGuide",
+      "name": "Hpa-An Travel Guide",
+      "description": "Your ultimate travel companion for Hpa-An, Myanmar. Discover limestone mountains, ancient caves, and authentic Kayin culture.",
+      "url": "https://hpaan.travel/",
+      "image": "https://hqzodqvstvdemmqxphbv.supabase.co/storage/v1/object/public/hpaan-assets/static/home.jpg",
+      "address": {
+        "@type": "PostalAddress",
+        "addressLocality": "Hpa-An",
+        "addressRegion": "Kayin State",
+        "addressCountry": "MM"
+      },
+      "publisher": {
+        "@type": "Organization",
+        "name": "Hpa-An Travel",
+        "url": "https://hpaan.travel/"
+      },
+      "mainEntityOfPage": {
+        "@type": "WebPage",
+        "@id": "https://hpaan.travel/"
+      }
+    }
+    </script>
   </head>
   <body>
     <div id="root"></div>
