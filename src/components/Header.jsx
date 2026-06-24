@@ -5,7 +5,6 @@ import { useUser } from '../context/UserContext';
 import { useLanguage } from '../context/LanguageContext';
 import { useTheme } from '../context/ThemeContext';
 import { useProfileContext } from '../context/ProfileContext';
-import { isUserAdmin } from '../utils/adminCheck';
 import { useScroll } from '../hooks/useScroll';
 import Button from './ui/Button';
 
@@ -186,23 +185,6 @@ export default function Header({ onLoginClick, onLogoutClick }) {
               )}
             </NavLink>
           ))}
-          {user && isUserAdmin(user) && (
-            <NavLink to="/admin" className={desktopLinkClass}>
-              {({ isActive }) => (
-                <span className="relative px-2 py-1 text-sm">
-                  {t('nav.admin')}
-                  {isActive && (
-                    <motion.span
-                      layoutId="nav-underline-admin"
-                      className={`absolute bottom-0 left-0 right-0 h-0.5 rounded-full ${
-                        isTransparent ? 'bg-white' : 'bg-primary'
-                      }`}
-                    />
-                  )}
-                </span>
-              )}
-            </NavLink>
-          )}
         </nav>
 
         <AnimatePresence>
@@ -232,17 +214,6 @@ export default function Header({ onLoginClick, onLogoutClick }) {
                     </NavLink>
                   </motion.div>
                 ))}
-                {user && isUserAdmin(user) && (
-                  <motion.div
-                    initial={{ opacity: 0, x: -8 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    transition={{ delay: navLinks.length * 0.02, duration: 0.2 }}
-                  >
-                    <NavLink to="/admin" className={mobileLinkClass} onClick={closeMenu}>
-                      {t('nav.admin')}
-                    </NavLink>
-                  </motion.div>
-                )}
                 <div className="flex items-center gap-4 pt-2 border-t border-border">
                   <button
                     onClick={() => setTheme(theme === 'light' ? 'dark' : 'light')}

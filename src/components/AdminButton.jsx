@@ -17,7 +17,7 @@ export default function AdminButton() {
     >
       <Link
         to="/admin"
-        className="flex items-center gap-2 px-3 py-2 rounded-full bg-primary text-white shadow-lg hover:bg-primary-light transition shadow-primary/20"
+        className="flex items-center gap-2 px-3 py-2.5 md:py-2 rounded-full bg-primary text-white shadow-lg hover:bg-primary-light transition shadow-primary/20 min-h-11"
         title="Admin Panel"
       >
         <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
