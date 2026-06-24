@@ -61,8 +61,6 @@ export default function Footer() {
     extraLinks.push({ to: '/favorites', label: t('nav.favorites') });
     extraLinks.push({ to: '/account', label: t('nav.profile') || 'My Account' });
   }
-  extraLinks.push({ to: '/admin', label: t('nav.admin') });
-
   const containerVariants = {
     hidden: { opacity: 0 },
     visible: { transition: { staggerChildren: 0.06, delayChildren: 0.1 } },
