@@ -15,6 +15,10 @@ export default {
           light: 'var(--color-secondary-light)',
           dark: 'var(--color-secondary-dark)',
         },
+        gold: {
+          DEFAULT: 'var(--color-gold)',
+          light: 'var(--color-gold-light)',
+        },
         neutral: {
           light: 'var(--color-neutral-light)',
           mid: 'var(--color-neutral-mid)',
@@ -24,6 +28,15 @@ export default {
           DEFAULT: 'var(--color-text)',
           soft: 'var(--color-text-soft)',
         },
+        glass: {
+          DEFAULT: 'var(--color-glass)',
+          border: 'var(--color-glass-border)',
+        },
+        border: {
+          DEFAULT: 'var(--color-border)',
+          light: 'var(--color-border-light)',
+        },
+        overlay: 'var(--color-overlay)',
         error: 'var(--color-error)',
         success: 'var(--color-success)',
         warning: 'var(--color-warning)',
@@ -34,10 +47,10 @@ export default {
         sans: ['var(--font-family-sans)'],
       },
       boxShadow: {
-        sm: 'var(--shadow-sm)',
-        md: 'var(--shadow-md)',
+        soft: 'var(--shadow-soft)',
+        elevated: 'var(--shadow-elevated)',
+        glass: 'var(--shadow-glass)',
         lg: 'var(--shadow-lg)',
-        xl: 'var(--shadow-xl)',
       },
       borderRadius: {
         sm: 'var(--radius-sm)',

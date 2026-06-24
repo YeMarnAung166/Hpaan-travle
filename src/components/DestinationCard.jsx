@@ -46,8 +46,8 @@ export default function DestinationCard({ destination }) {
           alt={name}
           className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
         />
-        {/* Shine overlay */}
         <div className="absolute inset-0 bg-gradient-to-tr from-transparent via-white/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 -translate-x-full group-hover:translate-x-0" />
+        <div className="absolute bottom-0 left-0 right-0 h-32 bg-gradient-to-t from-primary/10 via-gold/5 to-transparent" />
         <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
         <div className="absolute bottom-3 left-3 right-3">
           <h3 className="text-white text-xl font-serif font-bold leading-tight line-clamp-2">{name}</h3>

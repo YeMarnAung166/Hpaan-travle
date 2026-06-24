@@ -1,33 +1,38 @@
 import { forwardRef, useState } from 'react';
 import { motion } from 'framer-motion';
+import LoadingSpinner from './LoadingSpinner';
 
 const Button = forwardRef(({
   children,
   variant = 'primary',
   size = 'md',
   className = '',
+  loading = false,
+  pill = false,
   ...props
 }, ref) => {
   const [ripples, setRipples] = useState([]);
 
-  const baseStyles = 'inline-flex items-center justify-center font-medium transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed rounded-lg relative overflow-hidden';
+  const baseStyles = 'inline-flex items-center justify-center font-medium transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed relative overflow-hidden';
 
   const variants = {
-    primary: 'bg-primary text-white shadow-sm hover:bg-primary-light focus:ring-primary/50',
-    secondary: 'bg-secondary text-white hover:bg-secondary-light focus:ring-secondary/50',
-    outline: 'border border-primary text-primary hover:bg-primary/5 focus:ring-primary/50',
-    ghost: 'text-primary hover:bg-primary/5 focus:ring-primary/50',
-    danger: 'bg-error text-white hover:bg-red-800 focus:ring-error/50',
+    primary: 'bg-primary text-white shadow-soft hover:bg-primary-light hover:shadow-elevated focus:ring-gold/50',
+    secondary: 'bg-secondary text-white shadow-soft hover:bg-secondary-light hover:shadow-elevated focus:ring-secondary/50',
+    outline: 'border border-primary/30 text-primary hover:bg-primary/5 hover:border-primary focus:ring-gold/50',
+    ghost: 'text-text-soft hover:text-text hover:bg-overlay focus:ring-gold/50',
+    danger: 'bg-error text-white hover:bg-red-700 focus:ring-error/50',
     success: 'bg-success text-white hover:bg-green-700 focus:ring-success/50',
+    glass: 'glass-card text-text hover:bg-glass-border focus:ring-gold/50',
   };
 
   const sizes = {
-    sm: 'px-3 py-1.5 text-sm',
-    md: 'px-5 py-2.5 text-base',
-    lg: 'px-6 py-3 text-lg',
+    sm: 'px-3 py-1.5 text-sm gap-1.5',
+    md: 'px-5 py-2.5 text-base gap-2',
+    lg: 'px-7 py-3 text-lg gap-2.5',
   };
 
   function handleClick(e) {
+    if (loading) return;
     const rect = e.currentTarget.getBoundingClientRect();
     const x = e.clientX - rect.left;
     const y = e.clientY - rect.top;
@@ -39,17 +44,21 @@ const Button = forwardRef(({
   return (
     <motion.button
       ref={ref}
-      className={`${baseStyles} ${variants[variant]} ${sizes[size]} ${className}`}
-      whileHover={{ scale: 1.03 }}
-      whileTap={{ scale: 0.97 }}
+      className={`${baseStyles} ${variants[variant]} ${sizes[size]} ${pill ? 'rounded-full' : 'rounded-lg'} ${className}`}
+      whileHover={{ scale: loading ? 1 : 1.02 }}
+      whileTap={{ scale: loading ? 1 : 0.98 }}
       transition={{ type: 'spring', stiffness: 400, damping: 17 }}
       onClick={handleClick}
+      disabled={loading || props.disabled}
       {...props}
     >
+      {loading && (
+        <LoadingSpinner size="sm" />
+      )}
       {ripples.map(ripple => (
         <span
           key={ripple.id}
-          className="absolute rounded-full bg-white/30 pointer-events-none"
+          className="absolute rounded-full bg-white/25 pointer-events-none"
           style={{
             left: ripple.x - 10,
             top: ripple.y - 10,

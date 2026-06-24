@@ -67,7 +67,6 @@ export default function HomePage() {
 
   return (
     <div className="bg-white dark:bg-neutral-dark">
-      {/* Hero Section – Cinematic with parallax */}
       <section className="relative h-[100vh] overflow-hidden -mt-24">
         <motion.div style={{ y: heroY, scale: heroScale }} className="absolute inset-0">
           <img
@@ -76,26 +75,23 @@ export default function HomePage() {
             className="absolute inset-0 w-full h-full object-cover"
           />
         </motion.div>
-        <motion.div
-          style={{ opacity: heroOpacity }}
-          className="absolute inset-0 bg-gradient-to-b from-black/30 via-black/50 to-black/80"
-        />
+        <div className="absolute inset-0 bg-gradient-to-b from-[#1A3A3A]/40 via-[#1A3A3A]/50 to-[#1A1815]/80" />
 
-        {/* Floating decorative shapes */}
+        {/* Organic floating blobs */}
         <motion.div
-          className="absolute top-20 left-10 w-32 h-32 rounded-full border border-white/10"
-          animate={{ y: [0, -20, 0], opacity: [0.3, 0.6, 0.3] }}
-          transition={{ duration: 6, repeat: Infinity, ease: 'easeInOut' }}
+          className="absolute top-32 left-1/4 w-72 h-72 rounded-full opacity-[0.08] bg-gold blur-3xl"
+          animate={{ y: [0, -30, 0], scale: [1, 1.2, 1] }}
+          transition={{ duration: 8, repeat: Infinity, ease: 'easeInOut' }}
         />
         <motion.div
-          className="absolute bottom-40 right-16 w-20 h-20 rounded-full border border-white/10"
-          animate={{ y: [0, 15, 0], opacity: [0.2, 0.5, 0.2] }}
-          transition={{ duration: 5, repeat: Infinity, ease: 'easeInOut', delay: 1 }}
+          className="absolute bottom-48 right-1/4 w-96 h-96 rounded-full opacity-[0.06] bg-secondary blur-3xl"
+          animate={{ y: [0, 25, 0], scale: [1, 1.15, 1] }}
+          transition={{ duration: 10, repeat: Infinity, ease: 'easeInOut', delay: 1 }}
         />
         <motion.div
-          className="absolute top-1/3 right-1/4 w-16 h-16 rounded-full bg-white/5"
-          animate={{ scale: [1, 1.3, 1], opacity: [0.2, 0.4, 0.2] }}
-          transition={{ duration: 4, repeat: Infinity, ease: 'easeInOut', delay: 0.5 }}
+          className="absolute top-1/2 right-1/3 w-48 h-48 rounded-full opacity-[0.04] bg-primary blur-3xl"
+          animate={{ scale: [1, 1.3, 1], opacity: [0.03, 0.06, 0.03] }}
+          transition={{ duration: 7, repeat: Infinity, ease: 'easeInOut', delay: 0.5 }}
         />
 
         <motion.div
@@ -106,7 +102,7 @@ export default function HomePage() {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: 0.2 }}
-            className="text-sm uppercase tracking-[0.2em] mb-4 opacity-80"
+            className="text-xs sm:text-sm uppercase tracking-[0.25em] mb-4 opacity-70 font-medium"
           >
             {t('home.hero_tagline') || 'Discover the Hidden Gem'}
           </motion.p>
@@ -114,7 +110,7 @@ export default function HomePage() {
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.7, delay: 0.4, ease: [0.25, 0.1, 0.25, 1] }}
-            className="text-5xl sm:text-6xl md:text-7xl font-serif font-bold mb-4 leading-tight"
+            className="text-6xl sm:text-7xl md:text-8xl lg:text-9xl font-serif font-bold leading-none tracking-tight"
           >
             Hpa‑An
           </motion.h1>
@@ -122,7 +118,7 @@ export default function HomePage() {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: 0.6 }}
-            className="text-lg sm:text-xl max-w-2xl mx-auto mb-8 opacity-90"
+            className="text-base sm:text-lg md:text-xl max-w-xl mx-auto mt-4 mb-10 opacity-80 leading-relaxed"
           >
             {t('home.hero_subtitle') || 'Explore limestone mountains, ancient caves, and authentic Kayin culture.'}
           </motion.p>
@@ -132,58 +128,66 @@ export default function HomePage() {
             transition={{ duration: 0.6, delay: 0.8 }}
             className="flex flex-col sm:flex-row gap-4 justify-center"
           >
-            <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.97 }}>
-              <Link
-                to="/destinations"
-                className="block px-8 py-3 bg-primary text-white font-medium rounded-full hover:bg-primary-light transition shadow-lg hover:shadow-xl"
-              >
-                {t('home.explore_destinations') || 'Explore Destinations'}
-              </Link>
-            </motion.div>
-            <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.97 }}>
-              <Link
-                to="/business"
-                className="block px-8 py-3 bg-transparent border-2 border-white text-white font-medium rounded-full hover:bg-white hover:text-primary transition"
-              >
-                {t('home.view_businesses') || 'View Local Businesses'}
-              </Link>
-            </motion.div>
+            <Link
+              to="/destinations"
+              className="px-8 py-3 bg-white/10 backdrop-blur-sm text-white font-medium rounded-full border border-white/20 hover:bg-white hover:text-primary transition shadow-lg"
+            >
+              {t('home.explore_destinations') || 'Explore Destinations'}
+            </Link>
+            <Link
+              to="/business"
+              className="px-8 py-3 bg-gold/20 backdrop-blur-sm text-white font-medium rounded-full border border-gold/30 hover:bg-gold/40 transition"
+            >
+              {t('home.view_businesses') || 'View Local Businesses'}
+            </Link>
           </motion.div>
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
-            transition={{ delay: 1.2 }}
+            transition={{ delay: 1.4 }}
             className="absolute bottom-8 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2"
           >
             <motion.span
               animate={{ y: [0, 6, 0] }}
               transition={{ duration: 2, repeat: Infinity }}
-              className="text-xs uppercase tracking-widest opacity-60"
+              className="text-[10px] uppercase tracking-[0.3em] opacity-50"
             >
               {t('home.scroll') || 'Scroll for More Info'}
             </motion.span>
-            <ChevronDown className="w-5 h-5 opacity-60" />
+            <motion.div
+              animate={{ y: [0, 6, 0] }}
+              transition={{ duration: 2, repeat: Infinity }}
+            >
+              <ChevronDown className="w-4 h-4 opacity-50" />
+            </motion.div>
           </motion.div>
         </motion.div>
       </section>
-      <div className="container mx-auto px-4 pt-4">
-      <WeatherAlert />
-    </div>
-      {/* Weather & Events */}
-      <motion.div
-        initial="hidden"
-        whileInView="visible"
-        viewport={{ once: true, margin: '-60px' }}
-        variants={fadeInUp}
-        className="container mx-auto px-4 py-12"
-      >
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-          <WeatherWidget />
-          <UpcomingEventsWidget />
-        </div>
-      </motion.div>
+      <div className="container mx-auto px-4 pt-4 relative z-10">
+        <WeatherAlert />
+      </div>
 
-      {/* Popular Destinations */}
+      <div className="relative">
+        <div className="absolute inset-x-0 top-0 h-24 bg-gradient-to-b from-transparent to-neutral-light dark:to-neutral-dark pointer-events-none" />
+        <motion.div
+          initial="hidden"
+          whileInView="visible"
+          viewport={{ once: true, margin: '-60px' }}
+          variants={fadeInUp}
+          className="container mx-auto px-4 py-16 relative z-10"
+        >
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+            <WeatherWidget />
+            <UpcomingEventsWidget />
+          </div>
+        </motion.div>
+      </div>
+
+      {/* Section transition */}
+      <div className="relative h-16 -mb-8">
+        <div className="absolute inset-0 bg-gradient-to-b from-neutral-light dark:from-neutral-dark to-transparent" />
+      </div>
+
       <motion.section
         ref={destinationsRef}
         initial="hidden"
