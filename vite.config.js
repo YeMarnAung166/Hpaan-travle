@@ -73,11 +73,10 @@ export default defineConfig({
         runtimeCaching: [
           {
             urlPattern: /^https:\/\/hqzodqvstvdemmqxphbv\.supabase\.co\/rest\/v1\/.*/i,
-            handler: 'NetworkFirst',
+            handler: 'StaleWhileRevalidate',
             options: {
               cacheName: 'api-cache',
-              expiration: { maxEntries: 50 },
-              networkTimeoutSeconds: 10,
+              expiration: { maxEntries: 100, maxAgeSeconds: 86400 },
             }
           },
           {
@@ -93,7 +92,7 @@ export default defineConfig({
             handler: 'CacheFirst',
             options: {
               cacheName: 'images',
-              expiration: { maxEntries: 200, maxAgeSeconds: 60 * 60 * 24 * 30 }
+              expiration: { maxEntries: 500, maxAgeSeconds: 60 * 60 * 24 * 30 }
             }
           },
           {

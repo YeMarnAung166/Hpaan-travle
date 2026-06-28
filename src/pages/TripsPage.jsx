@@ -3,14 +3,19 @@ import { Link, useNavigate } from 'react-router-dom';
 import { supabase } from '../supabaseClient';
 import { useUser } from '../context/UserContext';
 import { useLanguage } from '../context/LanguageContext';
+import { useToast } from '../context/ToastContext';
 import Button from '../components/ui/Button';
 import LoadingSpinner from '../components/ui/LoadingSpinner';
+import ConfirmDialog from '../components/ConfirmDialog';
+import { Helmet } from 'react-helmet-async';
 
 export default function TripsPage() {
   const user = useUser();
   const navigate = useNavigate();
   const { t } = useLanguage();
+  const { toast } = useToast();
   const [trips, setTrips] = useState([]);
+  const [deleteId, setDeleteId] = useState(null);
   const [loading, setLoading] = useState(true);
   const [newTitle, setNewTitle] = useState('');
   const [creating, setCreating] = useState(false);
@@ -46,9 +51,12 @@ export default function TripsPage() {
   };
 
   const deleteTrip = async (id) => {
-    if (!confirm(t('trips.delete_confirm'))) return;
     const { error } = await supabase.from('trips').delete().eq('id', id);
-    if (!error) setTrips(trips.filter(t => t.id !== id));
+    if (!error) {
+      setTrips(trips.filter(t => t.id !== id));
+      toast({ type: 'success', message: 'Trip deleted' });
+    }
+    setDeleteId(null);
   };
 
   if (!user) {
@@ -63,6 +71,13 @@ export default function TripsPage() {
 
   return (
     <div className="container-custom max-w-4xl">
+      <Helmet>
+        <title>My Trips | Hpa-An Travel</title>
+        <meta name="description" content="Your custom itineraries and trip plans for Hpa-An." />
+        <meta property="og:title" content="My Trips" />
+        <meta property="og:description" content="Your custom itineraries and trip plans for Hpa-An." />
+        <meta property="og:type" content="website" />
+      </Helmet>
       <div className="flex flex-wrap justify-between items-center mb-6 gap-2">
         <h1 className="page-title text-2xl sm:text-3xl">{t('trips.title')}</h1>
         <div className="flex gap-2">
@@ -100,13 +115,23 @@ export default function TripsPage() {
                 {trip.description && <p className="text-text-soft text-sm line-clamp-1">{trip.description}</p>}
                 <p className="text-xs text-text-soft mt-1">{new Date(trip.created_at).toLocaleDateString()}</p>
               </Link>
-              <button onClick={() => deleteTrip(trip.id)} className="text-red-500 hover:text-red-700 p-2 ml-2 flex-shrink-0">
+              <button onClick={() => setDeleteId(trip.id)} className="text-red-500 hover:text-red-700 p-2 ml-2 flex-shrink-0">
                 🗑️
               </button>
             </div>
           ))}
         </div>
       )}
+
+      <ConfirmDialog
+        open={deleteId !== null}
+        title={t('trips.delete_confirm')}
+        message=""
+        onConfirm={() => deleteTrip(deleteId)}
+        onCancel={() => setDeleteId(null)}
+        confirmText="Delete"
+        cancelText="Cancel"
+      />
     </div>
   );
 }

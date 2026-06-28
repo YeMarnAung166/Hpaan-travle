@@ -4,6 +4,7 @@ import DataTable from '../../components/admin/DataTable';
 import FormModal from '../../components/admin/FormModal';
 import { useLanguage } from '../../context/LanguageContext';
 import ImageUploader from '../../components/ImageUploader';
+import { Helmet } from 'react-helmet-async';
 
 export default function AdminEvents() {
   const [events, setEvents] = useState([]);
@@ -86,6 +87,13 @@ export default function AdminEvents() {
 
   return (
     <>
+      <Helmet>
+        <title>Manage Events | Hpa-An Travel</title>
+        <meta name="description" content="Manage events on Hpa-An Travel." />
+        <meta property="og:title" content="Manage Events" />
+        <meta property="og:description" content="Manage events on Hpa-An Travel." />
+        <meta property="og:type" content="website" />
+      </Helmet>
       <DataTable
         title={t('admin.events')}
         data={events}

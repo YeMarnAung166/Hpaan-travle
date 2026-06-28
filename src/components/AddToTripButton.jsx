@@ -3,11 +3,13 @@ import { Link } from 'react-router-dom';
 import { supabase } from '../supabaseClient';
 import { useUser } from '../context/UserContext';
 import { useLanguage } from '../context/LanguageContext';
+import { useToast } from '../context/ToastContext';
 import Button from './ui/Button';
 
 export default function AddToTripButton({ itemType, itemId, itemName }) {
   const user = useUser();
   const { t } = useLanguage();
+  const { toast } = useToast();
   const [trips, setTrips] = useState([]);
   const [show, setShow] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -33,7 +35,7 @@ export default function AddToTripButton({ itemType, itemId, itemName }) {
       .eq('item_id', itemId)
       .maybeSingle();
     if (existing) {
-      alert(t('trips.already_in_trip'));
+      toast({ type: 'warning', message: t('trips.already_in_trip') });
       setLoading(false);
       return;
     }
@@ -50,10 +52,10 @@ export default function AddToTripButton({ itemType, itemId, itemName }) {
       .insert({ trip_id: tripId, item_type: itemType, item_id: itemId, order_index: newOrder });
     if (!error) {
       const tripTitle = trips.find(t => t.id === tripId)?.title;
-      alert(t('trips.added_to_trip', { title: tripTitle }));
+      toast({ type: 'success', message: t('trips.added_to_trip', { title: tripTitle }) });
       setShow(false);
     } else {
-      alert(t('trips.error_adding'));
+      toast({ type: 'error', message: t('trips.error_adding') });
     }
     setLoading(false);
   };

@@ -3,6 +3,7 @@ import { useEffect, useState } from 'react';
 import { supabase } from '../../supabaseClient';
 import { Link } from 'react-router-dom';
 import { useLanguage } from '../../context/LanguageContext';
+import { Helmet } from 'react-helmet-async';
 
 export default function AdminDashboard() {
   const [stats, setStats] = useState({
@@ -55,6 +56,13 @@ export default function AdminDashboard() {
 
   return (
     <div>
+      <Helmet>
+        <title>Admin Dashboard | Hpa-An Travel</title>
+        <meta name="description" content="Manage your site content, destinations, businesses, and more." />
+        <meta property="og:title" content="Admin Dashboard" />
+        <meta property="og:description" content="Manage your site content, destinations, businesses, and more." />
+        <meta property="og:type" content="website" />
+      </Helmet>
       <h2 className="text-2xl font-bold mb-6">{t('admin.dashboard')}</h2>
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
         {statCards.map((card) => (

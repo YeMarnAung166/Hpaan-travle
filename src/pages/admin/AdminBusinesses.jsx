@@ -4,6 +4,7 @@ import DataTable from "../../components/admin/DataTable";
 import FormModal from "../../components/admin/FormModal";
 import { useLanguage } from "../../context/LanguageContext";
 import ImageUploader from "../../components/ImageUploader";
+import { Helmet } from 'react-helmet-async';
 
 const CATEGORIES = [
   { value: "accommodation", label: "Accommodation", labelMy: "နေရာထိုင်ခင်း" },
@@ -134,6 +135,13 @@ export default function AdminBusinesses() {
 
   return (
     <>
+      <Helmet>
+        <title>Manage Businesses | Hpa-An Travel</title>
+        <meta name="description" content="Manage businesses on Hpa-An Travel." />
+        <meta property="og:title" content="Manage Businesses" />
+        <meta property="og:description" content="Manage businesses on Hpa-An Travel." />
+        <meta property="og:type" content="website" />
+      </Helmet>
       <DataTable
         title={t("admin.businesses")}
         data={businesses}

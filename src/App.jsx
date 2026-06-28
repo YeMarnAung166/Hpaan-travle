@@ -5,6 +5,8 @@ import { ThemeProvider } from './context/ThemeContext';
 import { LanguageProvider } from './context/LanguageContext';
 import { UserProvider } from './context/UserContext';
 import { ProfileProvider } from './context/ProfileContext';
+import { ToastProvider } from './context/ToastContext';
+import { HelmetProvider } from 'react-helmet-async';
 import { useAuthSession } from './hooks/useAuthSession';
 import { pageTransition } from './utils/animations';
 import AuthModal from './components/AuthModal';
@@ -42,9 +44,17 @@ const AdminBusinesses = lazy(() => import('./pages/admin/AdminBusinesses'));
 const AdminEvents = lazy(() => import('./pages/admin/AdminEvents'));
 const AdminReviews = lazy(() => import('./pages/admin/AdminReviews'));
 const AdminUserPhotos = lazy(() => import('./pages/admin/AdminUserPhotos'));
+const AdminContentPages = lazy(() => import('./pages/admin/AdminContentPages'));
+const AdminBookings = lazy(() => import('./pages/admin/AdminBookings'));
+const AdminBlog = lazy(() => import('./pages/admin/AdminBlog'));
 
 // 404 page
 const NotFound = lazy(() => import('./pages/NotFound'));
+const ContactPage = lazy(() => import('./pages/ContactPage'));
+const PrivacyPage = lazy(() => import('./pages/PrivacyPage'));
+const TermsPage = lazy(() => import('./pages/TermsPage'));
+const BlogList = lazy(() => import('./pages/BlogList'));
+const BlogPost = lazy(() => import('./pages/BlogPost'));
 
 function AppContent({ showAuthModal, setShowAuthModal, handleLogout }) {
   const location = useLocation();
@@ -80,6 +90,11 @@ function AppContent({ showAuthModal, setShowAuthModal, handleLogout }) {
                   <Route path="/trips" element={<TripsPage />} />
                   <Route path="/trip/:id" element={<TripDetailPage />} />
                   <Route path="/generate-itinerary" element={<GenerateItinerary />} />
+                  <Route path="/blog" element={<BlogList />} />
+                  <Route path="/blog/:slug" element={<BlogPost />} />
+                  <Route path="/contact" element={<ContactPage />} />
+                  <Route path="/privacy" element={<PrivacyPage />} />
+                  <Route path="/terms" element={<TermsPage />} />
                   <Route
                     path="/admin"
                     element={
@@ -94,6 +109,9 @@ function AppContent({ showAuthModal, setShowAuthModal, handleLogout }) {
                     <Route path="events" element={<AdminEvents />} />
                     <Route path="reviews" element={<AdminReviews />} />
                     <Route path="user-photos" element={<AdminUserPhotos />} />
+                    <Route path="pages" element={<AdminContentPages />} />
+                    <Route path="bookings" element={<AdminBookings />} />
+                    <Route path="blog" element={<AdminBlog />} />
                   </Route>
                   <Route path="*" element={<NotFound />} />
                 </Routes>
@@ -119,11 +137,15 @@ function App() {
           <ProfileProvider>
             <BrowserRouter>
               <ErrorBoundary>
-                <AppContent
-                  showAuthModal={showAuthModal}
-                  setShowAuthModal={setShowAuthModal}
-                  handleLogout={handleLogout}
-                />
+                <HelmetProvider>
+                <ToastProvider>
+                  <AppContent
+                    showAuthModal={showAuthModal}
+                    setShowAuthModal={setShowAuthModal}
+                    handleLogout={handleLogout}
+                  />
+                </ToastProvider>
+                </HelmetProvider>
               </ErrorBoundary>
             </BrowserRouter>
           </ProfileProvider>

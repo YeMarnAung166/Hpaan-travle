@@ -3,11 +3,12 @@ import { motion, useMotionValue, useTransform, AnimatePresence } from "framer-mo
 import { useUser } from "../context/UserContext";
 import { useFavorites } from "../hooks/useFavorites";
 import { useLanguage } from "../context/LanguageContext";
-import { useState, useEffect } from "react";
+import { memo, useState, useEffect } from "react";
 import { supabase } from "../supabaseClient";
 import StarRating from "./StarRating";
+import { getOptimizedImage } from "../utils/imageHelpers";
 
-export default function BusinessCard({ business }) {
+const BusinessCard = memo(function BusinessCard({ business }) {
   const user = useUser();
   const { t, getLocalized } = useLanguage();
   const { favorites, toggleFavorite } = useFavorites(user?.id);
@@ -86,8 +87,10 @@ export default function BusinessCard({ business }) {
     >
       <div className="relative overflow-hidden h-48">
         <img
-          src={business.image}
+          src={getOptimizedImage(business.image, 400)}
           alt={name}
+          loading="lazy"
+          decoding="async"
           className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
         />
         <div className="absolute inset-0 bg-gradient-to-tr from-transparent via-white/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
@@ -231,4 +234,6 @@ export default function BusinessCard({ business }) {
       </div>
     </motion.div>
   );
-}
+});
+
+export default BusinessCard;

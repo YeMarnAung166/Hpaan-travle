@@ -4,15 +4,18 @@ import { supabase } from "../supabaseClient";
 import { useUser } from "../context/UserContext";
 import { useProfileContext } from "../context/ProfileContext";
 import { useLanguage } from "../context/LanguageContext";
+import { useToast } from "../context/ToastContext";
 import AvatarUpload from "../components/AvatarUpload";
 import Button from "../components/ui/Button";
 import Input from "../components/ui/Input";
 import StarRating from "../components/StarRating";
+import { Helmet } from 'react-helmet-async';
 
 export default function MyAccountPage() {
   const user = useUser();
   const navigate = useNavigate();
   const { t, language } = useLanguage();
+  const { toast } = useToast();
   const {
     profile,
     loading: profileLoading,
@@ -22,7 +25,6 @@ export default function MyAccountPage() {
   const [displayName, setDisplayName] = useState("");
   const [bio, setBio] = useState("");
   const [saving, setSaving] = useState(false);
-  const [message, setMessage] = useState("");
   const [stats, setStats] = useState({ reviews: 0, photos: 0, favorites: 0 });
   const [recentReviews, setRecentReviews] = useState([]);
   const [recentPhotos, setRecentPhotos] = useState([]);
@@ -102,10 +104,13 @@ export default function MyAccountPage() {
   const handleSaveProfile = async () => {
     setSaving(true);
     const success = await updateProfile({ display_name: displayName, bio });
-    setMessage(success ? "Profile updated!" : "Update failed");
     setSaving(false);
-    setTimeout(() => setMessage(""), 3000);
-    if (success) refresh();
+    if (success) {
+      toast({ type: 'success', message: 'Profile updated!' });
+      refresh();
+    } else {
+      toast({ type: 'error', message: 'Update failed' });
+    }
   };
 
   const handleAvatarUpload = async (url) => {
@@ -131,6 +136,13 @@ export default function MyAccountPage() {
 
   return (
     <div className="container-custom max-w-5xl">
+      <Helmet>
+        <title>My Account | Hpa-An Travel</title>
+        <meta name="description" content="Manage your profile, reviews, and photos on Hpa-An Travel." />
+        <meta property="og:title" content="My Account" />
+        <meta property="og:description" content="Manage your profile, reviews, and photos on Hpa-An Travel." />
+        <meta property="og:type" content="website" />
+      </Helmet>
       <h1 className="page-title">My Account</h1>
 
       {/* Profile section */}
@@ -170,7 +182,6 @@ export default function MyAccountPage() {
                 {saving ? "Saving..." : "Save Changes"}
               </Button>
             </div>
-            {message && <p className="text-success text-sm mt-2">{message}</p>}
           </div>
         </div>
       </div>

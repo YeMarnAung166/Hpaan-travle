@@ -22,6 +22,8 @@ import { supabase } from '../supabaseClient';
 import { Link, useSearchParams } from 'react-router-dom';
 import LoadingSpinner from '../components/ui/LoadingSpinner';
 import { useLanguage } from '../context/LanguageContext';
+import { useToast } from '../context/ToastContext';
+import { Helmet } from 'react-helmet-async';
 
 // Fix default marker icons
 delete L.Icon.Default.prototype._getIconUrl;
@@ -94,6 +96,7 @@ function GeocoderControl({ onPlaceSelected }) {
 
 export default function MapPage() {
   const { t } = useLanguage();
+  const { toast } = useToast();
   const [attractions, setAttractions] = useState([]);
   const [businesses, setBusinesses] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -114,11 +117,10 @@ export default function MapPage() {
         .from('businesses')
         .select('id, name, name_my, description, description_my, lat, lng, category, image');
       if (bizData) setBusinesses(bizData.filter(b => b.lat && b.lng));
-      setAttractions([
-        { id: 1, name: 'Saddan Cave', lat: 16.881, lng: 97.673, description: 'Large cave with hidden pagoda.' },
-        { id: 2, name: 'Mount Zwegabin', lat: 16.868, lng: 97.700, description: 'Famous mountain with panoramic views.' },
-        { id: 3, name: 'Kyauk Ka Lat Pagoda', lat: 16.889, lng: 97.627, description: 'Pagoda on limestone pillar.' },
-      ]);
+      const { data: destData } = await supabase
+        .from('destinations')
+        .select('id, name, name_my, description, description_my, lat, lng, image');
+      if (destData) setAttractions(destData.filter(d => d.lat && d.lng));
       setLoading(false);
     };
     fetchData();
@@ -191,7 +193,7 @@ export default function MapPage() {
 
   const startRouting = (endCoords) => {
     if (!userLocation) {
-      alert('Please allow location access or click the location button first.');
+      toast({ type: 'warning', message: 'Please allow location access or click the location button first.' });
       return;
     }
     setRouteStart(userLocation);
@@ -214,6 +216,13 @@ export default function MapPage() {
 
   return (
     <div className="relative h-[calc(100vh-70px)] w-full">
+      <Helmet>
+        <title>Map of Hpa-An | Hpa-An Travel</title>
+        <meta name="description" content="Interactive map of Hpa-An with destinations, businesses, and route planning." />
+        <meta property="og:title" content="Map of Hpa-An" />
+        <meta property="og:description" content="Interactive map of Hpa-An with destinations, businesses, and route planning." />
+        <meta property="og:type" content="website" />
+      </Helmet>
       <MapContainer
         center={[16.89, 97.65]}
         zoom={12}

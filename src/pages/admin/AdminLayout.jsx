@@ -13,6 +13,9 @@ export default function AdminLayout() {
     { path: "/admin/events", label: t("admin.events") },
     { path: "/admin/reviews", label: t("admin.reviews") },
     { path: "/admin/user-photos", label: t("admin.user_photos") },
+    { path: "/admin/pages", label: "Pages" },
+    { path: "/admin/bookings", label: "Bookings" },
+    { path: "/admin/blog", label: "Blog" },
   ];
 
   return (

@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { NavLink, Link, useLocation } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useUser } from '../context/UserContext';
@@ -16,6 +16,14 @@ export default function Header({ onLoginClick, onLogoutClick }) {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const location = useLocation();
   const scrolled = useScroll();
+  const headerRef = useRef(null);
+
+  useEffect(() => {
+    if (headerRef.current) {
+      const h = headerRef.current.offsetHeight;
+      document.documentElement.style.setProperty('--header-h', `${h}px`);
+    }
+  }, []);
 
   useEffect(() => {
     if (user) refresh();
@@ -35,6 +43,7 @@ export default function Header({ onLoginClick, onLogoutClick }) {
     { to: "/events", label: t("nav.events") },
     { to: "/tips", label: t("nav.tips") },
     { to: "/history", label: t("nav.history") },
+    { to: "/blog", label: "Blog" },
   ];
   if (user) {
     navLinks.push({ to: "/trips", label: t("nav.trips") || "My Trips" });
@@ -59,6 +68,7 @@ export default function Header({ onLoginClick, onLogoutClick }) {
 
   return (
     <header
+      ref={headerRef}
       className={`sticky top-0 z-50 w-full transition-all duration-700 ${
         isTransparent
           ? 'bg-transparent shadow-none'

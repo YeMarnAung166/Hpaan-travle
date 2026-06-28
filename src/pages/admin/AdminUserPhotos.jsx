@@ -1,16 +1,29 @@
-import { useEffect, useState, useMemo } from 'react';
+import { useEffect, useState, useMemo, useCallback } from 'react';
 import { supabase } from '../../supabaseClient';
 import { useLanguage } from '../../context/LanguageContext';
+import { useToast } from '../../context/ToastContext';
+import ConfirmDialog from '../../components/ConfirmDialog';
+import { Helmet } from 'react-helmet-async';
+import { getOptimizedImage } from '../../utils/imageHelpers';
 
 export default function AdminUserPhotos() {
   const [photos, setPhotos] = useState([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
+  const [debouncedSearch, setDebouncedSearch] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
+  const [selected, setSelected] = useState(new Set());
+  const [confirmAction, setConfirmAction] = useState(null);
   const perPage = 12;
   const { t, language } = useLanguage();
+  const { toast } = useToast();
 
   useEffect(() => { fetchPhotos(); }, []);
+
+  useEffect(() => {
+    const t = setTimeout(() => setDebouncedSearch(searchTerm), 300);
+    return () => clearTimeout(t);
+  }, [searchTerm]);
 
   const fetchPhotos = async () => {
     const { data, error } = await supabase
@@ -23,8 +36,8 @@ export default function AdminUserPhotos() {
   };
 
   const processed = useMemo(() => {
-    if (!searchTerm) return photos;
-    const term = searchTerm.toLowerCase();
+    if (!debouncedSearch) return photos;
+    const term = debouncedSearch.toLowerCase();
     return photos.filter((photo) => {
       const targetName = photo.businesses?.name || photo.itineraries?.title || '';
       const caption = photo.caption || '';
@@ -33,7 +46,7 @@ export default function AdminUserPhotos() {
         || caption.toLowerCase().includes(term)
         || email.toLowerCase().includes(term);
     });
-  }, [photos, searchTerm]);
+  }, [photos, debouncedSearch]);
 
   const totalPages = Math.ceil(processed.length / perPage);
   const paginated = processed.slice((currentPage - 1) * perPage, currentPage * perPage);
@@ -53,32 +66,75 @@ export default function AdminUserPhotos() {
     return pages;
   }, [totalPages, currentPage]);
 
+  const toggleSelect = (id) => {
+    setSelected(prev => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id); else next.add(id);
+      return next;
+    });
+  };
+
+  const toggleSelectAll = () => {
+    if (selected.size === paginated.length) {
+      setSelected(new Set());
+    } else {
+      setSelected(new Set(paginated.map(p => p.id)));
+    }
+  };
+
   const handleApprove = async (id) => {
     const { error } = await supabase.from('user_photos').update({ moderated: true }).eq('id', id);
-    if (error) alert(error.message);
-    else fetchPhotos();
+    if (error) toast({ type: 'error', message: error.message });
+    else { toast({ type: 'success', message: 'Photo approved' }); fetchPhotos(); }
+    setSelected(prev => { const next = new Set(prev); next.delete(id); return next; });
+  };
+
+  const handleBatchApprove = async () => {
+    const ids = [...selected];
+    const { error } = await supabase.from('user_photos').update({ moderated: true }).in('id', ids);
+    if (error) toast({ type: 'error', message: error.message });
+    else { toast({ type: 'success', message: `${ids.length} photos approved` }); fetchPhotos(); }
+    setSelected(new Set());
+    setConfirmAction(null);
   };
 
   const handleDelete = async (id, imageUrl) => {
-    if (!confirm(t('admin.confirm_delete'))) return;
     if (imageUrl) {
       const urlParts = imageUrl.split('/');
       const bucketIndex = urlParts.indexOf('object') + 2;
       const filePath = urlParts.slice(bucketIndex + 1).join('/');
       if (filePath) {
-        const { error: storageError } = await supabase.storage.from('hpaan-assets').remove([filePath]);
-        if (storageError) console.warn('Storage delete error:', storageError);
+        await supabase.storage.from('hpaan-assets').remove([filePath]);
       }
     }
     const { error } = await supabase.from('user_photos').delete().eq('id', id);
-    if (error) { console.error('Delete error:', error); alert(`Delete failed: ${error.message}`); }
-    else fetchPhotos();
+    if (error) { toast({ type: 'error', message: `Delete failed: ${error.message}` }); }
+    else { toast({ type: 'success', message: 'Photo deleted' }); fetchPhotos(); }
+    setSelected(prev => { const next = new Set(prev); next.delete(id); return next; });
+  };
+
+  const handleBatchDelete = async () => {
+    const ids = [...selected];
+    for (const id of ids) {
+      await supabase.from('user_photos').delete().eq('id', id);
+    }
+    toast({ type: 'success', message: `${ids.length} photos deleted` });
+    fetchPhotos();
+    setSelected(new Set());
+    setConfirmAction(null);
   };
 
   if (loading) return <div className="spinner mx-auto"></div>;
 
   return (
     <div>
+      <Helmet>
+        <title>Moderate Photos | Hpa-An Travel</title>
+        <meta name="description" content="Moderate user-uploaded photos on Hpa-An Travel." />
+        <meta property="og:title" content="Moderate Photos" />
+        <meta property="og:description" content="Moderate user-uploaded photos on Hpa-An Travel." />
+        <meta property="og:type" content="website" />
+      </Helmet>
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 gap-4">
         <h2 className="text-2xl font-bold">{t('admin.moderate_photos')}</h2>
         <input
@@ -89,6 +145,21 @@ export default function AdminUserPhotos() {
           className="px-3 py-2 border border-neutral-mid rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/50 w-full sm:w-64"
         />
       </div>
+
+      {selected.size > 0 && (
+        <div className="flex items-center gap-3 mb-4 p-3 bg-primary/5 border border-primary/20 rounded-lg">
+          <span className="text-sm font-medium text-text">{selected.size} selected</span>
+          <button onClick={() => setConfirmAction('approve')} className="px-3 py-1 bg-green-600 text-white rounded hover:bg-green-700 transition text-sm">
+            Approve All
+          </button>
+          <button onClick={() => setConfirmAction('delete')} className="px-3 py-1 bg-red-600 text-white rounded hover:bg-red-700 transition text-sm">
+            Delete All
+          </button>
+          <button onClick={() => setSelected(new Set())} className="px-3 py-1 border border-border rounded text-sm hover:bg-overlay transition">
+            Clear
+          </button>
+        </div>
+      )}
 
       {processed.length === 0 ? (
         <p className="text-center py-12 text-text-soft">{searchTerm ? t('common.no_results') : t('admin.no_pending')}</p>
@@ -106,11 +177,22 @@ export default function AdminUserPhotos() {
               } else { targetName = 'N/A'; }
 
               return (
-                <div key={photo.id} className="bg-white dark:bg-neutral-dark rounded-xl border border-border p-4">
+                <div key={photo.id} className={`bg-white dark:bg-neutral-dark rounded-xl border p-4 transition ${selected.has(photo.id) ? 'border-primary ring-2 ring-primary/20' : 'border-border'}`}>
+                  <div className="flex items-center gap-2 mb-2">
+                    <input
+                      type="checkbox"
+                      checked={selected.has(photo.id)}
+                      onChange={() => toggleSelect(photo.id)}
+                      className="accent-primary"
+                    />
+                    <span className="text-xs text-text-soft">Select</span>
+                  </div>
                   <img
-                    src={photo.image_url}
+                    src={getOptimizedImage(photo.image_url, 300)}
                     alt="User upload"
                     className="w-full h-48 object-cover rounded"
+                    loading="lazy"
+                    decoding="async"
                     onError={(e) => { e.target.src = '/fallback-image.jpg'; }}
                   />
                   <div className="mt-2 space-y-1">
@@ -160,6 +242,21 @@ export default function AdminUserPhotos() {
           )}
         </>
       )}
+
+      <ConfirmDialog
+        open={confirmAction === 'approve'}
+        title={`Approve ${selected.size} photos?`}
+        message="These photos will be marked as moderated and visible to all users."
+        onConfirm={handleBatchApprove}
+        onCancel={() => setConfirmAction(null)}
+      />
+      <ConfirmDialog
+        open={confirmAction === 'delete'}
+        title={`Delete ${selected.size} photos?`}
+        message="This action cannot be undone."
+        onConfirm={handleBatchDelete}
+        onCancel={() => setConfirmAction(null)}
+      />
     </div>
   );
 }

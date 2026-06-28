@@ -7,6 +7,7 @@ import { supabase } from '../supabaseClient';
 import { useUser } from '../context/UserContext';
 import { useFavorites } from '../hooks/useFavorites';
 import { useLanguage } from '../context/LanguageContext';
+import { useToast } from '../context/ToastContext';
 import BusinessReviews from '../components/BusinessReviews';
 import SocialShare from '../components/SocialShare';
 import Button from '../components/ui/Button';
@@ -14,7 +15,12 @@ import LocationControl from '../components/LocationControl';
 import UserPhotoUpload from '../components/UserPhotoUpload';
 import UserPhotoGallery from '../components/UserPhotoGallery';
 import AddToTripButton from '../components/AddToTripButton';
+import ImageGallery from '../components/ImageGallery';
+import NearbyPlaces from '../components/NearbyPlaces';
+import BookingModal from '../components/BookingModal';
 import { getYouTubeEmbedUrl } from '../utils/videoHelpers';
+import { getOptimizedImage } from '../utils/imageHelpers';
+import { Helmet } from 'react-helmet-async';
 
 // Fix Leaflet default marker icons
 delete L.Icon.Default.prototype._getIconUrl;
@@ -31,8 +37,11 @@ export default function BusinessDetail() {
   const [loading, setLoading] = useState(true);
   const user = useUser();
   const { t, getLocalized, language } = useLanguage();
+  const { toast } = useToast();
   const { favorites, toggleFavorite } = useFavorites(user?.id);
   const isSaved = user && favorites.businesses.has(parseInt(id));
+  const [photoRefreshKey, setPhotoRefreshKey] = useState(0);
+  const [showBooking, setShowBooking] = useState(false);
 
   useEffect(() => {
     const fetchBusiness = async () => {
@@ -57,7 +66,7 @@ export default function BusinessDetail() {
 
   const handleGetDirections = () => {
     if (!hasCoordinates) {
-      alert('Location not available for this business.');
+      toast({ type: 'warning', message: 'Location not available for this business.' });
       return;
     }
     if (navigator.geolocation) {
@@ -66,10 +75,10 @@ export default function BusinessDetail() {
           const { latitude, longitude } = position.coords;
           navigate(`/map?start=${latitude},${longitude}&end=${business.lat},${business.lng}`);
         },
-        () => alert('Unable to get your location. Please allow location access.')
+        () => toast({ type: 'error', message: 'Unable to get your location. Please allow location access.' })
       );
     } else {
-      alert('Geolocation is not supported by your browser.');
+      toast({ type: 'error', message: 'Geolocation is not supported by your browser.' });
     }
   };
 
@@ -94,9 +103,17 @@ export default function BusinessDetail() {
 
   return (
     <div className="bg-neutral-light min-h-screen">
+      <Helmet>
+        <title>{name} | Hpa-An Travel</title>
+        <meta name="description" content={description} />
+        <meta property="og:title" content={name} />
+        <meta property="og:description" content={description} />
+        <meta property="og:image" content={business.image} />
+        <meta property="og:type" content="website" />
+      </Helmet>
       {/* Hero Section */}
       <div className="relative h-[40vh] sm:h-[50vh] overflow-hidden">
-        <img src={business.image} alt={name} className="w-full h-full object-cover" />
+        <img src={getOptimizedImage(business.image, 800)} alt={name} className="w-full h-full object-cover" loading="lazy" decoding="async" />
         <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/30 to-transparent" />
         {user && (
           <button
@@ -133,6 +150,50 @@ export default function BusinessDetail() {
             <div className="prose prose-lg max-w-none mb-8">
               <p className="text-text-soft leading-relaxed">{description}</p>
             </div>
+
+            {business.photos && business.photos.length > 0 && (
+              <div className="mb-8">
+                <h3 className="text-xl font-semibold text-text mb-3">{language === 'my' ? 'ဓာတ်ပုံများ' : 'Photos'}</h3>
+                <ImageGallery images={[business.image, ...business.photos.filter(p => p !== business.image)]} alt={name} />
+              </div>
+            )}
+
+            {/* Contact & detail info */}
+            <div className="flex flex-wrap gap-4 mb-6">
+              {business.website && (
+                <a href={business.website.startsWith('http') ? business.website : `https://${business.website}`} target="_blank" rel="noopener noreferrer" className="flex items-center gap-1 text-primary hover:underline text-sm">
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.657 0 3-4.03 3-9s-1.343-9-3-9m0 18c-1.657 0-3-4.03-3-9s1.343-9 3-9m0 0c1.657 0 3 4.03 3 9s-1.343 9-3 9z" /></svg>
+                  Website
+                </a>
+              )}
+              {business.email && (
+                <a href={`mailto:${business.email}`} className="flex items-center gap-1 text-primary hover:underline text-sm">
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" /></svg>
+                  Email
+                </a>
+              )}
+              {business.price_range && (
+                <span className="flex items-center gap-1 text-text-soft text-sm">
+                  <span className="text-gold">{'$'.repeat(Math.min(4, parseInt(business.price_range) || 1))}</span>
+                </span>
+              )}
+            </div>
+
+            {/* Opening hours */}
+            {business.opening_hours && typeof business.opening_hours === 'object' && Object.keys(business.opening_hours).length > 0 && (
+              <div className="mb-6">
+                <h3 className="text-xl font-semibold text-text mb-2">{language === 'my' ? 'ဖွင့်ချိန်' : 'Opening Hours'}</h3>
+                <div className="bg-white rounded-xl border border-border p-4 text-sm space-y-1 max-w-sm">
+                  {Object.entries(business.opening_hours).map(([day, hours]) => (
+                    <div key={day} className="flex justify-between">
+                      <span className="font-medium text-text">{day}</span>
+                      <span className="text-text-soft">{hours}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
             {/* Add to Trip Button */}
             <AddToTripButton itemType="business" itemId={business.id} itemName={name} />
 
@@ -156,8 +217,8 @@ export default function BusinessDetail() {
             )}
 
             {/* User Photos (Upload & Gallery) */}
-            <UserPhotoUpload businessId={business.id} onUploadComplete={() => window.location.reload()} />
-            <UserPhotoGallery businessId={business.id} />
+            <UserPhotoUpload businessId={business.id} onUploadComplete={() => setPhotoRefreshKey(k => k + 1)} />
+            <UserPhotoGallery key={photoRefreshKey} businessId={business.id} />
 
             {/* Embedded Map */}
             {hasCoordinates && (
@@ -190,6 +251,18 @@ export default function BusinessDetail() {
             )}
 
 
+            {/* Nearby Businesses */}
+            {hasCoordinates && (
+              <div className="mb-8">
+                <h3 className="text-xl font-semibold text-text mb-3">
+                  {language === 'my' ? 'အနီးနား လုပ်ငန်းများ' : 'Nearby Businesses'}
+                </h3>
+                <NearbyPlaces lat={business.lat} lng={business.lng} excludeId={business.id} type="businesses" />
+              </div>
+            )}
+
+            <BookingModal business={business} isOpen={showBooking} onClose={() => setShowBooking(false)} />
+
             {/* Reviews */}
             <BusinessReviews businessId={business.id} />
           </div>
@@ -200,6 +273,9 @@ export default function BusinessDetail() {
               <div className="bg-white rounded-2xl shadow-lg p-6 border border-neutral-mid">
                 <h3 className="font-semibold text-text mb-4">Contact & booking</h3>
                 <div className="space-y-3">
+                  <Button variant="primary" size="md" className="w-full" onClick={() => setShowBooking(true)}>
+                    Book Now
+                  </Button>
                   <a href={`tel:${business.phone}`} className="flex justify-between p-3 bg-neutral-light rounded-xl hover:bg-neutral-mid transition">
                     <span className="text-text">{business.phone}</span>
                     <svg className="w-5 h-5 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">

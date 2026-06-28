@@ -4,6 +4,7 @@ import DataTable from "../../components/admin/DataTable";
 import FormModal from "../../components/admin/FormModal";
 import { useLanguage } from "../../context/LanguageContext";
 import ImageUploader from "../../components/ImageUploader";
+import { Helmet } from 'react-helmet-async';
 
 export default function AdminDestinations() {
   const [destinations, setDestinations] = useState([]);
@@ -124,6 +125,13 @@ export default function AdminDestinations() {
 
   return (
     <>
+      <Helmet>
+        <title>Manage Destinations | Hpa-An Travel</title>
+        <meta name="description" content="Manage destinations on Hpa-An Travel." />
+        <meta property="og:title" content="Manage Destinations" />
+        <meta property="og:description" content="Manage destinations on Hpa-An Travel." />
+        <meta property="og:type" content="website" />
+      </Helmet>
       <DataTable
         title={t("admin.destinations") || "Destinations"}
         data={destinations}

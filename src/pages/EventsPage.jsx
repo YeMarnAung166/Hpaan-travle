@@ -1,11 +1,16 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import { supabase } from '../supabaseClient';
 import { useLanguage } from '../context/LanguageContext';
-import { Link } from 'react-router-dom';
+import Pagination from '../components/ui/Pagination';
+import { Helmet } from 'react-helmet-async';
+import { getOptimizedImage } from '../utils/imageHelpers';
+
+const PAGE_SIZE = 9;
 
 export default function EventsPage() {
-  const [events, setEvents] = useState([]);
+  const [allEvents, setAllEvents] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [page, setPage] = useState(1);
   const { t, language } = useLanguage();
 
   useEffect(() => {
@@ -14,7 +19,7 @@ export default function EventsPage() {
         .from('events')
         .select('*')
         .order('event_date', { ascending: true });
-      if (!error) setEvents(data);
+      if (!error) setAllEvents(data || []);
       setLoading(false);
     };
     fetchEvents();
@@ -23,42 +28,51 @@ export default function EventsPage() {
   if (loading) return <div className="spinner mx-auto my-12"></div>;
 
   const now = new Date();
-  const upcomingEvents = events.filter(e => new Date(e.event_date) >= now);
-  const pastEvents = events.filter(e => new Date(e.event_date) < now);
+  const upcoming = allEvents.filter(e => new Date(e.event_date) >= now);
+  const past = allEvents.filter(e => new Date(e.event_date) < now);
+
+  const totalUpcomingPages = Math.ceil(upcoming.length / PAGE_SIZE);
+  const paginatedUpcoming = upcoming.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE);
 
   const formatDate = (dateStr) => {
     return new Date(dateStr).toLocaleDateString(language === 'my' ? 'my' : 'en', {
-      year: 'numeric',
-      month: 'long',
-      day: 'numeric'
+      year: 'numeric', month: 'long', day: 'numeric'
     });
   };
 
   return (
     <div className="container-custom">
+      <Helmet>
+        <title>Events in Hpa-An | Hpa-An Travel</title>
+        <meta name="description" content="Upcoming events and festivals in Hpa-An, Myanmar." />
+        <meta property="og:title" content="Events in Hpa-An" />
+        <meta property="og:description" content="Upcoming events and festivals in Hpa-An, Myanmar." />
+        <meta property="og:type" content="website" />
+      </Helmet>
       <h1 className="page-title">{t('events.title') || 'Local Events & Festivals'}</h1>
       <p className="text-text-soft mb-8">{t('events.subtitle') || 'Discover cultural celebrations and festivals in Hpa‑An'}</p>
 
-      {upcomingEvents.length === 0 && pastEvents.length === 0 && (
+      {allEvents.length === 0 && (
         <div className="text-center py-12"><p className="text-text-soft">{t('events.no_events') || 'No events found. Check back later!'}</p></div>
       )}
 
-      {upcomingEvents.length > 0 && (
+      {paginatedUpcoming.length > 0 && (
         <div className="mb-12">
           <h2 className="text-2xl font-serif font-semibold text-primary mb-6">{t('events.upcoming') || 'Upcoming Events'}</h2>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {upcomingEvents.map(event => (
+            {paginatedUpcoming.map(event => (
               <EventCard key={event.id} event={event} formatDate={formatDate} language={language} />
             ))}
           </div>
+          <Pagination page={page} totalPages={totalUpcomingPages} onPageChange={setPage} />
         </div>
       )}
 
-      {pastEvents.length > 0 && (
+      {past.length > 0 && (
         <div>
           <h2 className="text-2xl font-serif font-semibold text-text-soft mb-6">{t('events.past') || 'Past Events'}</h2>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 opacity-75">
-            {pastEvents.map(event => (
+            {past.map(event => (
               <EventCard key={event.id} event={event} formatDate={formatDate} language={language} past />
             ))}
           </div>
@@ -77,7 +91,7 @@ function EventCard({ event, formatDate, language, past }) {
   return (
     <div className={`bg-white dark:bg-neutral-dark rounded-xl shadow-md overflow-hidden transition-all hover:shadow-lg ${past ? 'opacity-80' : ''}`}>
       {event.image && !imgError ? (
-        <img src={event.image} alt={title} onError={() => setImgError(true)} className="w-full h-48 object-cover" />
+        <img src={getOptimizedImage(event.image, 400)} alt={title} loading="lazy" decoding="async" onError={() => setImgError(true)} className="w-full h-48 object-cover" />
       ) : event.image ? (
         <div className="w-full h-48 bg-neutral-mid dark:bg-neutral-dark flex items-center justify-center">
           <svg className="w-10 h-10 text-text-soft/40" fill="none" stroke="currentColor" viewBox="0 0 24 24">

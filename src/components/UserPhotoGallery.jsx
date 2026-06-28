@@ -3,6 +3,7 @@ import { useEffect, useState } from 'react';
 import { supabase } from '../supabaseClient';
 import { useUser } from '../context/UserContext';
 import { useLanguage } from '../context/LanguageContext';
+import { getOptimizedImage } from '../utils/imageHelpers';
 
 export default function UserPhotoGallery({ businessId, itineraryId, destinationId }) {
   const [photos, setPhotos] = useState([]);
@@ -85,9 +86,11 @@ export default function UserPhotoGallery({ businessId, itineraryId, destinationI
             onClick={() => setSelectedPhoto(photo)}
           >
             <img
-              src={photo.image_url}
+              src={getOptimizedImage(photo.image_url, 400)}
               alt={photo.caption || 'User photo'}
               className="w-full h-32 object-cover rounded-lg"
+              loading="lazy"
+              decoding="async"
             />
             {(user?.id === photo.user_id || user?.email?.includes('admin')) && (
               <button
@@ -115,9 +118,11 @@ export default function UserPhotoGallery({ businessId, itineraryId, destinationI
             onClick={(e) => e.stopPropagation()}
           >
             <img
-              src={selectedPhoto.image_url}
+              src={getOptimizedImage(selectedPhoto.image_url, 400)}
               alt="Full size"
               className="w-full h-auto max-h-[70vh] object-contain"
+              loading="lazy"
+              decoding="async"
             />
             <div className="p-4">
               {selectedPhoto.profile && (
@@ -126,6 +131,8 @@ export default function UserPhotoGallery({ businessId, itineraryId, destinationI
                     src={selectedPhoto.profile.avatar_url || '/default-avatar.png'}
                     alt="Avatar"
                     className="w-8 h-8 rounded-full object-cover"
+                    loading="lazy"
+                    decoding="async"
                     onError={(e) => { e.target.src = '/default-avatar.png'; }}
                   />
                   <span className="font-semibold text-text">

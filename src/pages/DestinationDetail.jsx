@@ -7,12 +7,17 @@ import { supabase } from '../supabaseClient';
 import { useUser } from '../context/UserContext';
 import { useFavorites } from '../hooks/useFavorites';
 import { useLanguage } from '../context/LanguageContext';
+import { useToast } from '../context/ToastContext';
 import SocialShare from '../components/SocialShare';
 import LocationControl from '../components/LocationControl';
 import DestinationReviews from '../components/DestinationReviews';
 import Button from '../components/ui/Button';
 import AddToTripButton from '../components/AddToTripButton';
+import ImageGallery from '../components/ImageGallery';
+import NearbyPlaces from '../components/NearbyPlaces';
 import { getYouTubeEmbedUrl } from '../utils/videoHelpers';
+import { getOptimizedImage } from '../utils/imageHelpers';
+import { Helmet } from 'react-helmet-async';
 
 // Fix Leaflet default marker icons
 delete L.Icon.Default.prototype._getIconUrl;
@@ -29,6 +34,7 @@ export default function DestinationDetail() {
   const [loading, setLoading] = useState(true);
   const user = useUser();
   const { t, getLocalized, language } = useLanguage();
+  const { toast } = useToast();
   const { favorites, toggleFavorite } = useFavorites(user?.id);
   const isSaved = user && favorites.destinations?.has(parseInt(id));
 
@@ -80,18 +86,27 @@ export default function DestinationDetail() {
           const { latitude, longitude } = position.coords;
           navigate(`/map?start=${latitude},${longitude}&end=${destination.lat},${destination.lng}`);
         },
-        () => alert('Unable to get your location. Please allow location access.')
+        () => toast({ type: 'error', message: 'Unable to get your location. Please allow location access.' })
       );
     } else {
-      alert('Geolocation is not supported by your browser.');
+      toast({ type: 'error', message: 'Geolocation is not supported by your browser.' });
     }
   };
 
   return (
     <div className="bg-neutral-light min-h-screen">
+      <Helmet>
+        <title>{name} | Hpa-An Travel</title>
+        <meta name="description" content={description} />
+        <meta property="og:title" content={name} />
+        <meta property="og:description" content={description} />
+        <meta property="og:image" content={destination.image} />
+        <meta property="og:type" content="website" />
+        <link rel="canonical" href={window.location.href} />
+      </Helmet>
       {/* Hero Section */}
       <div className="relative h-[40vh] sm:h-[50vh] overflow-hidden">
-        <img src={destination.image} alt={name} className="w-full h-full object-cover" />
+        <img src={getOptimizedImage(destination.image, 800)} alt={name} className="w-full h-full object-cover" loading="lazy" decoding="async" />
         <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/30 to-transparent" />
         {user && (
           <button
@@ -118,6 +133,13 @@ export default function DestinationDetail() {
             <div className="prose prose-lg max-w-none mb-8">
               <p className="text-text-soft leading-relaxed">{description}</p>
             </div>
+
+            {destination.photos && destination.photos.length > 0 && (
+              <div className="mb-8">
+                <h3 className="text-xl font-semibold text-text mb-3">{language === 'my' ? 'ဓာတ်ပုံများ' : 'Photos'}</h3>
+                <ImageGallery images={[destination.image, ...destination.photos.filter(p => p !== destination.image)]} alt={name} />
+              </div>
+            )}
 
             {/* Add to Trip button - placed after description */}
             <div className="flex flex-wrap items-center gap-3 mt-4 mb-6">
@@ -175,6 +197,16 @@ export default function DestinationDetail() {
                   </svg>
                   Get Directions
                 </button>
+              </div>
+            )}
+
+            {/* Nearby Destinations */}
+            {hasCoordinates && (
+              <div className="mb-8">
+                <h3 className="text-xl font-semibold text-text mb-3">
+                  {language === 'my' ? 'အနီးနား နေရာများ' : 'Nearby Destinations'}
+                </h3>
+                <NearbyPlaces lat={destination.lat} lng={destination.lng} excludeId={destination.id} />
               </div>
             )}
 

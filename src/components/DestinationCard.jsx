@@ -1,11 +1,12 @@
-import { useState } from 'react';
+import { memo, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { motion, useMotionValue, useTransform } from 'framer-motion';
 import { useUser } from '../context/UserContext';
 import { useFavorites } from '../hooks/useFavorites';
 import { useLanguage } from '../context/LanguageContext';
+import { getOptimizedImage } from '../utils/imageHelpers';
 
-export default function DestinationCard({ destination }) {
+const DestinationCard = memo(function DestinationCard({ destination }) {
   const user = useUser();
   const { t, getLocalized } = useLanguage();
   const { favorites, toggleFavorite } = useFavorites(user?.id);
@@ -51,8 +52,10 @@ export default function DestinationCard({ destination }) {
           </div>
         ) : (
           <img
-            src={destination.image}
+            src={getOptimizedImage(destination.image, 400)}
             alt={name}
+            loading="lazy"
+            decoding="async"
             onError={() => setImgError(true)}
             className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
           />
@@ -106,4 +109,6 @@ export default function DestinationCard({ destination }) {
       </div>
     </motion.div>
   );
-}
+});
+
+export default DestinationCard;

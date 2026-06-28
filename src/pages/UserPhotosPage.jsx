@@ -4,6 +4,8 @@ import { supabase } from '../supabaseClient';
 import { useUser } from '../context/UserContext';
 import { useLanguage } from '../context/LanguageContext';
 import { useProfileContext } from '../context/ProfileContext';
+import { Helmet } from 'react-helmet-async';
+import { getOptimizedImage } from '../utils/imageHelpers';
 
 export default function UserPhotosPage() {
   const { userId } = useParams();
@@ -50,6 +52,13 @@ export default function UserPhotosPage() {
 
   return (
     <div className="container-custom">
+      <Helmet>
+        <title>{`${displayName}'s Photos`} | Hpa-An Travel</title>
+        <meta name="description" content={`Photos shared by ${displayName} on Hpa-An Travel.`} />
+        <meta property="og:title" content={`${displayName}'s Photos`} />
+        <meta property="og:description" content={`Photos shared by ${displayName} on Hpa-An Travel.`} />
+        <meta property="og:type" content="website" />
+      </Helmet>
       {/* Back button */}
       <div className="flex items-center gap-3 mb-6">
         <button
@@ -87,9 +96,11 @@ export default function UserPhotosPage() {
               onClick={() => setSelectedPhoto(photo)}
             >
               <img
-                src={photo.image_url}
+                src={getOptimizedImage(photo.image_url, 400)}
                 alt={photo.caption || 'User photo'}
                 className="w-full h-48 object-cover"
+                loading="lazy"
+                decoding="async"
               />
               {isOwner && (
                 <button
@@ -121,9 +132,11 @@ export default function UserPhotosPage() {
         >
           <div className="max-w-3xl max-h-[90vh] bg-white rounded-lg overflow-hidden" onClick={(e) => e.stopPropagation()}>
             <img
-              src={selectedPhoto.image_url}
+              src={getOptimizedImage(selectedPhoto.image_url, 400)}
               alt="Full size"
               className="w-full h-auto max-h-[70vh] object-contain"
+              loading="lazy"
+              decoding="async"
             />
             <div className="p-4">
               <p className="text-text">

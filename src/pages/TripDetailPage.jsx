@@ -3,15 +3,19 @@ import { useParams, Link, useNavigate } from 'react-router-dom';
 import { supabase } from '../supabaseClient';
 import { useUser } from '../context/UserContext';
 import { useLanguage } from '../context/LanguageContext';
+import { useToast } from '../context/ToastContext';
 import LoadingSpinner from '../components/ui/LoadingSpinner';
 import Button from '../components/ui/Button';
+import ConfirmDialog from '../components/ConfirmDialog';
 import { DragDropContext, Droppable, Draggable } from '@hello-pangea/dnd';
+import { Helmet } from 'react-helmet-async';
 
 export default function TripDetailPage() {
   const { id } = useParams();
   const user = useUser();
   const navigate = useNavigate();
   const { t, language } = useLanguage();
+  const { toast } = useToast();
   const [trip, setTrip] = useState(null);
   const [items, setItems] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -25,6 +29,7 @@ export default function TripDetailPage() {
   const [showAddModal, setShowAddModal] = useState(false);
   const [addType, setAddType] = useState('destination');
   const [search, setSearch] = useState('');
+  const [confirmDelete, setConfirmDelete] = useState(null);
 
   useEffect(() => {
     if (user) fetchTrip();
@@ -114,7 +119,7 @@ export default function TripDetailPage() {
       .single();
     if (error) {
       setItems(prev => prev.filter(i => i.id !== tempId));
-      alert(t('trips.error_adding'));
+      toast({ type: 'error', message: t('trips.error_adding') });
     } else {
       setItems(prev => prev.map(i => i.id === tempId ? { ...data, data: newItem.data } : i));
     }
@@ -122,14 +127,16 @@ export default function TripDetailPage() {
   };
 
   const removeItem = async (itemId) => {
-    if (!confirm(t('trips.remove_confirm'))) return;
     const originalItems = [...items];
     setItems(prev => prev.filter(i => i.id !== itemId));
     const { error } = await supabase.from('trip_items').delete().eq('id', itemId);
     if (error) {
       setItems(originalItems);
-      alert(t('trips.error_removing'));
+      toast({ type: 'error', message: t('trips.error_removing') });
+    } else {
+      toast({ type: 'success', message: 'Item removed' });
     }
+    setConfirmDelete(null);
   };
 
   const saveNote = async (itemId) => {
@@ -141,7 +148,7 @@ export default function TripDetailPage() {
       .eq('id', itemId);
     if (error) {
       setNotes(prev => ({ ...prev, [itemId]: null }));
-      alert(t('trips.error_saving_note'));
+      toast({ type: 'error', message: t('trips.error_saving_note') });
     }
   };
 
@@ -163,7 +170,7 @@ export default function TripDetailPage() {
   const viewOnMap = () => {
     const waypoints = items.filter(i => i.data?.lat && i.data?.lng).map(i => ({ lat: i.data.lat, lng: i.data.lng }));
     if (waypoints.length === 0) {
-      alert(t('trips.location_missing'));
+      toast({ type: 'warning', message: t('trips.location_missing') });
       return;
     }
     const waypointsParam = encodeURIComponent(JSON.stringify(waypoints));
@@ -173,7 +180,7 @@ export default function TripDetailPage() {
   const shareTrip = () => {
     const url = `${window.location.origin}/trip/${id}`;
     navigator.clipboard.writeText(url);
-    alert(t('trips.trip_link_copied'));
+    toast({ type: 'success', message: t('trips.trip_link_copied') });
   };
 
   if (loading) return <LoadingSpinner size="lg" />;
@@ -195,6 +202,13 @@ export default function TripDetailPage() {
 
   return (
     <div className="container-custom max-w-4xl">
+      <Helmet>
+        <title>{trip.title} | Hpa-An Travel</title>
+        <meta name="description" content={trip.description || `Trip itinerary for ${trip.title}`} />
+        <meta property="og:title" content={trip.title} />
+        <meta property="og:description" content={trip.description || `Trip itinerary for ${trip.title}`} />
+        <meta property="og:type" content="website" />
+      </Helmet>
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-4">
         {editingTitle ? (
           <div className="w-full">
@@ -259,7 +273,7 @@ export default function TripDetailPage() {
                               <span className="font-medium break-words">{getName(item)}</span>
                               <span className="text-xs text-text-soft ml-2 capitalize">{item.item_type}</span>
                             </Link>
-                            <button onClick={() => removeItem(item.id)} className="text-red-500 hover:text-red-700 p-1">✕</button>
+                            <button onClick={() => setConfirmDelete(item.id)} className="text-red-500 hover:text-red-700 p-1">✕</button>
                           </div>
                           <div className="mt-2">
                             {editingNoteId === item.id ? (
@@ -348,6 +362,16 @@ export default function TripDetailPage() {
           </div>
         </div>
       )}
+
+      <ConfirmDialog
+        open={confirmDelete !== null}
+        title={t('trips.remove_confirm')}
+        message=""
+        onConfirm={() => removeItem(confirmDelete)}
+        onCancel={() => setConfirmDelete(null)}
+        confirmText="Remove"
+        cancelText={t('trips.cancel')}
+      />
     </div>
   );
 }

@@ -1,12 +1,20 @@
 import { Link } from 'react-router-dom';
 import { useLanguage } from '../context/LanguageContext';
 import { Home, Compass, MapPin, Search } from 'lucide-react';
+import { Helmet } from 'react-helmet-async';
 
 export default function NotFound() {
   const { t } = useLanguage();
 
   return (
     <div className="min-h-[70vh] flex items-center justify-center bg-white dark:bg-neutral-dark px-4">
+      <Helmet>
+        <title>Page Not Found | Hpa-An Travel</title>
+        <meta name="description" content="The page you're looking for doesn't exist or has been moved." />
+        <meta property="og:title" content="Page Not Found" />
+        <meta property="og:description" content="The page you're looking for doesn't exist or has been moved." />
+        <meta property="og:type" content="website" />
+      </Helmet>
       <div className="max-w-md w-full text-center py-12">
         <div className="w-24 h-24 mx-auto mb-6 bg-primary/10 rounded-full flex items-center justify-center">
           <Search className="w-12 h-12 text-primary" strokeWidth={1.5} />

@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
+import { Helmet } from 'react-helmet-async';
 import { supabase } from '../supabaseClient';
 import { useLanguage } from '../context/LanguageContext';
 import { fadeInUp, staggerContainer, fadeIn } from '../utils/animations';
@@ -11,11 +12,15 @@ import UpcomingEventsWidget from '../components/UpcomingEventsWidget';
 import DestinationCard from '../components/DestinationCard';
 import LoadingSpinner from '../components/ui/LoadingSpinner';
 import WeatherAlert from '../components/WeatherAlert';
+import BlogPreview from '../components/BlogPreview';
 import { Building2, UtensilsCrossed, Bus, Compass, Mountain, Heart, Coffee, ChevronDown } from 'lucide-react';
+import { getOptimizedImage } from '../utils/imageHelpers';
 
 export default function HomePage() {
   const { t } = useLanguage();
   const reduceMotion = useReducedMotion();
+  const helmetTitle = t('home.title') || 'Hpa-An Travel Guide';
+  const helmetDesc = t('home.subtitle') || 'Discover the beautiful landscapes, caves, and culture of Hpa-An, Myanmar';
   const [destinations, setDestinations] = useState([]);
   const [loadingDestinations, setLoadingDestinations] = useState(true);
   const [businessCounts, setBusinessCounts] = useState({
@@ -67,12 +72,22 @@ export default function HomePage() {
 
   return (
     <div className="bg-white dark:bg-neutral-dark">
-      <section className="relative h-[100vh] overflow-hidden -mt-24">
+      <Helmet>
+        <title>{helmetTitle} | Hpa-An Travel</title>
+        <meta name="description" content={helmetDesc} />
+        <meta property="og:title" content={helmetTitle} />
+        <meta property="og:description" content={helmetDesc} />
+        <meta property="og:type" content="website" />
+        <meta property="og:url" content={window.location.href} />
+      </Helmet>
+      <section className="relative h-dvh overflow-hidden -mt-[var(--header-h,96px)]">
         <div className="absolute inset-0">
           <img
-            src="https://hqzodqvstvdemmqxphbv.supabase.co/storage/v1/object/public/hpaan-assets/static/home.jpg"
+            src={getOptimizedImage("https://hqzodqvstvdemmqxphbv.supabase.co/storage/v1/object/public/hpaan-assets/static/home.jpg", 800)}
             alt="Hpa-An landscape"
             className="absolute inset-0 w-full h-full object-cover"
+            loading="lazy"
+            decoding="async"
           />
         </div>
         <div className="absolute inset-0 bg-gradient-to-b from-[#1A3A3A]/40 via-[#1A3A3A]/50 to-[#1A1815]/80" />
@@ -303,6 +318,9 @@ export default function HomePage() {
         </div>
         </div>
       </motion.section>
+
+      {/* Blog Preview */}
+      <BlogPreview />
 
       {/* Call to Action */}
       <motion.section

@@ -2,18 +2,22 @@ import { useState, useEffect } from 'react';
 import { supabase } from '../supabaseClient';
 import { useUser } from '../context/UserContext';
 import { useLanguage } from '../context/LanguageContext';
+import { useToast } from '../context/ToastContext';
 import StarRating from './StarRating';
 import Button from './ui/Button';
+import ConfirmDialog from './ConfirmDialog';
 
 export default function BusinessReviews({ businessId }) {
   const user = useUser();
   const { t } = useLanguage();
+  const { toast } = useToast();
   const [reviews, setReviews] = useState([]);
   const [userReview, setUserReview] = useState(null);
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
   const [rating, setRating] = useState(5);
   const [comment, setComment] = useState('');
+  const [showConfirmDelete, setShowConfirmDelete] = useState(false);
   const [averageRating, setAverageRating] = useState(0);
   const [totalReviews, setTotalReviews] = useState(0);
 
@@ -50,7 +54,10 @@ export default function BusinessReviews({ businessId }) {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!user) return alert('Please log in');
+    if (!user) {
+      toast({ type: 'warning', message: 'Please log in to leave a review' });
+      return;
+    }
     setSubmitting(true);
     if (userReview) {
       const { error } = await supabase
@@ -72,11 +79,11 @@ export default function BusinessReviews({ businessId }) {
   };
 
   const handleDelete = async () => {
-    if (confirm('Delete review?')) {
-      await supabase.from('business_reviews').delete().eq('id', userReview.id);
-      setUserReview(null);
-      fetchReviews();
-    }
+    await supabase.from('business_reviews').delete().eq('id', userReview.id);
+    setUserReview(null);
+    setShowConfirmDelete(false);
+    toast({ type: 'success', message: 'Review deleted' });
+    fetchReviews();
   };
 
   if (loading) return <div className="text-center py-4">{t('common.loading')}</div>;
@@ -117,7 +124,7 @@ export default function BusinessReviews({ businessId }) {
                 {submitting ? t('common.loading') : (userReview ? t('reviews.update') : t('reviews.submit'))}
               </Button>
               {userReview && (
-                <Button type="button" variant="danger" size="sm" onClick={handleDelete}>
+                <Button type="button" variant="danger" size="sm" onClick={() => setShowConfirmDelete(true)}>
                   {t('reviews.delete')}
                 </Button>
               )}
@@ -147,6 +154,14 @@ export default function BusinessReviews({ businessId }) {
           </div>
         ))}
       </div>
+
+      <ConfirmDialog
+        open={showConfirmDelete}
+        title="Delete review?"
+        message="This action cannot be undone."
+        onConfirm={handleDelete}
+        onCancel={() => setShowConfirmDelete(false)}
+      />
     </div>
   );
 }

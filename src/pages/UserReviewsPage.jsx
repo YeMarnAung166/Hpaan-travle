@@ -4,6 +4,10 @@ import { supabase } from '../supabaseClient';
 import { useUser } from '../context/UserContext';
 import { useLanguage } from '../context/LanguageContext';
 import StarRating from '../components/StarRating';
+import Pagination from '../components/ui/Pagination';
+import { Helmet } from 'react-helmet-async';
+
+const PAGE_SIZE = 10;
 
 export default function UserReviewsPage() {
   const user = useUser();
@@ -11,17 +15,16 @@ export default function UserReviewsPage() {
   const { t, language } = useLanguage();
   const [reviews, setReviews] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [page, setPage] = useState(1);
 
   useEffect(() => {
     if (!user) return;
     const fetchReviews = async () => {
-      // Business reviews
       const { data: bizReviews } = await supabase
         .from('business_reviews')
         .select('*, businesses(name, name_my)')
         .eq('user_id', user.id)
         .order('created_at', { ascending: false });
-      // Destination reviews
       const { data: destReviews } = await supabase
         .from('destination_reviews')
         .select('*, destinations(name, name_my)')
@@ -45,6 +48,9 @@ export default function UserReviewsPage() {
 
   if (loading) return <div className="spinner mx-auto my-12"></div>;
 
+  const totalPages = Math.ceil(reviews.length / PAGE_SIZE);
+  const paginated = reviews.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE);
+
   const getTargetName = (review) => {
     if (review.businesses) {
       return language === 'my' && review.businesses.name_my
@@ -67,6 +73,13 @@ export default function UserReviewsPage() {
 
   return (
     <div className="container-custom max-w-4xl">
+      <Helmet>
+        <title>My Reviews | Hpa-An Travel</title>
+        <meta name="description" content="Reviews you've written on Hpa-An Travel." />
+        <meta property="og:title" content="My Reviews" />
+        <meta property="og:description" content="Reviews you've written on Hpa-An Travel." />
+        <meta property="og:type" content="website" />
+      </Helmet>
       <div className="flex items-center gap-3 mb-6">
         <button
           onClick={() => navigate(-1)}
@@ -85,24 +98,27 @@ export default function UserReviewsPage() {
       {reviews.length === 0 ? (
         <p className="text-text-soft text-center py-12">You haven't written any reviews yet.</p>
       ) : (
-        <div className="space-y-4">
-          {reviews.map((review) => (
-            <div key={review.id} className="bg-white rounded-xl shadow-sm p-4 border border-neutral-mid">
-              <div className="flex justify-between flex-wrap gap-2 mb-2">
-                <Link to={getTargetLink(review)} className="font-semibold text-primary hover:underline">
-                  {getTargetName(review)}
-                </Link>
-                <div className="flex items-center gap-1">
-                  <StarRating rating={review.rating} readonly size="sm" />
+        <>
+          <div className="space-y-4">
+            {paginated.map((review) => (
+              <div key={review.id} className="bg-white rounded-xl shadow-sm p-4 border border-neutral-mid">
+                <div className="flex justify-between flex-wrap gap-2 mb-2">
+                  <Link to={getTargetLink(review)} className="font-semibold text-primary hover:underline">
+                    {getTargetName(review)}
+                  </Link>
+                  <div className="flex items-center gap-1">
+                    <StarRating rating={review.rating} readonly size="sm" />
+                  </div>
+                </div>
+                {review.comment && <p className="text-text-soft text-sm mt-2">{review.comment}</p>}
+                <div className="text-xs text-text-soft mt-3">
+                  {new Date(review.created_at).toLocaleDateString()}
                 </div>
               </div>
-              {review.comment && <p className="text-text-soft text-sm mt-2">{review.comment}</p>}
-              <div className="text-xs text-text-soft mt-3">
-                {new Date(review.created_at).toLocaleDateString()}
-              </div>
-            </div>
-          ))}
-        </div>
+            ))}
+          </div>
+          <Pagination page={page} totalPages={totalPages} onPageChange={setPage} />
+        </>
       )}
     </div>
   );
