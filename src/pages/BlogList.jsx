@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { supabase } from '../supabaseClient';
 import { useLanguage } from '../context/LanguageContext';
-import LoadingSpinner from '../components/ui/LoadingSpinner';
+import { SkeletonCard } from '../components/ui/Skeleton';
 import Pagination from '../components/ui/Pagination';
 import { Helmet } from 'react-helmet-async';
 import { getOptimizedImage } from '../utils/imageHelpers';
@@ -36,7 +36,16 @@ export default function BlogList() {
 
   const getLocal = (en, my) => language === 'my' && my ? my : en;
 
-  if (loading) return <LoadingSpinner size="lg" />;
+  if (loading) {
+    return (
+      <div className="container-custom">
+        <h1 className="page-title">{language === 'my' ? 'ဘလော့ဂ်' : 'Blog'}</h1>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <SkeletonCard count={6} />
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="container-custom max-w-5xl">

@@ -5,7 +5,7 @@ import { useUser } from '../context/UserContext';
 import { useLanguage } from '../context/LanguageContext';
 import { useToast } from '../context/ToastContext';
 import Button from '../components/ui/Button';
-import LoadingSpinner from '../components/ui/LoadingSpinner';
+import { SkeletonListItem } from '../components/ui/Skeleton';
 import ConfirmDialog from '../components/ConfirmDialog';
 import { Helmet } from 'react-helmet-async';
 
@@ -67,7 +67,7 @@ export default function TripsPage() {
     );
   }
 
-  if (loading) return <LoadingSpinner size="lg" />;
+  if (loading) return <div className="container-custom"><h1 className="page-title">{t('nav.trips')}</h1><SkeletonListItem count={5} /></div>;
 
   return (
     <div className="container-custom max-w-4xl">

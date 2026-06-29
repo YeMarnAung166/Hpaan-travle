@@ -3,7 +3,7 @@ import { supabase } from '../../supabaseClient';
 import { useLanguage } from '../../context/LanguageContext';
 import { useToast } from '../../context/ToastContext';
 import FormModal from '../../components/admin/FormModal';
-import LoadingSpinner from '../../components/ui/LoadingSpinner';
+import { SkeletonListItem } from '../../components/ui/Skeleton';
 import { Helmet } from 'react-helmet-async';
 
 const DEFAULT_SLUGS = ['travel-tips', 'history', 'contact', 'privacy', 'terms'];
@@ -45,7 +45,7 @@ export default function AdminContentPages() {
     setSaving(false);
   };
 
-  if (loading) return <LoadingSpinner size="lg" />;
+  if (loading) return <div className="container-custom pt-8"><SkeletonListItem count={5} /></div>;
 
   return (
     <div>

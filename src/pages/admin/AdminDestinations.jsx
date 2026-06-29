@@ -5,6 +5,7 @@ import FormModal from "../../components/admin/FormModal";
 import ConfirmDialog from "../../components/ConfirmDialog";
 import { useLanguage } from "../../context/LanguageContext";
 import ImageUploader from "../../components/ImageUploader";
+import { SkeletonTable } from '../../components/ui/Skeleton';
 import { Helmet } from 'react-helmet-async';
 
 export default function AdminDestinations() {
@@ -127,7 +128,7 @@ export default function AdminDestinations() {
     },
   ];
 
-  if (loading) return <div className="spinner mx-auto"></div>;
+  if (loading) return <div className="container-custom pt-8"><SkeletonTable rows={6} cols={4} /></div>;
 
   return (
     <>

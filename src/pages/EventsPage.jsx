@@ -2,6 +2,7 @@ import { useEffect, useState, useCallback } from 'react';
 import { supabase } from '../supabaseClient';
 import { useLanguage } from '../context/LanguageContext';
 import Pagination from '../components/ui/Pagination';
+import { SkeletonCard } from '../components/ui/Skeleton';
 import { Helmet } from 'react-helmet-async';
 import { getOptimizedImage } from '../utils/imageHelpers';
 
@@ -25,7 +26,16 @@ export default function EventsPage() {
     fetchEvents();
   }, []);
 
-  if (loading) return <div className="spinner mx-auto my-12"></div>;
+  if (loading) {
+    return (
+      <div className="container-custom">
+        <h1 className="page-title">{t('events.title')}</h1>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <SkeletonCard count={6} />
+        </div>
+      </div>
+    );
+  }
 
   const now = new Date();
   const upcoming = allEvents.filter(e => new Date(e.event_date) >= now);

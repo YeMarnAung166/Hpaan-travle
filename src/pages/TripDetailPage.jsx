@@ -4,7 +4,7 @@ import { supabase } from '../supabaseClient';
 import { useUser } from '../context/UserContext';
 import { useLanguage } from '../context/LanguageContext';
 import { useToast } from '../context/ToastContext';
-import LoadingSpinner from '../components/ui/LoadingSpinner';
+import { SkeletonDetail } from '../components/ui/Skeleton';
 import Button from '../components/ui/Button';
 import ConfirmDialog from '../components/ConfirmDialog';
 import { DragDropContext, Droppable, Draggable } from '@hello-pangea/dnd';
@@ -183,7 +183,7 @@ export default function TripDetailPage() {
     toast({ type: 'success', message: t('trips.trip_link_copied') });
   };
 
-  if (loading) return <LoadingSpinner size="lg" />;
+  if (loading) return <SkeletonDetail />;
   if (!trip) return <div className="container-custom">Trip not found</div>;
 
   const getName = (item) => {

@@ -3,6 +3,7 @@ import { useEffect, useState } from 'react';
 import { supabase } from '../../supabaseClient';
 import { Link } from 'react-router-dom';
 import { useLanguage } from '../../context/LanguageContext';
+import { SkeletonStatCard } from '../../components/ui/Skeleton';
 import { Helmet } from 'react-helmet-async';
 
 export default function AdminDashboard() {
@@ -44,7 +45,7 @@ export default function AdminDashboard() {
     fetchStats();
   }, []);
 
-  if (loading) return <div className="spinner mx-auto"></div>;
+  if (loading) return <div className="container-custom pt-8"><SkeletonStatCard count={5} /></div>;
 
   const statCards = [
     { title: t('admin.destinations') || 'Destinations', value: stats.destinations, link: '/admin/destinations', color: 'bg-blue-500' },

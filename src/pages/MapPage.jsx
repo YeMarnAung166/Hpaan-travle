@@ -214,7 +214,7 @@ export default function MapPage() {
       {!mapReady && (
         <div className="absolute inset-0 z-10 flex items-center justify-center bg-neutral-light dark:bg-neutral-dark">
           <div className="text-center">
-            <div className="spinner mb-3"></div>
+            <LoadingSpinner size="md" />
             <p className="text-text-soft text-sm">Loading map tiles...</p>
           </div>
         </div>

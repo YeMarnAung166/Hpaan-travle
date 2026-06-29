@@ -64,7 +64,7 @@ const Header = memo(function Header({ onLoginClick, onLogoutClick }) {
         : isTransparent ? 'text-white/80 hover:text-white' : 'text-text hover:text-primary'
     }`;
 
-  // Mobile link styles – always dark (on white background)
+  // Mobile link styles
   const mobileLinkClass = ({ isActive }) =>
     `block w-full px-4 py-2 rounded-lg ${
       isActive
@@ -270,7 +270,7 @@ const Header = memo(function Header({ onLoginClick, onLogoutClick }) {
                   <div className="pt-1 space-y-2">
                     <Link
                       to="/account"
-                      className="flex items-center gap-3 py-2 text-text hover:text-primary transition"
+                      className="flex items-center gap-3 px-4 py-2 rounded-lg text-text hover:text-primary hover:bg-overlay transition"
                       onClick={closeMenu}
                     >
                       {avatarUrl ? (
@@ -282,19 +282,19 @@ const Header = memo(function Header({ onLoginClick, onLogoutClick }) {
                       )}
                       <span className="font-medium">{displayName}</span>
                     </Link>
-                    <Button
+                      <Button
                       variant="ghost"
                       size="sm"
-                      className="w-full"
+                      className="w-full px-4"
                       onClick={() => { onLogoutClick(); closeMenu(); }}
-                    >
+                      >
                       {t('nav.logout')}
                     </Button>
                   </div>
                 ) : (
                   <button
                     onClick={() => { onLoginClick(); closeMenu(); }}
-                    className="w-full text-center py-2.5 rounded-full text-sm font-medium bg-primary text-white hover:bg-primary-light transition shadow-soft"
+                      className="w-full px-4 py-2 rounded-lg text-sm font-medium bg-primary text-white hover:bg-primary-light transition shadow-soft"
                   >
                     {t('nav.login')}
                   </button>

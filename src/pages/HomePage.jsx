@@ -10,7 +10,7 @@ import { useReducedMotion } from '../hooks/useReducedMotion';
 import WeatherWidget from '../components/WeatherWidget';
 import UpcomingEventsWidget from '../components/UpcomingEventsWidget';
 import DestinationCard from '../components/DestinationCard';
-import LoadingSpinner from '../components/ui/LoadingSpinner';
+import { SkeletonCard } from '../components/ui/Skeleton';
 import WeatherAlert from '../components/WeatherAlert';
 import BlogPreview from '../components/BlogPreview';
 import { Building2, UtensilsCrossed, Bus, Compass, Mountain, Heart, Coffee, ChevronDown } from 'lucide-react';
@@ -204,7 +204,7 @@ export default function HomePage() {
           </p>
         </motion.div>
         {loadingDestinations ? (
-          <div className="flex justify-center"><LoadingSpinner size="lg" /></div>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6"><SkeletonCard count={3} /></div>
         ) : (
           <motion.div variants={staggerContainer} className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
             {destinations.map(dest => (

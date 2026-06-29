@@ -3,6 +3,7 @@ import { supabase } from '../../supabaseClient';
 import { useLanguage } from '../../context/LanguageContext';
 import { useToast } from '../../context/ToastContext';
 import ConfirmDialog from '../../components/ConfirmDialog';
+import { SkeletonImageGrid } from '../../components/ui/Skeleton';
 import { Helmet } from 'react-helmet-async';
 import { getOptimizedImage } from '../../utils/imageHelpers';
 
@@ -124,7 +125,7 @@ export default function AdminUserPhotos() {
     setConfirmAction(null);
   };
 
-  if (loading) return <div className="spinner mx-auto"></div>;
+  if (loading) return <div className="container-custom pt-8"><SkeletonImageGrid count={6} /></div>;
 
   return (
     <div>

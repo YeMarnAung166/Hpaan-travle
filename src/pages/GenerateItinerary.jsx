@@ -4,7 +4,7 @@ import { supabase } from '../supabaseClient';
 import { useUser } from '../context/UserContext';
 import { useLanguage } from '../context/LanguageContext';
 import { useToast } from '../context/ToastContext';
-import LoadingSpinner from '../components/ui/LoadingSpinner';
+import { SkeletonForm } from '../components/ui/Skeleton';
 import Button from '../components/ui/Button';
 import { solveTsp, clusterByGeo, haversine } from '../utils/tspSolver';
 import { Helmet } from 'react-helmet-async';
@@ -136,7 +136,7 @@ export default function GenerateItinerary() {
     navigate(`/trip/${trip.id}`);
   };
 
-  if (loading) return <LoadingSpinner size="lg" />;
+  if (loading) return <div className="container-custom pt-8"><SkeletonForm /></div>;
 
   return (
     <div className="container-custom max-w-4xl">

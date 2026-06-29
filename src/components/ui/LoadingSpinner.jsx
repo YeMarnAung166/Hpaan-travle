@@ -1,18 +1,17 @@
 export default function LoadingSpinner({ size = 'md', overlay = false }) {
   const sizes = {
-    sm: 'w-4 h-4 border-2',
+    sm: 'w-5 h-5 border-2',
     md: 'w-8 h-8 border-[3px]',
-    lg: 'w-12 h-12 border-4',
+    lg: 'w-10 h-10 border-[3px]',
   };
 
-  const spinner = (
-    <div className={`relative ${overlay ? 'fixed inset-0 z-50 flex items-center justify-center bg-neutral-light/60 dark:bg-neutral-dark/60 backdrop-blur-sm' : 'flex justify-center items-center py-12'}`}>
-      <div className={`${sizes[size]} rounded-full relative`}>
-        <div className={`absolute inset-0 rounded-full border ${sizes[size].split(' ').slice(1).join(' ')} border-border dark:border-neutral-dark`} />
-        <div className={`absolute inset-0 rounded-full border ${sizes[size].split(' ').slice(1).join(' ')} border-t-gold dark:border-t-primary animate-spin`} />
-      </div>
+  return (
+    <div className={`${overlay ? 'fixed inset-0 z-50 flex items-center justify-center bg-neutral-light/60 dark:bg-neutral-dark/60 backdrop-blur-sm' : 'flex justify-center items-center min-h-[calc(100vh-var(--header-h,96px))] w-full'}`}>
+      <div
+        className={`${sizes[size]} rounded-full border-border dark:border-neutral-dark border-t-gold dark:border-t-primary animate-spin`}
+        role="status"
+        aria-label="Loading"
+      />
     </div>
   );
-
-  return spinner;
 }

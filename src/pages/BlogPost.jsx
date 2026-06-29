@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { supabase } from '../supabaseClient';
 import { useLanguage } from '../context/LanguageContext';
-import LoadingSpinner from '../components/ui/LoadingSpinner';
+import { SkeletonDetail } from '../components/ui/Skeleton';
 import SocialShare from '../components/SocialShare';
 import { Helmet } from 'react-helmet-async';
 import { getOptimizedImage } from '../utils/imageHelpers';
@@ -26,7 +26,7 @@ export default function BlogPost() {
     fetch();
   }, [slug]);
 
-  if (loading) return <LoadingSpinner size="lg" />;
+  if (loading) return <SkeletonDetail />;
   if (!post) return (
     <div className="container-custom text-center py-16">
       <h1 className="text-2xl font-bold text-text mb-4">{language === 'my' ? 'ပို့စ်မတွေ့ပါ' : 'Post Not Found'}</h1>

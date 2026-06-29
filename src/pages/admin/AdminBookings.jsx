@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { supabase } from '../../supabaseClient';
 import { useLanguage } from '../../context/LanguageContext';
-import LoadingSpinner from '../../components/ui/LoadingSpinner';
+import { SkeletonListItem } from '../../components/ui/Skeleton';
 import Button from '../../components/ui/Button';
 import { Helmet } from 'react-helmet-async';
 
@@ -39,7 +39,7 @@ export default function AdminBookings() {
 
   const filtered = filter === 'all' ? bookings : bookings.filter(b => b.status === filter);
 
-  if (loading) return <LoadingSpinner size="lg" />;
+  if (loading) return <div className="container-custom pt-8"><SkeletonListItem count={5} /></div>;
 
   return (
     <div>

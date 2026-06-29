@@ -5,6 +5,7 @@ import { useUser } from '../context/UserContext';
 import { useLanguage } from '../context/LanguageContext';
 import StarRating from '../components/StarRating';
 import Pagination from '../components/ui/Pagination';
+import { SkeletonListItem } from '../components/ui/Skeleton';
 import { Helmet } from 'react-helmet-async';
 
 const PAGE_SIZE = 10;
@@ -46,7 +47,7 @@ export default function UserReviewsPage() {
     );
   }
 
-  if (loading) return <div className="spinner mx-auto my-12"></div>;
+  if (loading) return <div className="container-custom"><h1 className="page-title">{t('reviews.title')}</h1><SkeletonListItem count={5} /></div>;
 
   const totalPages = Math.ceil(reviews.length / PAGE_SIZE);
   const paginated = reviews.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE);

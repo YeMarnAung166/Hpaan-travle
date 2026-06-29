@@ -75,7 +75,7 @@ const AppContent = React.memo(function AppContent({ showAuthModal, setShowAuthMo
           onLoginClick={() => setShowAuthModal(true)}
           onLogoutClick={handleLogout}
         />
-        <main id="main-content" className="flex-grow">
+        <main id="main-content" className="flex-grow min-h-[calc(100vh-var(--header-h,96px))]">
           <AnimatePresence mode="wait">
             <motion.div key={location.pathname} {...pageTransition}>
               <Suspense fallback={<LoadingSpinner size="lg" />}>

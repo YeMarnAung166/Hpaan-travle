@@ -18,6 +18,7 @@ import NearbyPlaces from '../components/NearbyPlaces';
 import BookingModal from '../components/BookingModal';
 import { getYouTubeEmbedUrl } from '../utils/videoHelpers';
 import { getOptimizedImage } from '../utils/imageHelpers';
+import { SkeletonDetail } from '../components/ui/Skeleton';
 import { Helmet } from 'react-helmet-async';
 
 export default function BusinessDetail() {
@@ -72,13 +73,7 @@ export default function BusinessDetail() {
     }
   };
 
-  if (loading) {
-    return (
-      <div className="container-custom flex items-center justify-center min-h-[60vh]">
-        <div className="spinner"></div>
-      </div>
-    );
-  }
+  if (loading) return <SkeletonDetail />;
 
   if (!business) {
     return (

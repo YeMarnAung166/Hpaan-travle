@@ -15,6 +15,7 @@ import ImageGallery from '../components/ImageGallery';
 import NearbyPlaces from '../components/NearbyPlaces';
 import { getYouTubeEmbedUrl } from '../utils/videoHelpers';
 import { getOptimizedImage } from '../utils/imageHelpers';
+import { SkeletonDetail } from '../components/ui/Skeleton';
 import { Helmet } from 'react-helmet-async';
 
 export default function DestinationDetail() {
@@ -42,13 +43,7 @@ export default function DestinationDetail() {
     fetchDestination();
   }, [id]);
 
-  if (loading) {
-    return (
-      <div className="container-custom flex items-center justify-center min-h-[60vh]">
-        <div className="spinner"></div>
-      </div>
-    );
-  }
+  if (loading) return <SkeletonDetail />;
 
   if (!destination) {
     return (

@@ -3,6 +3,7 @@ import { supabase } from '../../supabaseClient';
 import { useLanguage } from '../../context/LanguageContext';
 import { useToast } from '../../context/ToastContext';
 import Button from '../../components/ui/Button';
+import { SkeletonListItem } from '../../components/ui/Skeleton';
 import { Helmet } from 'react-helmet-async';
 
 export default function AdminBlog() {
@@ -68,7 +69,7 @@ export default function AdminBlog() {
     return title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
   };
 
-  if (loading) return <div className="spinner mx-auto"></div>;
+  if (loading) return <div className="container-custom pt-8"><SkeletonListItem count={5} /></div>;
 
   return (
     <div>

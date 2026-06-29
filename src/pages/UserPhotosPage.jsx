@@ -5,6 +5,7 @@ import { useUser } from '../context/UserContext';
 import { useLanguage } from '../context/LanguageContext';
 import { useProfileContext } from '../context/ProfileContext';
 import { Helmet } from 'react-helmet-async';
+import { SkeletonImageGrid } from '../components/ui/Skeleton';
 import { getOptimizedImage } from '../utils/imageHelpers';
 
 export default function UserPhotosPage() {
@@ -46,7 +47,7 @@ export default function UserPhotosPage() {
     }
   };
 
-  if (loading) return <div className="spinner mx-auto my-12"></div>;
+  if (loading) return <div className="container-custom"><h1 className="page-title">{t('photos.title')}</h1><SkeletonImageGrid /></div>;
 
   const displayName = viewerProfile?.display_name || 'Traveler';
 

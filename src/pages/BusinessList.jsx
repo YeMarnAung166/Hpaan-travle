@@ -5,6 +5,7 @@ import Pagination from '../components/ui/Pagination';
 import SearchAndFilter from '../components/SearchAndFilter';
 import { useLanguage } from '../context/LanguageContext';
 import { useSearchParams } from 'react-router-dom';
+import { SkeletonCard } from '../components/ui/Skeleton';
 import { Helmet } from 'react-helmet-async';
 
 const PAGE_SIZE = 12;
@@ -106,8 +107,11 @@ export default function BusinessList() {
 
   if (loading && businesses.length === 0) {
     return (
-      <div className="container-custom flex items-center justify-center min-h-[60vh]">
-        <div className="spinner"></div>
+      <div className="container-custom">
+        <h1 className="page-title">{t('business.title')}</h1>
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+          <SkeletonCard count={6} />
+        </div>
       </div>
     );
   }

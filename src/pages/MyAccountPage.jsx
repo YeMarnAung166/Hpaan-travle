@@ -9,6 +9,7 @@ import AvatarUpload from "../components/AvatarUpload";
 import Button from "../components/ui/Button";
 import Input from "../components/ui/Input";
 import StarRating from "../components/StarRating";
+import { SkeletonForm } from '../components/ui/Skeleton';
 import { Helmet } from 'react-helmet-async';
 
 export default function MyAccountPage() {
@@ -129,7 +130,7 @@ export default function MyAccountPage() {
   }
 
   if (profileLoading || loadingStats)
-    return <div className="spinner mx-auto my-12"></div>;
+    return <div className="container-custom pt-8"><SkeletonForm /></div>;
 
   const name = profile?.display_name || user.email.split("@")[0];
   const avatarUrl = profile?.avatar_url;

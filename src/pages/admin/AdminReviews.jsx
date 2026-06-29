@@ -3,6 +3,7 @@ import { supabase } from '../../supabaseClient';
 import { useLanguage } from '../../context/LanguageContext';
 import { useToast } from '../../context/ToastContext';
 import ConfirmDialog from '../../components/ConfirmDialog';
+import { SkeletonTable } from '../../components/ui/Skeleton';
 import { Helmet } from 'react-helmet-async';
 
 export default function AdminReviews() {
@@ -111,7 +112,7 @@ export default function AdminReviews() {
         </div>
       )}
 
-      {loading ? <div className="spinner mx-auto"></div> : reviews.length === 0 ? (
+      {loading ? <SkeletonTable rows={6} cols={5} /> : reviews.length === 0 ? (
         <p className="text-center py-12 text-text-soft">No reviews found.</p>
       ) : (
         <div className="overflow-x-auto">
