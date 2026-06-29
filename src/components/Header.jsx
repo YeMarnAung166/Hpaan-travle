@@ -78,7 +78,7 @@ const Header = memo(function Header({ onLoginClick, onLogoutClick }) {
   return (
     <header
       ref={headerRef}
-      className={`sticky top-0 z-50 w-full transition-all duration-700 ${
+      className={`sticky top-0 z-50 w-full transition-colors duration-500 ${
         isTransparent
           ? 'bg-transparent shadow-none'
           : 'bg-glass border-b border-border dark:border-border shadow-glass backdrop-blur-2xl'
