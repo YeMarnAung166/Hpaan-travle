@@ -75,6 +75,7 @@ export default function BookingModal({ business, isOpen, onClose }) {
     });
     setLoading(false);
     if (error) {
+      console.error('Booking insert error:', error);
       toast({ type: 'error', message: 'Failed to submit booking inquiry.' });
       return;
     }

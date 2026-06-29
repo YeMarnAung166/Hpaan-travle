@@ -53,7 +53,7 @@ ALTER TABLE blog_posts ENABLE ROW LEVEL SECURITY;
 -- 0.5: Bookings table
 CREATE TABLE IF NOT EXISTS bookings (
   id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
-  business_id uuid REFERENCES businesses(id) ON DELETE CASCADE,
+  business_id bigint REFERENCES businesses(id) ON DELETE CASCADE,
   user_id uuid REFERENCES auth.users(id) ON DELETE SET NULL,
   name text NOT NULL,
   email text NOT NULL,
