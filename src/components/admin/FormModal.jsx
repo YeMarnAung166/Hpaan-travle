@@ -1,4 +1,5 @@
-// src/components/admin/FormModal.jsx
+import { useRef, useEffect, useCallback } from 'react';
+
 export default function FormModal({
   isOpen,
   onClose,
@@ -8,6 +9,23 @@ export default function FormModal({
   submitLabel = 'Save',
   loading = false,
 }) {
+  const modalRef = useRef(null);
+
+  const handleKeyDown = useCallback((e) => {
+    if (e.key === 'Escape') onClose();
+  }, [onClose]);
+
+  useEffect(() => {
+    if (!isOpen) return;
+    const prevFocus = document.activeElement;
+    modalRef.current?.focus();
+    document.addEventListener('keydown', handleKeyDown);
+    return () => {
+      document.removeEventListener('keydown', handleKeyDown);
+      if (prevFocus && prevFocus !== document.body) prevFocus.focus();
+    };
+  }, [isOpen, handleKeyDown]);
+
   if (!isOpen) return null;
 
   return (
@@ -16,7 +34,9 @@ export default function FormModal({
       onClick={onClose}
     >
       <div
-        className="relative bg-white dark:bg-neutral-dark rounded-2xl shadow-2xl w-full max-w-2xl max-h-[90vh] overflow-y-auto m-4"
+        ref={modalRef}
+        tabIndex={-1}
+        className="relative bg-white dark:bg-neutral-dark rounded-2xl shadow-2xl w-full max-w-2xl max-h-[90vh] overflow-y-auto m-4 outline-none"
         onClick={(e) => e.stopPropagation()}
       >
         <div className="sticky top-0 bg-white dark:bg-neutral-dark border-b border-neutral-mid px-6 py-4 flex justify-between items-center rounded-t-2xl">

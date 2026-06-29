@@ -15,6 +15,13 @@ export default function AddToTripButton({ itemType, itemId, itemName }) {
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
+    if (!show) return;
+    const handleKey = (e) => { if (e.key === 'Escape') setShow(false); };
+    document.addEventListener('keydown', handleKey);
+    return () => document.removeEventListener('keydown', handleKey);
+  }, [show]);
+
+  useEffect(() => {
     if (user && show) {
       supabase
         .from('trips')
@@ -71,8 +78,8 @@ export default function AddToTripButton({ itemType, itemId, itemName }) {
         📌 {t('trips.add_place')}
       </button>
       {show && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-xl p-6 w-full max-w-md max-h-[90vh] overflow-y-auto">
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4" onClick={() => setShow(false)}>
+          <div className="bg-white rounded-xl p-6 w-full max-w-md max-h-[90vh] overflow-y-auto" onClick={e => e.stopPropagation()}>
             <h3 className="text-xl font-semibold mb-3">{t('trips.add_modal_title')}</h3>
             {trips.length === 0 ? (
               <p className="text-text-soft">

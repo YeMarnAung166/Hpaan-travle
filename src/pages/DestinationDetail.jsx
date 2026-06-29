@@ -1,8 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet';
-import L from 'leaflet';
-import 'leaflet/dist/leaflet.css';
 import { supabase } from '../supabaseClient';
 import { useUser } from '../context/UserContext';
 import { useFavorites } from '../hooks/useFavorites';
@@ -19,21 +17,13 @@ import { getYouTubeEmbedUrl } from '../utils/videoHelpers';
 import { getOptimizedImage } from '../utils/imageHelpers';
 import { Helmet } from 'react-helmet-async';
 
-// Fix Leaflet default marker icons
-delete L.Icon.Default.prototype._getIconUrl;
-L.Icon.Default.mergeOptions({
-  iconRetinaUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-icon-2x.png',
-  iconUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-icon.png',
-  shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-shadow.png',
-});
-
 export default function DestinationDetail() {
   const { id } = useParams();
   const navigate = useNavigate();
   const [destination, setDestination] = useState(null);
   const [loading, setLoading] = useState(true);
   const user = useUser();
-  const { t, getLocalized, language } = useLanguage();
+  const { getLocalized, language } = useLanguage();
   const { toast } = useToast();
   const { favorites, toggleFavorite } = useFavorites(user?.id);
   const isSaved = user && favorites.destinations?.has(parseInt(id));
@@ -77,7 +67,7 @@ export default function DestinationDetail() {
 
   const handleGetDirections = () => {
     if (!hasCoordinates) {
-      alert('Location not available for this destination.');
+      toast({ type: 'warning', message: 'Location not available for this destination.' });
       return;
     }
     if (navigator.geolocation) {

@@ -13,6 +13,7 @@ export default function Favorites() {
   const user = useUser();
   const { t } = useLanguage();
   const [favorites, setFavorites] = useState({ destinations: [], businesses: [] });
+  const [ratings, setRatings] = useState({});
   const [loading, setLoading] = useState(true);
   const [destPage, setDestPage] = useState(1);
   const [bizPage, setBizPage] = useState(1);
@@ -41,6 +42,26 @@ export default function Favorites() {
       if (bizIds.length) {
         const { data: bizData } = await supabase.from('businesses').select('*').in('id', bizIds);
         if (bizData) businesses = bizData;
+      }
+
+      if (bizIds.length) {
+        const { data: ratingData } = await supabase
+          .from('business_reviews')
+          .select('business_id, rating')
+          .in('business_id', bizIds);
+        if (ratingData) {
+          const agg = {};
+          ratingData.forEach(r => {
+            if (!agg[r.business_id]) agg[r.business_id] = { sum: 0, count: 0 };
+            agg[r.business_id].sum += r.rating;
+            agg[r.business_id].count += 1;
+          });
+          const ratingMap = {};
+          Object.entries(agg).forEach(([id, { sum, count }]) => {
+            ratingMap[id] = { avg: sum / count, count };
+          });
+          setRatings(ratingMap);
+        }
       }
 
       setFavorites({ destinations, businesses });
@@ -82,7 +103,18 @@ export default function Favorites() {
       <h1 className="page-title">{t('favorites.title')}</h1>
 
       <h2 className="section-title">{t('favorites.destinations')}</h2>
-      {paginatedDests.length === 0 ? (
+      {favorites.destinations.length === 0 && favorites.businesses.length === 0 ? (
+        <div className="text-center py-16">
+          <svg className="w-20 h-20 mx-auto text-text-soft/40 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
+          </svg>
+          <p className="text-text-soft text-lg mb-2">{t('favorites.empty')}</p>
+          <p className="text-text-soft/60 text-sm mb-6">Start exploring destinations and businesses to save your favorites.</p>
+          <a href="/destinations" className="inline-flex items-center gap-2 px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary-light transition text-sm font-medium">
+            Browse Destinations
+          </a>
+        </div>
+      ) : paginatedDests.length === 0 ? (
         <p className="text-text-soft">{t('favorites.empty')}</p>
       ) : (
         <div className="mb-8">
@@ -95,18 +127,18 @@ export default function Favorites() {
         </div>
       )}
 
-      <h2 className="section-title mt-8">{t('favorites.businesses')}</h2>
-      {paginatedBizs.length === 0 ? (
-        <p className="text-text-soft">{t('favorites.empty')}</p>
-      ) : (
-        <div>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
-            {paginatedBizs.map(biz => (
-              <BusinessCard key={biz.id} business={biz} />
-            ))}
+      {favorites.businesses.length > 0 && (
+        <>
+          <h2 className="section-title mt-8">{t('favorites.businesses')}</h2>
+          <div>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
+              {paginatedBizs.map(biz => (
+                <BusinessCard key={biz.id} business={biz} avgRating={ratings[biz.id]?.avg} ratingCount={ratings[biz.id]?.count} />
+              ))}
+            </div>
+            <Pagination page={bizPage} totalPages={bizTotalPages} onPageChange={setBizPage} />
           </div>
-          <Pagination page={bizPage} totalPages={bizTotalPages} onPageChange={setBizPage} />
-        </div>
+        </>
       )}
     </div>
   );

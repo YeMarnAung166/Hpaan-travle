@@ -20,22 +20,34 @@ export default function WeatherWidget() {
       return;
     }
 
+    const CACHE_KEY = 'hpaan_weather_cache';
+    const CACHE_TTL = 30 * 60 * 1000; // 30 minutes
+
+    const cached = localStorage.getItem(CACHE_KEY);
+    if (cached) {
+      try {
+        const { data, timestamp } = JSON.parse(cached);
+        if (Date.now() - timestamp < CACHE_TTL) {
+          setWeather(data.weather);
+          setForecast(data.forecast);
+          setLoading(false);
+          return;
+        }
+      } catch (_) {}
+    }
+
     const fetchWeather = async () => {
       try {
-        // Current weather
-        const weatherRes = await fetch(
-          `https://api.openweathermap.org/data/2.5/weather?lat=${lat}&lon=${lon}&units=metric&appid=${apiKey}`
-        );
+        const [weatherRes, forecastRes] = await Promise.all([
+          fetch(`https://api.openweathermap.org/data/2.5/weather?lat=${lat}&lon=${lon}&units=metric&appid=${apiKey}`),
+          fetch(`https://api.openweathermap.org/data/2.5/forecast?lat=${lat}&lon=${lon}&units=metric&appid=${apiKey}`),
+        ]);
         if (!weatherRes.ok) throw new Error('Weather fetch failed');
-        const weatherData = await weatherRes.json();
-        setWeather(weatherData);
-
-        // 3‑day forecast (forecast for every 3 hours, we'll pick one per day)
-        const forecastRes = await fetch(
-          `https://api.openweathermap.org/data/2.5/forecast?lat=${lat}&lon=${lon}&units=metric&appid=${apiKey}`
-        );
         if (!forecastRes.ok) throw new Error('Forecast fetch failed');
+
+        const weatherData = await weatherRes.json();
         const forecastData = await forecastRes.json();
+
         // Group by day and take the midday forecast (approx 12:00)
         const dailyForecasts = {};
         forecastData.list.forEach(item => {
@@ -44,9 +56,15 @@ export default function WeatherWidget() {
             dailyForecasts[date] = item;
           }
         });
-        // Take next 3 days (excluding today)
         const nextDays = Object.values(dailyForecasts).slice(1, 4);
+
+        setWeather(weatherData);
         setForecast(nextDays);
+
+        localStorage.setItem(CACHE_KEY, JSON.stringify({
+          data: { weather: weatherData, forecast: nextDays },
+          timestamp: Date.now(),
+        }));
       } catch (err) {
         console.error(err);
         setError(err.message);
@@ -91,14 +109,9 @@ export default function WeatherWidget() {
     return date.toLocaleTimeString(language === 'my' ? 'my' : 'en', { hour: '2-digit', minute: '2-digit' });
   };
 
-  // Day names in Burmese if needed
   const dayName = (dateStr) => {
     const date = new Date(dateStr);
-    if (language === 'my') {
-      const days = ['နေ', 'လ', 'ဂါ', 'ဗု', 'ကြာ', 'သော', 'စ'];
-      return days[date.getDay()];
-    }
-    return date.toLocaleDateString('en', { weekday: 'short' });
+    return date.toLocaleDateString(language === 'my' ? 'my' : 'en', { weekday: 'short' });
   };
 
   return (

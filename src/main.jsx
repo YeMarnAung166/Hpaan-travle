@@ -2,6 +2,8 @@ import React from 'react';
 import ReactDOM from 'react-dom/client';
 import App from './App';
 import './index.css';
+import 'leaflet/dist/leaflet.css';
+import './utils/leafletFix';
 
 // Suppress Leaflet's Firefox mouse event deprecation warnings
 const originalWarn = console.warn;

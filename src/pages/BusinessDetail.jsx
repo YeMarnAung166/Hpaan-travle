@@ -1,8 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet';
-import L from 'leaflet';
-import 'leaflet/dist/leaflet.css';
 import { supabase } from '../supabaseClient';
 import { useUser } from '../context/UserContext';
 import { useFavorites } from '../hooks/useFavorites';
@@ -21,14 +19,6 @@ import BookingModal from '../components/BookingModal';
 import { getYouTubeEmbedUrl } from '../utils/videoHelpers';
 import { getOptimizedImage } from '../utils/imageHelpers';
 import { Helmet } from 'react-helmet-async';
-
-// Fix Leaflet default marker icons
-delete L.Icon.Default.prototype._getIconUrl;
-L.Icon.Default.mergeOptions({
-  iconRetinaUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-icon-2x.png',
-  iconUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-icon.png',
-  shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-shadow.png',
-});
 
 export default function BusinessDetail() {
   const { id } = useParams();
@@ -276,22 +266,26 @@ export default function BusinessDetail() {
                   <Button variant="primary" size="md" className="w-full" onClick={() => setShowBooking(true)}>
                     Book Now
                   </Button>
-                  <a href={`tel:${business.phone}`} className="flex justify-between p-3 bg-neutral-light rounded-xl hover:bg-neutral-mid transition">
-                    <span className="text-text">{business.phone}</span>
-                    <svg className="w-5 h-5 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
-                    </svg>
-                  </a>
-                  <a
-                    href={`https://wa.me/${business.phone.replace(/[^0-9]/g, '')}`}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="flex justify-center"
-                  >
-                    <Button variant="primary" size="md" className="w-full">
-                      WhatsApp
-                    </Button>
-                  </a>
+                  {business.phone && (
+                    <>
+                      <a href={`tel:${business.phone}`} className="flex justify-between p-3 bg-neutral-light rounded-xl hover:bg-neutral-mid transition">
+                        <span className="text-text">{business.phone}</span>
+                        <svg className="w-5 h-5 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
+                        </svg>
+                      </a>
+                      <a
+                        href={`https://wa.me/${business.phone.replace(/[^0-9]/g, '')}`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="flex justify-center"
+                      >
+                        <Button variant="primary" size="md" className="w-full">
+                          WhatsApp
+                        </Button>
+                      </a>
+                    </>
+                  )}
                 </div>
               </div>
               <div className="bg-white rounded-2xl shadow-lg p-6 border border-neutral-mid">

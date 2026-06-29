@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { supabase } from '../../supabaseClient';
 import DataTable from '../../components/admin/DataTable';
 import FormModal from '../../components/admin/FormModal';
+import ConfirmDialog from '../../components/ConfirmDialog';
 import { useLanguage } from '../../context/LanguageContext';
 import ImageUploader from '../../components/ImageUploader';
 import { Helmet } from 'react-helmet-async';
@@ -13,6 +14,7 @@ export default function AdminEvents() {
   const [editingItem, setEditingItem] = useState(null);
   const [submitting, setSubmitting] = useState(false);
   const { t, language } = useLanguage();
+  const [deleteTarget, setDeleteTarget] = useState(null);
   const [formData, setFormData] = useState({
     title: '',
     title_my: '',
@@ -70,10 +72,14 @@ export default function AdminEvents() {
   };
 
   const handleDelete = async (id) => {
-    if (confirm(t('admin.confirm_delete'))) {
-      await supabase.from('events').delete().eq('id', id);
-      fetchEvents();
-    }
+    setDeleteTarget(id);
+  };
+
+  const confirmDelete = async () => {
+    if (!deleteTarget) return;
+    await supabase.from('events').delete().eq('id', deleteTarget);
+    setDeleteTarget(null);
+    fetchEvents();
   };
 
   const columns = [
@@ -112,21 +118,21 @@ export default function AdminEvents() {
         {/* English Fields */}
         <div className="border-b pb-3 mb-3">
           <h3 className="font-semibold mb-2">English</h3>
-          <input type="text" name="title" placeholder="Title (English)" value={formData.title} onChange={handleInputChange} className="w-full border rounded px-3 py-2 mb-2" required />
-          <textarea name="description" placeholder="Description (English)" value={formData.description} onChange={handleInputChange} rows="3" className="w-full border rounded px-3 py-2 mb-2" />
-          <input type="text" name="location" placeholder="Location (English)" value={formData.location} onChange={handleInputChange} className="w-full border rounded px-3 py-2 mb-2" />
+          <input type="text" name="title" placeholder="Title (English)" value={formData.title} onChange={handleInputChange} className="w-full border border-border dark:border-border rounded px-3 py-2 mb-2 bg-transparent text-text dark:text-text placeholder:text-text-soft focus:outline-none focus:ring-2 focus:ring-gold/30 dark:focus:ring-primary/30" required />
+          <textarea name="description" placeholder="Description (English)" value={formData.description} onChange={handleInputChange} rows="3" className="w-full border border-border dark:border-border rounded px-3 py-2 mb-2 bg-transparent text-text dark:text-text placeholder:text-text-soft focus:outline-none focus:ring-2 focus:ring-gold/30 dark:focus:ring-primary/30" />
+          <input type="text" name="location" placeholder="Location (English)" value={formData.location} onChange={handleInputChange} className="w-full border border-border dark:border-border rounded px-3 py-2 mb-2 bg-transparent text-text dark:text-text placeholder:text-text-soft focus:outline-none focus:ring-2 focus:ring-gold/30 dark:focus:ring-primary/30" />
         </div>
         {/* Burmese Fields */}
         <div className="border-b pb-3 mb-3">
           <h3 className="font-semibold mb-2">မြန်မာ (Burmese)</h3>
-          <input type="text" name="title_my" placeholder="ခေါင်းစဉ် (မြန်မာ)" value={formData.title_my} onChange={handleInputChange} className="w-full border rounded px-3 py-2 mb-2" />
-          <textarea name="description_my" placeholder="ဖော်ပြချက် (မြန်မာ)" value={formData.description_my} onChange={handleInputChange} rows="3" className="w-full border rounded px-3 py-2 mb-2" />
-          <input type="text" name="location_my" placeholder="တည်နေရာ (မြန်မာ)" value={formData.location_my} onChange={handleInputChange} className="w-full border rounded px-3 py-2 mb-2" />
+          <input type="text" name="title_my" placeholder="ခေါင်းစဉ် (မြန်မာ)" value={formData.title_my} onChange={handleInputChange} className="w-full border border-border dark:border-border rounded px-3 py-2 mb-2 bg-transparent text-text dark:text-text placeholder:text-text-soft focus:outline-none focus:ring-2 focus:ring-gold/30 dark:focus:ring-primary/30" />
+          <textarea name="description_my" placeholder="ဖော်ပြချက် (မြန်မာ)" value={formData.description_my} onChange={handleInputChange} rows="3" className="w-full border border-border dark:border-border rounded px-3 py-2 mb-2 bg-transparent text-text dark:text-text placeholder:text-text-soft focus:outline-none focus:ring-2 focus:ring-gold/30 dark:focus:ring-primary/30" />
+          <input type="text" name="location_my" placeholder="တည်နေရာ (မြန်မာ)" value={formData.location_my} onChange={handleInputChange} className="w-full border border-border dark:border-border rounded px-3 py-2 mb-2 bg-transparent text-text dark:text-text placeholder:text-text-soft focus:outline-none focus:ring-2 focus:ring-gold/30 dark:focus:ring-primary/30" />
         </div>
         {/* Date & Media */}
         <div>
           <h3 className="font-semibold mb-2">Date & Media</h3>
-          <input type="date" name="event_date" value={formData.event_date} onChange={handleInputChange} className="w-full border rounded px-3 py-2 mb-2" required />
+          <input type="date" name="event_date" value={formData.event_date} onChange={handleInputChange} className="w-full border border-border dark:border-border rounded px-3 py-2 mb-2 bg-transparent text-text dark:text-text placeholder:text-text-soft focus:outline-none focus:ring-2 focus:ring-gold/30 dark:focus:ring-primary/30" required />
           <ImageUploader
             folderPath={`events/${editingItem?.id || 'temp'}`}
             existingImageUrl={formData.image}
@@ -136,6 +142,13 @@ export default function AdminEvents() {
           />
         </div>
       </FormModal>
+      <ConfirmDialog
+        open={deleteTarget !== null}
+        title="Delete this event?"
+        message={t('admin.confirm_delete')}
+        onConfirm={confirmDelete}
+        onCancel={() => setDeleteTarget(null)}
+      />
     </>
   );
 }

@@ -1,4 +1,4 @@
-import { Suspense, lazy } from 'react';
+import React, { Suspense, lazy } from 'react';
 import { BrowserRouter, Routes, Route, Navigate, useLocation } from 'react-router-dom';
 import { AnimatePresence, motion } from 'framer-motion';
 import { ThemeProvider } from './context/ThemeContext';
@@ -18,6 +18,7 @@ import ProtectedRoute from './components/ProtectedRoute';
 import LoadingSpinner from './components/ui/LoadingSpinner';
 import ErrorBoundary from './components/ErrorBoundary';
 import GenerateItinerary from './pages/GenerateItinerary';
+import OfflineIndicator from './components/OfflineIndicator';
 
 // Lazy load pages
 const HomePage = lazy(() => import('./pages/HomePage'));
@@ -56,18 +57,25 @@ const TermsPage = lazy(() => import('./pages/TermsPage'));
 const BlogList = lazy(() => import('./pages/BlogList'));
 const BlogPost = lazy(() => import('./pages/BlogPost'));
 
-function AppContent({ showAuthModal, setShowAuthModal, handleLogout }) {
+const AppContent = React.memo(function AppContent({ showAuthModal, setShowAuthModal, handleLogout }) {
   const location = useLocation();
 
   return (
     <>
       <ScrollToTop />
+      <OfflineIndicator />
+      <a
+        href="#main-content"
+        className="skip-link"
+      >
+        Skip to main content
+      </a>
       <div className="flex flex-col min-h-screen">
         <Header
           onLoginClick={() => setShowAuthModal(true)}
           onLogoutClick={handleLogout}
         />
-        <main className="flex-grow">
+        <main id="main-content" className="flex-grow">
           <AnimatePresence mode="wait">
             <motion.div key={location.pathname} {...pageTransition}>
               <Suspense fallback={<LoadingSpinner size="lg" />}>
@@ -125,7 +133,7 @@ function AppContent({ showAuthModal, setShowAuthModal, handleLogout }) {
       </div>
     </>
   );
-}
+});
 
 function App() {
   const { user, showAuthModal, setShowAuthModal, handleLogout } = useAuthSession();

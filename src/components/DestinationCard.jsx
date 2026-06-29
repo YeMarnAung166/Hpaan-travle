@@ -43,7 +43,7 @@ const DestinationCard = memo(function DestinationCard({ destination }) {
       whileHover={{ y: -6 }}
       transition={{ type: 'spring', stiffness: 300, damping: 20 }}
     >
-      <div className="relative overflow-hidden h-56">
+      <Link to={`/destination/${destination.id}`} className="block relative overflow-hidden h-56">
         {imgError ? (
           <div className="w-full h-full bg-neutral-mid dark:bg-neutral-dark flex items-center justify-center">
             <svg className="w-12 h-12 text-text-soft/40" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -64,7 +64,7 @@ const DestinationCard = memo(function DestinationCard({ destination }) {
         <div className="absolute bottom-3 left-3 right-3">
           <h3 className="text-white text-xl font-serif font-bold leading-tight line-clamp-2 drop-shadow-sm">{name}</h3>
         </div>
-      </div>
+      </Link>
       <div className="p-4">
         <p className="text-text text-sm line-clamp-2 mb-3 leading-relaxed">{description}</p>
         <div className="flex justify-between items-center">

@@ -1,15 +1,34 @@
 // src/hooks/useFavorites.js
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { supabase } from '../supabaseClient';
+
+function getCacheKey(userId) { return `hpaan_favorites_${userId}`; }
 
 export function useFavorites(userId) {
   const [favorites, setFavorites] = useState({ businesses: new Set(), destinations: new Set() });
+
+  const loadFromCache = useCallback((uid) => {
+    try {
+      const cached = localStorage.getItem(getCacheKey(uid));
+      if (cached) {
+        const { data } = JSON.parse(cached);
+        setFavorites({
+          businesses: new Set(data.businesses),
+          destinations: new Set(data.destinations),
+        });
+        return true;
+      }
+    } catch (_) {}
+    return false;
+  }, []);
 
   useEffect(() => {
     if (!userId) {
       setFavorites({ businesses: new Set(), destinations: new Set() });
       return;
     }
+
+    if (loadFromCache(userId)) return;
 
     const fetchFavorites = async () => {
       const { data, error } = await supabase
@@ -24,9 +43,18 @@ export function useFavorites(userId) {
         else if (fav.item_type === 'destination') favDests.add(fav.item_id);
       });
       setFavorites({ businesses: favBiz, destinations: favDests });
+      localStorage.setItem(getCacheKey(userId), JSON.stringify({
+        data: { businesses: [...favBiz], destinations: [...favDests] },
+      }));
     };
     fetchFavorites();
-  }, [userId]);
+  }, [userId, loadFromCache]);
+
+  const updateCache = useCallback((uid, businesses, destinations) => {
+    localStorage.setItem(getCacheKey(uid), JSON.stringify({
+      data: { businesses: [...businesses], destinations: [...destinations] },
+    }));
+  }, []);
 
   const toggleFavorite = async (itemType, itemId) => {
     if (!userId) {
@@ -44,12 +72,12 @@ export function useFavorites(userId) {
         .eq('item_id', itemId);
       if (error) return false;
       setFavorites((prev) => {
-        const newSet = new Set(prev[itemType === 'business' ? 'businesses' : 'destinations']);
-        newSet.delete(itemId);
-        return {
-          ...prev,
-          [itemType === 'business' ? 'businesses' : 'destinations']: newSet,
-        };
+        const biz = new Set(prev.businesses);
+        const dests = new Set(prev.destinations);
+        if (itemType === 'business') biz.delete(itemId);
+        else dests.delete(itemId);
+        updateCache(userId, biz, dests);
+        return { businesses: biz, destinations: dests };
       });
       return false;
     } else {
@@ -58,12 +86,12 @@ export function useFavorites(userId) {
         .insert({ user_id: userId, item_type: itemType, item_id: itemId });
       if (error) return false;
       setFavorites((prev) => {
-        const newSet = new Set(prev[itemType === 'business' ? 'businesses' : 'destinations']);
-        newSet.add(itemId);
-        return {
-          ...prev,
-          [itemType === 'business' ? 'businesses' : 'destinations']: newSet,
-        };
+        const biz = new Set(prev.businesses);
+        const dests = new Set(prev.destinations);
+        if (itemType === 'business') biz.add(itemId);
+        else dests.add(itemId);
+        updateCache(userId, biz, dests);
+        return { businesses: biz, destinations: dests };
       });
       return true;
     }

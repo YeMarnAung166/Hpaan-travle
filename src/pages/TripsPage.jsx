@@ -83,7 +83,8 @@ export default function TripsPage() {
         <div className="flex gap-2">
           <Link to="/generate-itinerary">
             <Button variant="outline" size="sm">
-              ✨ {t('trips.generate_itinerary') || 'Generate Itinerary'}
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 10V3L4 14h7v7l9-11h-7z" /></svg>
+              {t('trips.generate_itinerary') || 'Generate Itinerary'}
             </Button>
           </Link>
         </div>
@@ -105,7 +106,16 @@ export default function TripsPage() {
       </div>
 
       {trips.length === 0 ? (
-        <p className="text-text-soft text-center">{t('trips.empty')}</p>
+        <div className="text-center py-16">
+          <svg className="w-20 h-20 mx-auto text-text-soft/40 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1" d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7" />
+          </svg>
+          <p className="text-text-soft text-lg mb-2">{t('trips.empty')}</p>
+          <p className="text-text-soft/60 text-sm mb-6">Create your first trip to start planning your Hpa-An adventure.</p>
+          <Link to="/generate-itinerary" className="inline-flex items-center gap-2 px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary-light transition text-sm font-medium">
+            Generate Itinerary
+          </Link>
+        </div>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           {trips.map(trip => (
@@ -115,8 +125,8 @@ export default function TripsPage() {
                 {trip.description && <p className="text-text-soft text-sm line-clamp-1">{trip.description}</p>}
                 <p className="text-xs text-text-soft mt-1">{new Date(trip.created_at).toLocaleDateString()}</p>
               </Link>
-              <button onClick={() => setDeleteId(trip.id)} className="text-red-500 hover:text-red-700 p-2 ml-2 flex-shrink-0">
-                🗑️
+              <button onClick={() => setDeleteId(trip.id)} className="text-red-500 hover:text-red-700 p-2 ml-2 flex-shrink-0" aria-label="Delete trip">
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>
               </button>
             </div>
           ))}

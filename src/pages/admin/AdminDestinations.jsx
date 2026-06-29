@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { supabase } from "../../supabaseClient";
 import DataTable from "../../components/admin/DataTable";
 import FormModal from "../../components/admin/FormModal";
+import ConfirmDialog from "../../components/ConfirmDialog";
 import { useLanguage } from "../../context/LanguageContext";
 import ImageUploader from "../../components/ImageUploader";
 import { Helmet } from 'react-helmet-async';
@@ -13,6 +14,7 @@ export default function AdminDestinations() {
   const [editingItem, setEditingItem] = useState(null);
   const [submitting, setSubmitting] = useState(false);
   const { t, language } = useLanguage();
+  const [deleteTarget, setDeleteTarget] = useState(null);
   const [formData, setFormData] = useState({
     name: "",
     name_my: "",
@@ -88,10 +90,14 @@ export default function AdminDestinations() {
   };
 
   const handleDelete = async (id) => {
-    if (confirm(t("admin.confirm_delete"))) {
-      await supabase.from("destinations").delete().eq("id", id);
-      fetchDestinations();
-    }
+    setDeleteTarget(id);
+  };
+
+  const confirmDelete = async () => {
+    if (!deleteTarget) return;
+    await supabase.from("destinations").delete().eq("id", deleteTarget);
+    setDeleteTarget(null);
+    fetchDestinations();
   };
 
   const columns = [
@@ -160,7 +166,7 @@ export default function AdminDestinations() {
             placeholder="Name (English)"
             value={formData.name}
             onChange={handleInputChange}
-            className="w-full border rounded px-3 py-2 mb-2"
+            className="w-full border border-border dark:border-border rounded px-3 py-2 mb-2 bg-transparent text-text dark:text-text placeholder:text-text-soft focus:outline-none focus:ring-2 focus:ring-gold/30 dark:focus:ring-primary/30"
             required
           />
           <textarea
@@ -169,7 +175,7 @@ export default function AdminDestinations() {
             value={formData.description}
             onChange={handleInputChange}
             rows="3"
-            className="w-full border rounded px-3 py-2 mb-2"
+            className="w-full border border-border dark:border-border rounded px-3 py-2 mb-2 bg-transparent text-text dark:text-text placeholder:text-text-soft focus:outline-none focus:ring-2 focus:ring-gold/30 dark:focus:ring-primary/30"
             required
           />
         </div>
@@ -181,7 +187,7 @@ export default function AdminDestinations() {
             placeholder="အမည် (မြန်မာ)"
             value={formData.name_my}
             onChange={handleInputChange}
-            className="w-full border rounded px-3 py-2 mb-2"
+            className="w-full border border-border dark:border-border rounded px-3 py-2 mb-2 bg-transparent text-text dark:text-text placeholder:text-text-soft focus:outline-none focus:ring-2 focus:ring-gold/30 dark:focus:ring-primary/30"
           />
           <textarea
             name="description_my"
@@ -189,7 +195,7 @@ export default function AdminDestinations() {
             value={formData.description_my}
             onChange={handleInputChange}
             rows="3"
-            className="w-full border rounded px-3 py-2 mb-2"
+            className="w-full border border-border dark:border-border rounded px-3 py-2 mb-2 bg-transparent text-text dark:text-text placeholder:text-text-soft focus:outline-none focus:ring-2 focus:ring-gold/30 dark:focus:ring-primary/30"
           />
         </div>
         <div>
@@ -201,7 +207,7 @@ export default function AdminDestinations() {
               placeholder="Latitude"
               value={formData.lat}
               onChange={handleInputChange}
-              className="w-full border rounded px-3 py-2"
+              className="w-full border border-border dark:border-border rounded px-3 py-2 mb-2 bg-transparent text-text dark:text-text placeholder:text-text-soft focus:outline-none focus:ring-2 focus:ring-gold/30 dark:focus:ring-primary/30"
             />
             <input
               type="text"
@@ -209,7 +215,7 @@ export default function AdminDestinations() {
               placeholder="Longitude"
               value={formData.lng}
               onChange={handleInputChange}
-              className="w-full border rounded px-3 py-2"
+              className="w-full border border-border dark:border-border rounded px-3 py-2 mb-2 bg-transparent text-text dark:text-text placeholder:text-text-soft focus:outline-none focus:ring-2 focus:ring-gold/30 dark:focus:ring-primary/30"
             />
           </div>
           <ImageUploader
@@ -230,11 +236,18 @@ export default function AdminDestinations() {
               placeholder="YouTube video URL (e.g., https://www.youtube.com/watch?v=...)"
               value={formData.video_url}
               onChange={handleInputChange}
-              className="w-full border rounded px-3 py-2"
+              className="w-full border border-border dark:border-border rounded px-3 py-2 bg-transparent text-text dark:text-text placeholder:text-text-soft focus:outline-none focus:ring-2 focus:ring-gold/30 dark:focus:ring-primary/30"
             />
           </div>
         </div>
       </FormModal>
+      <ConfirmDialog
+        open={deleteTarget !== null}
+        title="Delete this destination?"
+        message={t("admin.confirm_delete")}
+        onConfirm={confirmDelete}
+        onCancel={() => setDeleteTarget(null)}
+      />
     </>
   );
 }

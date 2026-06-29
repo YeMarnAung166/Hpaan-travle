@@ -1,4 +1,13 @@
+import { useEffect } from 'react';
+
 export default function ConfirmDialog({ open, title, message, onConfirm, onCancel, confirmText = 'Delete', cancelText = 'Cancel', variant = 'danger' }) {
+  useEffect(() => {
+    if (!open) return;
+    const handleKey = (e) => { if (e.key === 'Escape') onCancel(); };
+    document.addEventListener('keydown', handleKey);
+    return () => document.removeEventListener('keydown', handleKey);
+  }, [open, onCancel]);
+
   if (!open) return null;
 
   const btnColors = {

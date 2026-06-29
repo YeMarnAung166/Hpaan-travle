@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { getOptimizedImage } from '../utils/imageHelpers';
 
 export default function ImageGallery({ images, alt = 'Gallery image' }) {
@@ -8,6 +8,13 @@ export default function ImageGallery({ images, alt = 'Gallery image' }) {
 
   const openLightbox = (idx) => setLightboxIndex(idx);
   const closeLightbox = () => setLightboxIndex(null);
+
+  useEffect(() => {
+    if (lightboxIndex === null) return;
+    const handleKey = (e) => { if (e.key === 'Escape') closeLightbox(); };
+    document.addEventListener('keydown', handleKey);
+    return () => document.removeEventListener('keydown', handleKey);
+  }, [lightboxIndex]);
 
   const next = () => setLightboxIndex((prev) => (prev + 1) % images.length);
   const prev = () => setLightboxIndex((prev) => (prev - 1 + images.length) % images.length);

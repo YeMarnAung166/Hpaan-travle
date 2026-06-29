@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { supabase } from "../../supabaseClient";
 import DataTable from "../../components/admin/DataTable";
 import FormModal from "../../components/admin/FormModal";
+import ConfirmDialog from "../../components/ConfirmDialog";
 import { useLanguage } from "../../context/LanguageContext";
 import ImageUploader from "../../components/ImageUploader";
 import { Helmet } from 'react-helmet-async';
@@ -20,6 +21,7 @@ export default function AdminBusinesses() {
   const [editingItem, setEditingItem] = useState(null);
   const [submitting, setSubmitting] = useState(false);
   const { t, language } = useLanguage();
+  const [deleteTarget, setDeleteTarget] = useState(null);
   const [formData, setFormData] = useState({
     name: "",
     name_my: "",
@@ -96,10 +98,14 @@ export default function AdminBusinesses() {
   };
 
   const handleDelete = async (id) => {
-    if (confirm(t("admin.confirm_delete"))) {
-      await supabase.from("businesses").delete().eq("id", id);
-      fetchBusinesses();
-    }
+    setDeleteTarget(id);
+  };
+
+  const confirmDelete = async () => {
+    if (!deleteTarget) return;
+    await supabase.from("businesses").delete().eq("id", deleteTarget);
+    setDeleteTarget(null);
+    fetchBusinesses();
   };
 
   const columns = [
@@ -171,14 +177,14 @@ export default function AdminBusinesses() {
             placeholder="Business Name (English)"
             value={formData.name}
             onChange={handleInputChange}
-            className="w-full border rounded px-3 py-2 mb-2"
+            className="w-full border border-border dark:border-border rounded px-3 py-2 mb-2 bg-transparent text-text dark:text-text placeholder:text-text-soft focus:outline-none focus:ring-2 focus:ring-gold/30 dark:focus:ring-primary/30"
             required
           />
           <select
             name="category"
             value={formData.category}
             onChange={handleInputChange}
-            className="w-full border rounded px-3 py-2 mb-2"
+            className="w-full border border-border dark:border-border rounded px-3 py-2 mb-2 bg-transparent text-text dark:text-text placeholder:text-text-soft focus:outline-none focus:ring-2 focus:ring-gold/30 dark:focus:ring-primary/30"
           >
             {CATEGORIES.map((cat) => (
               <option key={cat.value} value={cat.value}>
@@ -192,7 +198,7 @@ export default function AdminBusinesses() {
             value={formData.description}
             onChange={handleInputChange}
             rows="3"
-            className="w-full border rounded px-3 py-2 mb-2"
+            className="w-full border border-border dark:border-border rounded px-3 py-2 mb-2 bg-transparent text-text dark:text-text placeholder:text-text-soft focus:outline-none focus:ring-2 focus:ring-gold/30 dark:focus:ring-primary/30"
             required
           />
           <input
@@ -201,7 +207,7 @@ export default function AdminBusinesses() {
             placeholder="Address (English)"
             value={formData.address}
             onChange={handleInputChange}
-            className="w-full border rounded px-3 py-2 mb-2"
+            className="w-full border border-border dark:border-border rounded px-3 py-2 mb-2 bg-transparent text-text dark:text-text placeholder:text-text-soft focus:outline-none focus:ring-2 focus:ring-gold/30 dark:focus:ring-primary/30"
           />
         </div>
         {/* Burmese Fields */}
@@ -213,7 +219,7 @@ export default function AdminBusinesses() {
             placeholder="အမည် (မြန်မာ)"
             value={formData.name_my}
             onChange={handleInputChange}
-            className="w-full border rounded px-3 py-2 mb-2"
+            className="w-full border border-border dark:border-border rounded px-3 py-2 mb-2 bg-transparent text-text dark:text-text placeholder:text-text-soft focus:outline-none focus:ring-2 focus:ring-gold/30 dark:focus:ring-primary/30"
           />
           <textarea
             name="description_my"
@@ -221,7 +227,7 @@ export default function AdminBusinesses() {
             value={formData.description_my}
             onChange={handleInputChange}
             rows="3"
-            className="w-full border rounded px-3 py-2 mb-2"
+            className="w-full border border-border dark:border-border rounded px-3 py-2 mb-2 bg-transparent text-text dark:text-text placeholder:text-text-soft focus:outline-none focus:ring-2 focus:ring-gold/30 dark:focus:ring-primary/30"
           />
           <input
             type="text"
@@ -229,7 +235,7 @@ export default function AdminBusinesses() {
             placeholder="လိပ်စာ (မြန်မာ)"
             value={formData.address_my}
             onChange={handleInputChange}
-            className="w-full border rounded px-3 py-2 mb-2"
+            className="w-full border border-border dark:border-border rounded px-3 py-2 mb-2 bg-transparent text-text dark:text-text placeholder:text-text-soft focus:outline-none focus:ring-2 focus:ring-gold/30 dark:focus:ring-primary/30"
           />
         </div>
         {/* Media & Contact */}
@@ -241,7 +247,7 @@ export default function AdminBusinesses() {
             placeholder="Phone Number"
             value={formData.phone}
             onChange={handleInputChange}
-            className="w-full border rounded px-3 py-2 mb-2"
+            className="w-full border border-border dark:border-border rounded px-3 py-2 mb-2 bg-transparent text-text dark:text-text placeholder:text-text-soft focus:outline-none focus:ring-2 focus:ring-gold/30 dark:focus:ring-primary/30"
           />
           <ImageUploader
             folderPath={`businesses/${editingItem?.id || "temp"}`}
@@ -261,11 +267,18 @@ export default function AdminBusinesses() {
               placeholder="YouTube video URL (e.g., https://www.youtube.com/watch?v=...)"
               value={formData.video_url}
               onChange={handleInputChange}
-              className="w-full border rounded px-3 py-2"
+              className="w-full border border-border dark:border-border rounded px-3 py-2 mb-2 bg-transparent text-text dark:text-text placeholder:text-text-soft focus:outline-none focus:ring-2 focus:ring-gold/30 dark:focus:ring-primary/30"
             />
           </div>
         </div>
       </FormModal>
+      <ConfirmDialog
+        open={deleteTarget !== null}
+        title="Delete this business?"
+        message={t("admin.confirm_delete")}
+        onConfirm={confirmDelete}
+        onCancel={() => setDeleteTarget(null)}
+      />
     </>
   );
 }

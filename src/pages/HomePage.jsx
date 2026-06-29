@@ -35,30 +35,25 @@ export default function HomePage() {
   const [ctaRef, ctaInView] = useScrollReveal();
 
   useEffect(() => {
-    const fetchDestinations = async () => {
-      const { data, error } = await supabase
-        .from('destinations')
-        .select('*')
-        .order('id', { ascending: true })
-        .limit(6);
-      if (!error) setDestinations(data);
-      setLoadingDestinations(false);
-    };
-    fetchDestinations();
+    const fetchData = async () => {
+      const [destResult, ...countResults] = await Promise.all([
+        supabase.from('destinations').select('*').order('id', { ascending: true }).limit(6),
+        ...['accommodation', 'restaurant', 'transport', 'tours'].map(cat =>
+          supabase.from('businesses').select('*', { count: 'exact', head: true }).eq('category', cat)
+        ),
+      ]);
 
-    const fetchBusinessCounts = async () => {
+      if (!destResult.error) setDestinations(destResult.data);
+      setLoadingDestinations(false);
+
       const counts = {};
       const categories = ['accommodation', 'restaurant', 'transport', 'tours'];
-      for (const cat of categories) {
-        const { count, error } = await supabase
-          .from('businesses')
-          .select('*', { count: 'exact', head: true })
-          .eq('category', cat);
-        if (!error) counts[cat] = count || 0;
-      }
+      countResults.forEach((result, i) => {
+        if (!result.error) counts[categories[i]] = result.count || 0;
+      });
       setBusinessCounts(counts);
     };
-    fetchBusinessCounts();
+    fetchData();
   }, []);
 
   const categoryConfig = {

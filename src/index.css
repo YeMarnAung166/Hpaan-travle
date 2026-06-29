@@ -217,6 +217,26 @@
   scrollbar-width: none;
 }
 
+.skip-link {
+  position: absolute;
+  top: -100%;
+  left: 0;
+  z-index: 10000;
+  padding: 0.75rem 1.5rem;
+  background: var(--color-primary);
+  color: #fff;
+  font-weight: 600;
+  font-size: 0.875rem;
+  text-decoration: none;
+  transition: top 0.15s ease;
+}
+
+.skip-link:focus {
+  top: 0;
+  outline: 2px solid var(--color-gold);
+  outline-offset: 2px;
+}
+
 .warm-gradient-overlay {
   background: linear-gradient(
     to top,
@@ -232,4 +252,13 @@
     rgba(122, 158, 158, 0.15) 0%,
     transparent 50%
   );
+}
+
+.footer-grid-pattern {
+  position: absolute;
+  inset: 0;
+  opacity: 0.015;
+  pointer-events: none;
+  background-image: url('./assets/patterns/grid-pattern.svg');
+  background-repeat: repeat;
 }

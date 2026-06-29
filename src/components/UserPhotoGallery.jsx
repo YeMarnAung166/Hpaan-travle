@@ -72,6 +72,13 @@ export default function UserPhotoGallery({ businessId, itineraryId, destinationI
     }
   };
 
+  useEffect(() => {
+    if (!selectedPhoto) return;
+    const handleKey = (e) => { if (e.key === 'Escape') setSelectedPhoto(null); };
+    document.addEventListener('keydown', handleKey);
+    return () => document.removeEventListener('keydown', handleKey);
+  }, [selectedPhoto]);
+
   if (loading) return <div className="text-center py-4 text-text-soft">Loading photos...</div>;
   if (photos.length === 0) return null;
 

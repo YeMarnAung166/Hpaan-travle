@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, memo } from 'react';
 import { NavLink, Link, useLocation } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useUser } from '../context/UserContext';
@@ -8,7 +8,7 @@ import { useProfileContext } from '../context/ProfileContext';
 import { useScroll } from '../hooks/useScroll';
 import Button from './ui/Button';
 
-export default function Header({ onLoginClick, onLogoutClick }) {
+const Header = memo(function Header({ onLoginClick, onLogoutClick }) {
   const user = useUser();
   const { t, language, setLanguage } = useLanguage();
   const { theme, setTheme } = useTheme();
@@ -28,6 +28,13 @@ export default function Header({ onLoginClick, onLogoutClick }) {
   useEffect(() => {
     if (user) refresh();
   }, [user, refresh]);
+
+  useEffect(() => {
+    if (!isMenuOpen) return;
+    const handleKey = (e) => { if (e.key === 'Escape') closeMenu(); };
+    document.addEventListener('keydown', handleKey);
+    return () => document.removeEventListener('keydown', handleKey);
+  }, [isMenuOpen]);
 
   const toggleMenu = () => setIsMenuOpen(!isMenuOpen);
   const closeMenu = () => setIsMenuOpen(false);
@@ -59,9 +66,11 @@ export default function Header({ onLoginClick, onLogoutClick }) {
 
   // Mobile link styles – always dark (on white background)
   const mobileLinkClass = ({ isActive }) =>
-    isActive
-      ? 'font-semibold text-primary'
-      : 'text-text hover:text-primary transition';
+    `block w-full px-4 py-2 rounded-lg ${
+      isActive
+        ? 'font-semibold text-primary bg-primary/5'
+        : 'text-text hover:text-primary hover:bg-overlay transition'
+    }`;
 
   const avatarUrl = profile?.avatar_url;
   const displayName = profile?.display_name || user?.email?.split('@')[0] || 'User';
@@ -167,6 +176,7 @@ export default function Header({ onLoginClick, onLogoutClick }) {
           </div>
           <button
             onClick={toggleMenu}
+            aria-label={isMenuOpen ? 'Close menu' : 'Open menu'}
             className={`md:hidden p-2 rounded-lg transition ${
               isTransparent ? 'text-white/70 hover:text-white hover:bg-white/10' : 'text-text-soft hover:text-text hover:bg-overlay'
             } absolute right-0`}
@@ -199,14 +209,16 @@ export default function Header({ onLoginClick, onLogoutClick }) {
 
         <AnimatePresence>
           {isMenuOpen && (
-            <motion.div
-              initial={{ opacity: 0, y: -8, scale: 0.98 }}
-              animate={{ opacity: 1, y: 0, scale: 1 }}
-              exit={{ opacity: 0, y: -8, scale: 0.98 }}
-              transition={{ duration: 0.2, ease: 'easeOut' }}
-              className="md:hidden absolute left-0 right-0 top-full mt-1 z-50 glass-card rounded-xl shadow-lg overflow-hidden"
-            >
-              <div className="px-4 py-3 flex flex-col space-y-2">
+            <>
+              <div className="fixed inset-0 z-40" onClick={closeMenu} aria-hidden="true" />
+              <motion.div
+                initial={{ opacity: 0, y: -8, scale: 0.98 }}
+                animate={{ opacity: 1, y: 0, scale: 1 }}
+                exit={{ opacity: 0, y: -8, scale: 0.98 }}
+                transition={{ duration: 0.2, ease: 'easeOut' }}
+                className="md:hidden absolute left-0 right-0 top-full mt-1 z-50 glass-card rounded-xl shadow-lg overflow-hidden"
+              >
+              <div className="flex flex-col">
                 {navLinks.map((link, i) => (
                   <motion.div
                     key={link.to}
@@ -289,9 +301,12 @@ export default function Header({ onLoginClick, onLogoutClick }) {
                 )}
               </div>
             </motion.div>
+          </>
           )}
         </AnimatePresence>
       </div>
     </header>
   );
-}
+});
+
+export default Header;

@@ -1,6 +1,7 @@
 import { useMemo } from 'react';
 
 export default function Pagination({ page, totalPages, onPageChange }) {
+  const safePage = Math.max(1, Math.min(page, totalPages));
   const pages = useMemo(() => {
     const items = [];
     const maxVisible = 5;
@@ -32,6 +33,11 @@ export default function Pagination({ page, totalPages, onPageChange }) {
   }, [page, totalPages]);
 
   if (totalPages <= 1) return null;
+
+  if (safePage !== page) {
+    onPageChange(safePage);
+    return null;
+  }
 
   return (
     <nav className="flex items-center justify-center gap-1 mt-8" aria-label="Pagination">

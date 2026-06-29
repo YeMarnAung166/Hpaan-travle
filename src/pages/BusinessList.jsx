@@ -11,6 +11,7 @@ const PAGE_SIZE = 12;
 
 export default function BusinessList() {
   const [businesses, setBusinesses] = useState([]);
+  const [ratings, setRatings] = useState({});
   const [totalCount, setTotalCount] = useState(0);
   const [loading, setLoading] = useState(true);
   const [page, setPage] = useState(1);
@@ -69,6 +70,26 @@ export default function BusinessList() {
     if (!error) {
       setBusinesses(data || []);
       setTotalCount(count || 0);
+      if (data && data.length > 0) {
+        const ids = data.map(b => b.id);
+        const { data: ratingData } = await supabase
+          .from('business_reviews')
+          .select('business_id, rating')
+          .in('business_id', ids);
+        if (ratingData) {
+          const agg = {};
+          ratingData.forEach(r => {
+            if (!agg[r.business_id]) agg[r.business_id] = { sum: 0, count: 0 };
+            agg[r.business_id].sum += r.rating;
+            agg[r.business_id].count += 1;
+          });
+          const ratingMap = {};
+          Object.entries(agg).forEach(([id, { sum, count }]) => {
+            ratingMap[id] = { avg: sum / count, count };
+          });
+          setRatings(ratingMap);
+        }
+      }
     }
     setLoading(false);
   }, [page, searchTerm, filters, sortBy, language]);
@@ -115,7 +136,7 @@ export default function BusinessList() {
         <>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
             {businesses.map(business => (
-              <BusinessCard key={business.id} business={business} />
+              <BusinessCard key={business.id} business={business} avgRating={ratings[business.id]?.avg} ratingCount={ratings[business.id]?.count} />
             ))}
           </div>
           <Pagination page={page} totalPages={totalPages} onPageChange={setPage} />
