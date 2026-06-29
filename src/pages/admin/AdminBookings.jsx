@@ -52,7 +52,7 @@ export default function AdminBookings() {
       </Helmet>
       <h1 className="text-2xl font-serif font-bold mb-4">Booking Inquiries</h1>
       <div className="flex gap-2 mb-6">
-        {['all', 'pending', 'confirmed', 'cancelled'].map(f => (
+        {['all', 'pending', 'confirmed', 'rejected'].map(f => (
           <button key={f} onClick={() => setFilter(f)}
             className={`px-4 py-1.5 rounded-full text-sm font-medium transition ${filter === f ? 'bg-primary text-white' : 'bg-neutral-mid text-text-soft hover:bg-neutral-mid/70'}`}
           >
@@ -68,12 +68,12 @@ export default function AdminBookings() {
             <div key={booking.id} className="bg-white rounded-xl border border-border p-4">
               <div className="flex items-start justify-between mb-2">
                 <div>
-                  <h3 className="font-semibold text-text">{booking.guest_name}</h3>
-                  <p className="text-sm text-text-soft">{booking.guest_email}{booking.guest_phone ? ` · ${booking.guest_phone}` : ''}</p>
+                  <h3 className="font-semibold text-text">{booking.name}</h3>
+                  <p className="text-sm text-text-soft">{booking.email}{booking.phone ? ` · ${booking.phone}` : ''}</p>
                 </div>
                 <span className={`px-2 py-0.5 rounded-full text-xs font-medium ${
                   booking.status === 'confirmed' ? 'bg-success/10 text-success' :
-                  booking.status === 'cancelled' ? 'bg-error/10 text-error' :
+                  booking.status === 'rejected' ? 'bg-error/10 text-error' :
                   'bg-warning/10 text-warning'
                 }`}>
                   {booking.status || 'pending'}
@@ -81,17 +81,16 @@ export default function AdminBookings() {
               </div>
               <div className="text-sm text-text-soft space-y-1 mb-3">
                 <p><strong>Business:</strong> {language === 'my' && booking.businesses?.name_my ? booking.businesses.name_my : booking.businesses?.name}</p>
-                {booking.requested_date && <p><strong>Date:</strong> {new Date(booking.requested_date).toLocaleDateString()}</p>}
-                {booking.guest_count && <p><strong>Guests:</strong> {booking.guest_count}</p>}
-                {booking.notes && <p><strong>Notes:</strong> {booking.notes}</p>}
+                {booking.check_in && <p><strong>Date:</strong> {new Date(booking.check_in).toLocaleDateString()}</p>}
+                {booking.message && <p><strong>Notes:</strong> {booking.message}</p>}
                 <p className="text-xs"><strong>Submitted:</strong> {new Date(booking.created_at).toLocaleString()}</p>
               </div>
               <div className="flex gap-2">
                 {booking.status !== 'confirmed' && (
                   <Button variant="primary" size="sm" onClick={() => handleStatus(booking.id, 'confirmed')}>Confirm</Button>
                 )}
-                {booking.status !== 'cancelled' && (
-                  <Button variant="outline" size="sm" onClick={() => handleStatus(booking.id, 'cancelled')}>Cancel</Button>
+                {booking.status !== 'rejected' && (
+                  <Button variant="outline" size="sm" onClick={() => handleStatus(booking.id, 'rejected')}>Cancel</Button>
                 )}
                 <Button variant="outline" size="sm" className="text-error border-error/30 hover:bg-error/10" onClick={() => handleDelete(booking.id)}>Delete</Button>
               </div>

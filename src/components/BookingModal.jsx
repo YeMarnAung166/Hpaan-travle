@@ -14,7 +14,6 @@ export default function BookingModal({ business, isOpen, onClose }) {
   const [email, setEmail] = useState(user?.email || '');
   const [phone, setPhone] = useState('');
   const [date, setDate] = useState('');
-  const [guests, setGuests] = useState(1);
   const [notes, setNotes] = useState('');
   const [loading, setLoading] = useState(false);
   const [errors, setErrors] = useState({});
@@ -27,6 +26,22 @@ export default function BookingModal({ business, isOpen, onClose }) {
   }, [isOpen, onClose]);
 
   if (!isOpen) return null;
+
+  if (!user) {
+    return (
+      <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm" onClick={onClose}>
+        <div className="relative bg-white dark:bg-neutral-dark rounded-2xl shadow-2xl w-full max-w-sm p-6 mx-4 text-center" onClick={e => e.stopPropagation()}>
+          <div className="w-12 h-12 mx-auto mb-4 rounded-full bg-primary/10 flex items-center justify-center">
+            <svg className="w-6 h-6 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 15v2m0 0v2m0-2h2m-2 0H10m9.364-6.364A9 9 0 1112 3a9 9 0 016.364 15.636z" /></svg>
+          </div>
+          <h2 className="text-xl font-bold text-text mb-2">Login Required</h2>
+          <p className="text-text-soft text-sm mb-6">Please log in to send a booking inquiry.</p>
+          <Button variant="primary" onClick={onClose} className="w-full">Close</Button>
+          <button onClick={onClose} className="absolute top-3 right-3 text-text-soft hover:text-text transition">✕</button>
+        </div>
+      </div>
+    );
+  }
 
   const validate = () => {
     const errs = {};
@@ -50,13 +65,13 @@ export default function BookingModal({ business, isOpen, onClose }) {
     setLoading(true);
     const { error } = await supabase.from('bookings').insert({
       business_id: business.id,
-      user_id: user?.id || null,
-      guest_name: name,
-      guest_email: email,
-      guest_phone: phone || null,
-      requested_date: date || null,
-      guest_count: guests,
-      notes: notes || null,
+      user_id: user.id,
+      name,
+      email,
+      phone: phone || null,
+      check_in: date || null,
+      check_out: null,
+      message: notes || null,
     });
     setLoading(false);
     if (error) {
@@ -93,10 +108,6 @@ export default function BookingModal({ business, isOpen, onClose }) {
               <label className="block text-sm font-medium text-text mb-1">Preferred Date</label>
               <input type="date" value={date} onChange={e => { setDate(e.target.value); setErrors(prev => ({ ...prev, date: null })); }} className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-primary/50 text-sm ${errors.date ? 'border-error' : ''}`} />
               {errors.date && <p className="text-xs text-error mt-1">{errors.date}</p>}
-            </div>
-            <div className="w-24">
-              <label className="block text-sm font-medium text-text mb-1">Guests</label>
-              <input type="number" min="1" max="50" value={guests} onChange={e => setGuests(Math.max(1, parseInt(e.target.value) || 1))} className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-primary/50 text-sm" />
             </div>
           </div>
           <div>
