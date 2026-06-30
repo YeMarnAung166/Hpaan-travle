@@ -1,6 +1,6 @@
 import React, { Suspense, lazy } from 'react';
 import { BrowserRouter, Routes, Route, Navigate, useLocation } from 'react-router-dom';
-import { AnimatePresence, motion } from 'framer-motion';
+import { AnimatePresence, motion as Motion } from 'framer-motion';
 import { ThemeProvider } from './context/ThemeContext';
 import { LanguageProvider } from './context/LanguageContext';
 import { UserProvider } from './context/UserContext';
@@ -59,6 +59,7 @@ const BlogPost = lazy(() => import('./pages/BlogPost'));
 
 const AppContent = React.memo(function AppContent({ showAuthModal, setShowAuthModal, handleLogout }) {
   const location = useLocation();
+  const isAdmin = location.pathname.startsWith('/admin');
 
   return (
     <>
@@ -71,13 +72,15 @@ const AppContent = React.memo(function AppContent({ showAuthModal, setShowAuthMo
         Skip to main content
       </a>
       <div className="flex flex-col min-h-screen">
-        <Header
-          onLoginClick={() => setShowAuthModal(true)}
-          onLogoutClick={handleLogout}
-        />
+        {!isAdmin && (
+          <Header
+            onLoginClick={() => setShowAuthModal(true)}
+            onLogoutClick={handleLogout}
+          />
+        )}
         <main id="main-content" className="flex-grow min-h-[calc(100vh-var(--header-h,96px))]">
           <AnimatePresence mode="wait">
-            <motion.div key={location.pathname} {...pageTransition}>
+            <Motion.div key={isAdmin ? "/admin" : location.pathname} {...pageTransition}>
               <Suspense fallback={<LoadingSpinner size="lg" />}>
                 <Routes location={location}>
                   <Route path="/" element={<HomePage />} />
@@ -124,10 +127,10 @@ const AppContent = React.memo(function AppContent({ showAuthModal, setShowAuthMo
                   <Route path="*" element={<NotFound />} />
                 </Routes>
               </Suspense>
-            </motion.div>
+            </Motion.div>
           </AnimatePresence>
         </main>
-        <Footer />
+        {!isAdmin && <Footer />}
         <AdminButton />
         <AuthModal isOpen={showAuthModal} onClose={() => setShowAuthModal(false)} />
       </div>

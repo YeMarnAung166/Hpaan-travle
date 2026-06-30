@@ -1,59 +1,211 @@
 import { useState } from "react";
 import { Link, Outlet, useLocation } from "react-router-dom";
 import { useLanguage } from "../../context/LanguageContext";
+import { useUser } from "../../context/UserContext";
+import { motion as Motion, AnimatePresence } from "framer-motion";
+import {
+  LayoutDashboard, MapPin, Store, Calendar, Star, Camera,
+  FileText, CalendarCheck, FileEdit, LogOut, Menu, X, PanelLeftClose, PanelLeft,
+} from "lucide-react";
+
+const NAV_ICONS = {
+  "/admin": LayoutDashboard,
+  "/admin/destinations": MapPin,
+  "/admin/businesses": Store,
+  "/admin/events": Calendar,
+  "/admin/reviews": Star,
+  "/admin/user-photos": Camera,
+  "/admin/pages": FileText,
+  "/admin/bookings": CalendarCheck,
+  "/admin/blog": FileEdit,
+};
 
 export default function AdminLayout() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [collapsed, setCollapsed] = useState(false);
   const location = useLocation();
   const { t } = useLanguage();
+  const { user, handleLogout } = useUser();
+
   const navItems = [
     { path: "/admin", label: t("admin.dashboard") },
-    { path: '/admin/destinations', label: t('admin.destinations') || 'Destinations' },
+    { path: "/admin/destinations", label: t("admin.destinations") },
     { path: "/admin/businesses", label: t("admin.businesses") },
     { path: "/admin/events", label: t("admin.events") },
     { path: "/admin/reviews", label: t("admin.reviews") },
     { path: "/admin/user-photos", label: t("admin.user_photos") },
     { path: "/admin/pages", label: "Pages" },
-    { path: "/admin/bookings", label: "Bookings" },
+    { path: "/admin/bookings", label: t("admin.bookings") },
     { path: "/admin/blog", label: "Blog" },
   ];
 
   return (
-    <div className="container-custom">
-      <div className="flex items-center justify-between mb-4 md:mb-6">
-        <h1 className="page-title mb-0">{t("admin.title")}</h1>
-        <button
-          onClick={() => setSidebarOpen(!sidebarOpen)}
-          className="md:hidden p-2 rounded-lg text-text-soft hover:text-text hover:bg-overlay transition"
-          aria-label="Toggle navigation"
+    <div className="h-screen overflow-hidden bg-neutral-light/50 dark:bg-neutral-mid/10">
+      {/* Mobile backdrop */}
+      <AnimatePresence>
+        {sidebarOpen && (
+          <Motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            onClick={() => setSidebarOpen(false)}
+            className="md:hidden fixed inset-0 bg-black/40 backdrop-blur-sm z-40"
+          />
+        )}
+      </AnimatePresence>
+
+      <div className="flex h-full">
+        {/* Sidebar - always visible on desktop */}
+        <aside
+          className={`
+            flex-shrink-0 h-full bg-white dark:bg-neutral-dark border-r border-border
+            flex flex-col
+            transition-all duration-300 ease-in-out
+            fixed md:relative z-50
+            top-0 left-0
+            ${sidebarOpen ? "translate-x-0" : "-translate-x-full"}
+            md:translate-x-0
+            ${collapsed ? "w-[72px]" : "w-64"}
+          `}
         >
-          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            {sidebarOpen ? (
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
-            ) : (
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 6h16M4 12h16M4 18h16" />
-            )}
-          </svg>
-        </button>
-      </div>
-      <div className="flex flex-col md:flex-row gap-6">
-        <aside className={`md:w-64 md:block ${sidebarOpen ? 'block' : 'hidden'}`}>
-          <nav className="bg-white dark:bg-neutral-dark rounded-xl shadow-sm border border-border p-2 space-y-1">
-            {navItems.map((item) => (
-              <Link
-                key={item.path}
-                to={item.path}
-                onClick={() => setSidebarOpen(false)}
-                className={`block px-4 py-2.5 rounded-lg transition text-sm ${location.pathname === item.path ? "bg-primary text-white font-medium" : "text-text hover:bg-overlay"}`}
+          {/* Header */}
+          <div className="flex items-center h-14 px-4 border-b border-border shrink-0">
+            <div className="flex-1 flex items-center">
+              <span
+                className={`text-sm font-semibold text-text tracking-wide uppercase whitespace-nowrap ${
+                  collapsed ? "md:hidden" : ""
+                }`}
               >
-                {item.label}
-              </Link>
-            ))}
+                Pages
+              </span>
+              {collapsed && (
+                <span className="hidden md:flex text-sm font-semibold text-text tracking-wide uppercase mx-auto">
+                  P
+                </span>
+              )}
+            </div>
+            <button
+              onClick={() => { setSidebarOpen(false); setCollapsed(false); }}
+              className="md:hidden p-1.5 rounded-lg text-text-soft hover:text-text hover:bg-overlay transition"
+            >
+              <X size={18} />
+            </button>
+            <button
+              onClick={() => setCollapsed(!collapsed)}
+              className="hidden md:flex p-1.5 rounded-lg text-text-soft hover:text-text hover:bg-overlay transition"
+              title={collapsed ? "Expand sidebar" : "Collapse sidebar"}
+            >
+              {collapsed ? <PanelLeft size={18} /> : <PanelLeftClose size={18} />}
+            </button>
+          </div>
+
+          {/* User info */}
+          {user && (
+            <div
+              className={`flex items-center gap-3 px-3 py-2.5 mx-2 mt-3 mb-2 border-b border-border ${
+                collapsed ? "md:justify-center" : ""
+              }`}
+            >
+              <div className="w-8 h-8 rounded-full bg-gradient-to-br from-primary to-primary-light text-white text-xs font-bold flex items-center justify-center shrink-0">
+                {(user.email || "A")[0].toUpperCase()}
+              </div>
+              <div
+                className={`overflow-hidden whitespace-nowrap ${
+                  collapsed ? "md:hidden" : ""
+                }`}
+              >
+                <p className="text-xs font-medium text-text truncate max-w-[140px] leading-tight">
+                  {user.email}
+                </p>
+                <p className="text-[10px] text-text-soft leading-tight">
+                  {t("admin.title")}
+                </p>
+              </div>
+            </div>
+          )}
+
+          {/* Nav items */}
+          <nav className="flex-1 overflow-y-auto px-2 py-1 space-y-0.5 scrollbar-thin">
+            {navItems.map((item) => {
+              const Icon = NAV_ICONS[item.path] || LayoutDashboard;
+              const isActive = location.pathname === item.path;
+              return (
+                <Link
+                  key={item.path}
+                  to={item.path}
+                  onClick={() => setSidebarOpen(false)}
+                  className={`relative flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all text-sm group ${
+                    collapsed ? "md:justify-center" : ""
+                  } ${
+                    isActive
+                      ? "text-primary bg-primary/8 font-medium"
+                      : "text-text hover:bg-overlay"
+                  }`}
+                  title={collapsed ? item.label : undefined}
+                >
+                  {isActive && (
+                    <Motion.span
+                      layoutId="activeTab"
+                      className="absolute left-0 inset-y-2 w-0.5 bg-primary rounded-r-full"
+                      transition={{ type: "spring", stiffness: 400, damping: 30 }}
+                    />
+                  )}
+                  <Icon
+                    size={18}
+                    strokeWidth={isActive ? 2.5 : 1.5}
+                    className="shrink-0"
+                  />
+                  <span
+                    className={`text-sm whitespace-nowrap ${
+                      collapsed ? "md:hidden" : ""
+                    }`}
+                  >
+                    {item.label}
+                  </span>
+                </Link>
+              );
+            })}
           </nav>
+
+          {/* Logout */}
+          <div
+            className={`px-2 py-3 border-t border-border ${
+              collapsed ? "md:flex md:justify-center" : ""
+            }`}
+          >
+            <button
+              onClick={handleLogout}
+              className={`flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm text-text-soft hover:text-error hover:bg-error/5 transition w-full ${
+                collapsed ? "md:justify-center" : ""
+              }`}
+              title={collapsed ? t("admin.logout") : undefined}
+            >
+              <LogOut size={18} className="shrink-0" />
+              <span className={collapsed ? "md:hidden" : ""}>
+                {t("admin.logout")}
+              </span>
+            </button>
+          </div>
         </aside>
-        <main className="flex-1 bg-white dark:bg-neutral-dark rounded-xl shadow-sm border border-border p-4 md:p-6">
-          <Outlet />
-        </main>
+
+        {/* Main content */}
+        <div className="flex-1 min-w-0 h-full overflow-y-auto">
+          {/* Mobile top bar */}
+          <div className="md:hidden sticky top-0 z-30 h-12 bg-white/80 dark:bg-neutral-dark/80 backdrop-blur-md border-b border-border flex items-center px-4">
+            <button
+              onClick={() => setSidebarOpen(true)}
+              className="p-1.5 rounded-lg text-text-soft hover:text-text hover:bg-overlay transition"
+              aria-label="Open navigation"
+            >
+              <Menu size={20} />
+            </button>
+            <span className="ml-auto text-sm font-semibold text-text">Admin</span>
+          </div>
+
+          <main className="p-4 md:p-6 lg:p-8 max-w-7xl mx-auto">
+            <Outlet />
+          </main>
+        </div>
       </div>
     </div>
   );

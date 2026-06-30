@@ -1,10 +1,14 @@
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useRef } from 'react';
 import { useLanguage } from '../../context/LanguageContext';
+import { motion } from 'framer-motion';
 import Button from '../ui/Button';
+import { Search, Download, Trash2, CheckSquare, XSquare, ChevronDown, ChevronUp } from 'lucide-react';
 
 function SortIcon({ direction }) {
-  if (!direction) return <span className="ml-1 opacity-30">↕</span>;
-  return <span className="ml-1">{direction === 'asc' ? '↑' : '↓'}</span>;
+  if (!direction) return <ChevronDown size={14} className="opacity-30 ml-1" />;
+  return direction === 'asc'
+    ? <ChevronUp size={14} className="ml-1 text-primary" />
+    : <ChevronDown size={14} className="ml-1 text-primary" />;
 }
 
 export default function DataTable({
@@ -14,10 +18,15 @@ export default function DataTable({
   onAdd,
   onEdit,
   onDelete,
+  onBulkDelete,
   addButtonLabel = null,
   emptyMessage = null,
   searchable = true,
   searchPlaceholder = null,
+  exportable = true,
+  selectable = false,
+  extraActions = null,
+  renderActions = null,
 }) {
   const { t } = useLanguage();
   const [searchTerm, setSearchTerm] = useState('');
@@ -25,6 +34,8 @@ export default function DataTable({
   const [perPage, setPerPage] = useState(10);
   const [sortKey, setSortKey] = useState(null);
   const [sortDir, setSortDir] = useState(null);
+  const [selected, setSelected] = useState(new Set());
+  const tableRef = useRef(null);
 
   const finalAddLabel = addButtonLabel || t('admin.add');
   const finalEmptyMessage = emptyMessage || t('admin.empty');
@@ -32,9 +43,9 @@ export default function DataTable({
 
   const handleSort = (key) => {
     if (sortKey === key) {
-      if (sortDir === 'asc') { setSortDir('desc'); }
+      if (sortDir === 'asc') setSortDir('desc');
       else if (sortDir === 'desc') { setSortKey(null); setSortDir(null); }
-      else { setSortDir('asc'); }
+      else setSortDir('asc');
     } else {
       setSortKey(key);
       setSortDir('asc');
@@ -44,7 +55,6 @@ export default function DataTable({
 
   const processed = useMemo(() => {
     let items = [...data];
-
     if (searchable && searchTerm) {
       const term = searchTerm.toLowerCase();
       items = items.filter((item) =>
@@ -55,25 +65,49 @@ export default function DataTable({
           .includes(term)
       );
     }
-
     if (sortKey) {
       items.sort((a, b) => {
         const aVal = a[sortKey];
         const bVal = b[sortKey];
         if (aVal == null) return 1;
         if (bVal == null) return -1;
-        if (typeof aVal === 'string') {
-          return sortDir === 'asc' ? aVal.localeCompare(bVal) : bVal.localeCompare(aVal);
-        }
+        if (typeof aVal === 'string') return sortDir === 'asc' ? aVal.localeCompare(bVal) : bVal.localeCompare(aVal);
         return sortDir === 'asc' ? aVal - bVal : bVal - aVal;
       });
     }
-
     return items;
   }, [data, searchTerm, sortKey, sortDir, searchable]);
 
   const totalPages = Math.ceil(processed.length / perPage);
   const paginated = processed.slice((currentPage - 1) * perPage, currentPage * perPage);
+
+  const allSelected = data.length > 0 && selected.size === data.length;
+  const toggleAll = () => { setSelected(allSelected ? new Set() : new Set(data.map(d => d.id))); };
+  const toggleOne = (id) => {
+    setSelected(prev => {
+      const next = new Set(prev);
+      next.has(id) ? next.delete(id) : next.add(id);
+      return next;
+    });
+  };
+
+  const exportCSV = () => {
+    const headers = columns.map(c => c.label);
+    const rows = processed.map(item =>
+      columns.map(c => {
+        const val = item[c.key];
+        return typeof val === 'string' && val.includes(',') ? `"${val}"` : val ?? '';
+      })
+    );
+    const csv = [headers.join(','), ...rows.map(r => r.join(','))].join('\n');
+    const blob = new Blob(['\uFEFF' + csv], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `${title.replace(/\s+/g, '_').toLowerCase()}_export.csv`;
+    a.click();
+    URL.revokeObjectURL(url);
+  };
 
   const pageNumbers = useMemo(() => {
     const pages = [];
@@ -95,7 +129,23 @@ export default function DataTable({
   }, [totalPages, currentPage]);
 
   const renderMobileCard = (item, idx) => (
-    <div key={item.id || idx} className="bg-white dark:bg-neutral-dark rounded-xl border border-border p-4 space-y-2">
+    <motion.div
+      key={item.id || idx}
+      initial={{ opacity: 0, y: 8 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ delay: idx * 0.03 }}
+      className="bg-white dark:bg-neutral-dark rounded-xl border border-border p-4 space-y-2 relative"
+    >
+      {selectable && (
+        <div className="absolute top-3 right-3">
+          <input
+            type="checkbox"
+            checked={selected.has(item.id)}
+            onChange={() => toggleOne(item.id)}
+            className="w-4 h-4 rounded border-border text-primary focus:ring-primary/30"
+          />
+        </div>
+      )}
       {columns.map((col) => (
         <div key={col.key} className="flex justify-between items-start gap-2">
           <span className="text-xs font-semibold text-text-soft uppercase shrink-0 w-24">{col.label}</span>
@@ -105,51 +155,107 @@ export default function DataTable({
         </div>
       ))}
       <div className="flex justify-end gap-2 pt-2 border-t border-border">
-        <Button variant="ghost" size="sm" onClick={() => onEdit(item)}>{t('admin.edit')}</Button>
-        <Button variant="ghost" size="sm" onClick={() => onDelete(item.id)} className="text-red-600 dark:text-red-400">{t('admin.delete')}</Button>
+        {renderActions ? renderActions(item) : (
+          <>
+            {onEdit && <Button variant="ghost" size="sm" onClick={() => onEdit(item)}>{t('admin.edit')}</Button>}
+            {onDelete && (
+              <Button variant="ghost" size="sm" onClick={() => onDelete(item.id)} className="text-error hover:text-error">
+                {t('admin.delete')}
+              </Button>
+            )}
+          </>
+        )}
       </div>
-    </div>
+    </motion.div>
   );
 
   return (
     <div>
-      {/* Header */}
-      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 gap-4">
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-4 gap-3">
         <div className="flex items-center gap-3">
           <h2 className="text-2xl font-bold">{title}</h2>
           {searchable && searchTerm && (
             <span className="text-sm text-text-soft bg-neutral-light dark:bg-neutral-dark px-2 py-0.5 rounded-full">
-              {processed.length} {t('common.results_of') || 'of'} {data.length}
+              {processed.length} / {data.length}
             </span>
           )}
         </div>
-        <div className="flex gap-3 w-full sm:w-auto">
-          {searchable && (
-            <input
-              type="text"
-              placeholder={finalSearchPlaceholder}
-              value={searchTerm}
-              onChange={(e) => {
-                setSearchTerm(e.target.value);
-                setCurrentPage(1);
-              }}
-              className="px-3 py-2 border border-neutral-mid rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/50 flex-1 sm:flex-none w-full sm:w-64"
-            />
+
+        <div className="flex flex-wrap items-center gap-2 w-full sm:w-auto">
+          {selectable && selected.size > 0 && (
+            <div className="flex items-center gap-2 mr-2">
+              <span className="text-sm text-text-soft">{selected.size} selected</span>
+              {onBulkDelete && (
+                <Button
+                  variant="danger"
+                  size="sm"
+                  onClick={() => { onBulkDelete(Array.from(selected)); setSelected(new Set()); }}
+                >
+                  <Trash2 size={14} />
+                  {t('admin.bulk_delete')}
+                </Button>
+              )}
+            </div>
           )}
-          <Button onClick={onAdd} variant="primary" size="md">{finalAddLabel}</Button>
+          {searchable && (
+            <div className="relative flex-1 sm:flex-none min-w-[160px]">
+              <Search size={15} className="absolute left-3 top-1/2 -translate-y-1/2 text-text-soft" />
+              <input
+                type="text"
+                placeholder={finalSearchPlaceholder}
+                value={searchTerm}
+                onChange={(e) => { setSearchTerm(e.target.value); setCurrentPage(1); }}
+                className="w-full pl-9 pr-3 py-2 border border-border rounded-xl focus:outline-none focus:ring-2 focus:ring-primary/30 bg-transparent text-sm"
+              />
+            </div>
+          )}
+          {exportable && data.length > 0 && (
+            <Button variant="ghost" size="sm" onClick={exportCSV}>
+              <Download size={14} />
+              {t('admin.export_csv')}
+            </Button>
+          )}
+          {onAdd && <Button onClick={onAdd} variant="primary" size="md">{finalAddLabel}</Button>}
+          {extraActions}
         </div>
       </div>
 
-      {/* Desktop table */}
-      <div className="hidden sm:block overflow-x-auto">
-        <table className="min-w-full bg-white dark:bg-neutral-dark rounded-xl border border-border">
-          <thead className="bg-neutral-light dark:bg-neutral-dark/50">
+      {selectable && (
+        <div className="flex items-center justify-between mb-3 py-1.5 px-3 bg-neutral-light/50 dark:bg-neutral-mid/20 rounded-xl border border-border text-sm">
+          <button
+            onClick={toggleAll}
+            className="flex items-center gap-1.5 text-text-soft hover:text-text transition"
+          >
+            {allSelected ? <XSquare size={15} /> : <CheckSquare size={15} />}
+            {allSelected ? t('common.clear') : t('admin.select_all')}
+          </button>
+          <span className="text-text-soft text-xs">
+            {selected.size} / {data.length} {t('common.results_of')?.toLowerCase() || 'selected'}
+          </span>
+        </div>
+      )}
+
+      <div className="hidden sm:block overflow-x-auto rounded-xl border border-border">
+        <table ref={tableRef} className="min-w-full bg-white dark:bg-neutral-dark">
+          <thead className="bg-neutral-light dark:bg-neutral-mid/20">
             <tr>
+              {selectable && (
+                <th className="px-4 py-3 w-10">
+                  <input
+                    type="checkbox"
+                    checked={allSelected}
+                    onChange={toggleAll}
+                    className="w-4 h-4 rounded border-border text-primary focus:ring-primary/30"
+                  />
+                </th>
+              )}
               {columns.map((col) => (
                 <th
                   key={col.key}
                   onClick={() => handleSort(col.key)}
-                  className={`px-4 py-3 text-left text-sm font-semibold cursor-pointer select-none hover:bg-overlay/50 transition ${sortKey === col.key ? 'text-primary' : 'text-text'}`}
+                  className={`px-4 py-3 text-left text-sm font-semibold cursor-pointer select-none hover:bg-overlay/50 transition ${
+                    sortKey === col.key ? 'text-primary' : 'text-text'
+                  }`}
                 >
                   <span className="inline-flex items-center">
                     {col.label}
@@ -163,37 +269,77 @@ export default function DataTable({
           <tbody>
             {paginated.length === 0 ? (
               <tr>
-                <td colSpan={columns.length + 1} className="text-center py-12 text-text-soft">{finalEmptyMessage}</td>
+                <td colSpan={columns.length + 1 + (selectable ? 1 : 0)} className="text-center py-16 text-text-soft">
+                  <div className="flex flex-col items-center gap-2">
+                    <div className="w-12 h-12 rounded-full bg-neutral-light dark:bg-neutral-mid/30 flex items-center justify-center">
+                      <Search size={20} className="text-text-soft" />
+                    </div>
+                    <p>{finalEmptyMessage}</p>
+                  </div>
+                </td>
               </tr>
             ) : (
               paginated.map((item, idx) => (
-                <tr key={item.id || idx} className="border-t border-border hover:bg-overlay/30 transition">
+                <motion.tr
+                  key={item.id || idx}
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  transition={{ delay: idx * 0.02 }}
+                  className={`border-t border-border transition ${
+                    selectable && selected.has(item.id)
+                      ? 'bg-primary/5 hover:bg-primary/10'
+                      : 'hover:bg-overlay/30'
+                  }`}
+                >
+                  {selectable && (
+                    <td className="px-4 py-3">
+                      <input
+                        type="checkbox"
+                        checked={selected.has(item.id)}
+                        onChange={() => toggleOne(item.id)}
+                        className="w-4 h-4 rounded border-border text-primary focus:ring-primary/30"
+                      />
+                    </td>
+                  )}
                   {columns.map((col) => (
                     <td key={col.key} className="px-4 py-3 text-sm text-text">
                       {col.render ? col.render(item[col.key], item) : item[col.key] ?? '—'}
                     </td>
                   ))}
                   <td className="px-4 py-3 whitespace-nowrap">
-                    <Button variant="ghost" size="sm" onClick={() => onEdit(item)} className="mr-2">{t('admin.edit')}</Button>
-                    <Button variant="ghost" size="sm" onClick={() => onDelete(item.id)} className="text-red-600 dark:text-red-400">{t('admin.delete')}</Button>
+                    <div className="flex items-center gap-1">
+                      {renderActions ? renderActions(item) : (
+                        <>
+                          {onEdit && <Button variant="ghost" size="sm" onClick={() => onEdit(item)}>{t('admin.edit')}</Button>}
+                          {onDelete && (
+                            <Button variant="ghost" size="sm" onClick={() => onDelete(item.id)} className="text-error hover:text-error">
+                              {t('admin.delete')}
+                            </Button>
+                          )}
+                        </>
+                      )}
+                    </div>
                   </td>
-                </tr>
+                </motion.tr>
               ))
             )}
           </tbody>
         </table>
       </div>
 
-      {/* Mobile cards */}
-      <div className="sm:hidden space-y-3">
+      <div className="sm:hidden space-y-3 mt-4">
         {paginated.length === 0 ? (
-          <p className="text-center py-12 text-text-soft">{finalEmptyMessage}</p>
+          <div className="flex flex-col items-center gap-2 py-16 text-text-soft">
+            <div className="w-12 h-12 rounded-full bg-neutral-light dark:bg-neutral-mid/30 flex items-center justify-center">
+              <Search size={20} className="text-text-soft" />
+            </div>
+            <p>{finalEmptyMessage}</p>
+          </div>
         ) : (
           paginated.map((item, idx) => renderMobileCard(item, idx))
         )}
       </div>
 
-      {/* Pagination */}
       {totalPages > 1 && (
         <div className="flex flex-col sm:flex-row justify-between items-center gap-4 mt-6">
           <div className="flex items-center gap-2 text-sm text-text-soft">
@@ -201,7 +347,7 @@ export default function DataTable({
             <select
               value={perPage}
               onChange={(e) => { setPerPage(Number(e.target.value)); setCurrentPage(1); }}
-              className="border border-border rounded px-2 py-1 text-sm bg-white dark:bg-neutral-dark"
+              className="border border-border rounded-lg px-2 py-1.5 text-sm bg-transparent focus:ring-2 focus:ring-primary/30"
             >
               {[10, 25, 50].map((n) => (
                 <option key={n} value={n}>{n}</option>
@@ -213,7 +359,7 @@ export default function DataTable({
             <button
               onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
               disabled={currentPage === 1}
-              className="px-3 py-1.5 border border-border rounded text-sm disabled:opacity-40 hover:bg-overlay transition"
+              className="px-3 py-1.5 border border-border rounded-lg text-sm disabled:opacity-40 hover:bg-overlay transition"
             >
               {t('pagination.previous')}
             </button>
@@ -224,7 +370,11 @@ export default function DataTable({
                 <button
                   key={page}
                   onClick={() => setCurrentPage(page)}
-                  className={`w-8 h-8 rounded text-sm font-medium transition ${currentPage === page ? 'bg-primary text-white' : 'text-text hover:bg-overlay border border-border'}`}
+                  className={`w-8 h-8 rounded-lg text-sm font-medium transition ${
+                    currentPage === page
+                      ? 'bg-primary text-white shadow-soft'
+                      : 'text-text hover:bg-overlay border border-border'
+                  }`}
                 >
                   {page}
                 </button>
@@ -233,7 +383,7 @@ export default function DataTable({
             <button
               onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
               disabled={currentPage === totalPages}
-              className="px-3 py-1.5 border border-border rounded text-sm disabled:opacity-40 hover:bg-overlay transition"
+              className="px-3 py-1.5 border border-border rounded-lg text-sm disabled:opacity-40 hover:bg-overlay transition"
             >
               {t('pagination.next')}
             </button>

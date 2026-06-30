@@ -1,29 +1,40 @@
 import { useEffect, useState } from 'react';
 import { supabase } from '../../supabaseClient';
 import { useLanguage } from '../../context/LanguageContext';
-import { SkeletonListItem } from '../../components/ui/Skeleton';
+import { SkeletonTable } from '../../components/ui/Skeleton';
+import DataTable from '../../components/admin/DataTable';
+import ConfirmDialog from '../../components/ConfirmDialog';
 import Button from '../../components/ui/Button';
 import { Helmet } from 'react-helmet-async';
+
+const STATUS_COLORS = {
+  pending: 'bg-warning/10 text-warning border-warning/20',
+  confirmed: 'bg-success/10 text-success border-success/20',
+  rejected: 'bg-error/10 text-error border-error/20',
+};
 
 export default function AdminBookings() {
   const { t, language } = useLanguage();
   const [bookings, setBookings] = useState([]);
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState('all');
+  const [deleteTarget, setDeleteTarget] = useState(null);
 
   useEffect(() => {
-    fetchBookings();
+    let cancelled = false;
+    const fetchData = async () => {
+      const { data, error } = await supabase
+        .from('bookings')
+        .select('*, businesses:business_id(name, name_my)')
+        .order('created_at', { ascending: false });
+      if (!cancelled) {
+        if (!error) setBookings(data || []);
+        setLoading(false);
+      }
+    };
+    fetchData();
+    return () => { cancelled = true; };
   }, []);
-
-  const fetchBookings = async () => {
-    setLoading(true);
-    const { data, error } = await supabase
-      .from('bookings')
-      .select('*, businesses:business_id(name, name_my)')
-      .order('created_at', { ascending: false });
-    if (!error) setBookings(data || []);
-    setLoading(false);
-  };
 
   const handleStatus = async (id, status) => {
     const { error } = await supabase.from('bookings').update({ status }).eq('id', id);
@@ -33,13 +44,74 @@ export default function AdminBookings() {
   };
 
   const handleDelete = async (id) => {
-    const { error } = await supabase.from('bookings').delete().eq('id', id);
-    if (!error) setBookings(prev => prev.filter(b => b.id !== id));
+    setDeleteTarget(id);
+  };
+
+  const confirmDelete = async () => {
+    if (!deleteTarget) return;
+    await supabase.from('bookings').delete().eq('id', deleteTarget);
+    setDeleteTarget(null);
+    setBookings(prev => prev.filter(b => b.id !== deleteTarget));
   };
 
   const filtered = filter === 'all' ? bookings : bookings.filter(b => b.status === filter);
 
-  if (loading) return <div className="container-custom pt-8"><SkeletonListItem count={5} /></div>;
+  const columns = [
+    {
+      key: 'name',
+      label: 'Name',
+      render: (val) => <span className="font-medium">{val}</span>,
+    },
+    { key: 'email', label: 'Email' },
+    { key: 'phone', label: 'Phone' },
+    {
+      key: 'business_id',
+      label: 'Business',
+      render: (_, item) => {
+        const name = language === 'my' && item.businesses?.name_my ? item.businesses.name_my : item.businesses?.name;
+        return name || '—';
+      },
+    },
+    {
+      key: 'check_in',
+      label: 'Date',
+      render: (val) => val ? new Date(val).toLocaleDateString() : '—',
+    },
+    {
+      key: 'status',
+      label: 'Status',
+      render: (val) => (
+        <span className={`px-2.5 py-0.5 rounded-full text-xs font-medium border ${STATUS_COLORS[val] || STATUS_COLORS.pending}`}>
+          {val || 'pending'}
+        </span>
+      ),
+    },
+    {
+      key: 'created_at',
+      label: 'Submitted',
+      render: (val) => val ? new Date(val).toLocaleDateString() : '—',
+    },
+  ];
+
+  const filterTabs = (
+    <div className="flex gap-1.5 mb-4 p-1 bg-neutral-light dark:bg-neutral-mid/20 rounded-xl border border-border w-fit">
+      {['all', 'pending', 'confirmed', 'rejected'].map(f => (
+        <button
+          key={f}
+          onClick={() => setFilter(f)}
+          className={`px-4 py-1.5 rounded-lg text-sm font-medium transition-all ${
+            filter === f
+              ? 'bg-primary text-white shadow-soft'
+              : 'text-text-soft hover:text-text hover:bg-white/50 dark:hover:bg-neutral-mid/30'
+          }`}
+        >
+          {f.charAt(0).toUpperCase() + f.slice(1)}
+        </button>
+      ))}
+    </div>
+  );
+
+  if (loading) return <div><SkeletonTable rows={5} /></div>;
 
   return (
     <div>
@@ -50,54 +122,40 @@ export default function AdminBookings() {
         <meta property="og:description" content="Manage booking inquiries on Hpa-An Travel." />
         <meta property="og:type" content="website" />
       </Helmet>
-      <h1 className="text-2xl font-serif font-bold mb-4">Booking Inquiries</h1>
-      <div className="flex gap-2 mb-6">
-        {['all', 'pending', 'confirmed', 'rejected'].map(f => (
-          <button key={f} onClick={() => setFilter(f)}
-            className={`px-4 py-1.5 rounded-full text-sm font-medium transition ${filter === f ? 'bg-primary text-white' : 'bg-neutral-mid text-text-soft hover:bg-neutral-mid/70'}`}
-          >
-            {f.charAt(0).toUpperCase() + f.slice(1)}
-          </button>
-        ))}
-      </div>
-      {filtered.length === 0 ? (
-        <p className="text-text-soft">No bookings found.</p>
-      ) : (
-        <div className="space-y-4">
-          {filtered.map(booking => (
-            <div key={booking.id} className="bg-white rounded-xl border border-border p-4">
-              <div className="flex items-start justify-between mb-2">
-                <div>
-                  <h3 className="font-semibold text-text">{booking.name}</h3>
-                  <p className="text-sm text-text-soft">{booking.email}{booking.phone ? ` · ${booking.phone}` : ''}</p>
-                </div>
-                <span className={`px-2 py-0.5 rounded-full text-xs font-medium ${
-                  booking.status === 'confirmed' ? 'bg-success/10 text-success' :
-                  booking.status === 'rejected' ? 'bg-error/10 text-error' :
-                  'bg-warning/10 text-warning'
-                }`}>
-                  {booking.status || 'pending'}
-                </span>
-              </div>
-              <div className="text-sm text-text-soft space-y-1 mb-3">
-                <p><strong>Business:</strong> {language === 'my' && booking.businesses?.name_my ? booking.businesses.name_my : booking.businesses?.name}</p>
-                {booking.check_in && <p><strong>Date:</strong> {new Date(booking.check_in).toLocaleDateString()}</p>}
-                {booking.message && <p><strong>Notes:</strong> {booking.message}</p>}
-                <p className="text-xs"><strong>Submitted:</strong> {new Date(booking.created_at).toLocaleString()}</p>
-              </div>
-              <div className="flex gap-2">
-                {booking.status !== 'confirmed' && (
-                  <Button variant="primary" size="sm" onClick={() => handleStatus(booking.id, 'confirmed')}>Confirm</Button>
-                )}
-                {booking.status !== 'rejected' && (
-                  <Button variant="outline" size="sm" onClick={() => handleStatus(booking.id, 'rejected')}>Cancel</Button>
-                )}
-                <Button variant="outline" size="sm" className="text-error border-error/30 hover:bg-error/10" onClick={() => handleDelete(booking.id)}>Delete</Button>
-              </div>
-            </div>
-          ))}
-        </div>
-      )}
+
+      {filterTabs}
+
+      <DataTable
+        title="Booking Inquiries"
+        data={filtered}
+        columns={columns}
+        onDelete={handleDelete}
+        searchable={true}
+        searchPlaceholder="Search bookings..."
+        exportable={true}
+        selectable={true}
+        onBulkDelete={(ids) => {
+          ids.forEach(id => handleDelete(id));
+        }}
+        renderActions={(item) => (
+          <div className="flex gap-1">
+            {item.status !== 'confirmed' && (
+              <Button variant="success" size="sm" onClick={() => handleStatus(item.id, 'confirmed')}>Confirm</Button>
+            )}
+            {item.status !== 'rejected' && (
+              <Button variant="danger" size="sm" onClick={() => handleStatus(item.id, 'rejected')}>Cancel</Button>
+            )}
+            <Button variant="ghost" size="sm" onClick={() => handleDelete(item.id)} className="text-error hover:text-error">{t('admin.delete')}</Button>
+          </div>
+        )}
+      />
+
+      <ConfirmDialog
+        isOpen={!!deleteTarget}
+        onClose={() => setDeleteTarget(null)}
+        onConfirm={confirmDelete}
+        message={t('admin.confirm_delete')}
+      />
     </div>
   );
 }
