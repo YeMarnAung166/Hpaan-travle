@@ -13,7 +13,6 @@ import { pageTransition } from './utils/animations';
 import AuthModal from './components/AuthModal';
 import Header from './components/Header';
 import Footer from './components/Footer';
-import AdminButton from './components/AdminButton';
 import ScrollToTop from './components/ScrollToTop';
 import ProtectedRoute from './components/ProtectedRoute';
 import LoadingSpinner from './components/ui/LoadingSpinner';
@@ -142,7 +141,6 @@ const AppContent = React.memo(function AppContent({ showAuthModal, setShowAuthMo
         </main>
         {!isAdmin && <Footer />}
         {!isAdmin && <BottomNav />}
-        <AdminButton />
         <AuthModal isOpen={showAuthModal} onClose={() => setShowAuthModal(false)} />
       </div>
     </>

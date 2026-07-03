@@ -12,6 +12,8 @@ import StarRating from "../components/StarRating";
 import { SkeletonForm } from '../components/ui/Skeleton';
 import { Helmet } from 'react-helmet-async';
 import NotificationToggle from '../components/NotificationToggle';
+import { isUserAdmin } from '../utils/adminCheck';
+import { Shield } from 'lucide-react';
 
 export default function MyAccountPage() {
   const user = useUser();
@@ -186,6 +188,28 @@ export default function MyAccountPage() {
           </div>
         </div>
       </div>
+
+      {/* Admin Panel (only for admins) */}
+      {isUserAdmin(user) && (
+        <div className="bg-white rounded-xl shadow-md p-6 mb-8">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center">
+                <Shield className="w-5 h-5 text-primary" />
+              </div>
+              <div>
+                <h2 className="text-lg font-semibold">Admin Panel</h2>
+                <p className="text-sm text-text-soft">Manage destinations, events, businesses & more</p>
+              </div>
+            </div>
+            <Link to="/admin">
+              <Button variant="primary" size="sm">
+                Open Admin
+              </Button>
+            </Link>
+          </div>
+        </div>
+      )}
 
       {/* Stats */}
       <div className="flex flex-row justify-center gap-4 mb-8 flex-wrap sm:flex-nowrap">
