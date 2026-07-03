@@ -1,11 +1,26 @@
 /* global clients */
 
-import { precacheAndRoute } from 'workbox-precaching';
-import { StaleWhileRevalidate, CacheFirst } from 'workbox-strategies';
-import { registerRoute } from 'workbox-routing';
+import { precacheAndRoute, matchPrecache } from 'workbox-precaching';
+import { StaleWhileRevalidate, CacheFirst, NetworkOnly } from 'workbox-strategies';
+import { registerRoute, setCatchHandler } from 'workbox-routing';
 import { ExpirationPlugin } from 'workbox-expiration';
 
 precacheAndRoute(self.__WB_MANIFEST);
+
+// Navigation: network-first, fall back to precached index.html when offline
+registerRoute(
+  ({ request }) => request.mode === 'navigate',
+  new NetworkOnly()
+);
+
+setCatchHandler(({ event }) => {
+  if (event.request.mode === 'navigate') {
+    return matchPrecache('/index.html');
+  }
+
+  // For non-navigation requests, return a network error
+  return Response.error();
+});
 
 registerRoute(
   /^https:\/\/hqzodqvstvdemmqxphbv\.supabase\.co\/rest\/v1\/.*/i,
