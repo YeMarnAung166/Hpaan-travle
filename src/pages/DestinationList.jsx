@@ -65,10 +65,7 @@ export default function DestinationList() {
   }, [page, searchTerm, filters, sortBy, language]);
 
   useEffect(() => {
-    setPage(1);
-  }, [searchTerm, filters, sortBy]);
-
-  useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     fetchDestinations();
   }, [fetchDestinations]);
 

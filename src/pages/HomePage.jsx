@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
+// eslint-disable-next-line no-unused-vars
 import { motion, useScroll, useTransform } from 'framer-motion';
 import { Helmet } from 'react-helmet-async';
 import { supabase } from '../supabaseClient';
@@ -263,7 +264,8 @@ export default function HomePage() {
             </p>
           </motion.div>
           <motion.div variants={staggerContainer} className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-            {Object.entries(categoryConfig).map(([cat, { icon: Icon, labelKey }]) => (
+            {// eslint-disable-next-line no-unused-vars
+            Object.entries(categoryConfig).map(([cat, { icon: IconComponent, labelKey }]) => (
               <motion.div key={cat} variants={fadeInUp}>
                 <Link
                   to={`/business?category=${cat}`}
@@ -274,10 +276,10 @@ export default function HomePage() {
                       whileHover={{ rotate: [0, -5, 5, 0], scale: 1.1 }}
                       transition={{ duration: 0.4 }}
                     >
-                      <Icon className="w-12 h-12 mx-auto mb-3 text-primary" strokeWidth={1.5} />
+                      <IconComponent className="w-12 h-12 mx-auto mb-3 text-primary" strokeWidth={1.5} />
                     </motion.div>
                   )}
-                  {reduceMotion && <Icon className="w-12 h-12 mx-auto mb-3 text-primary transition-transform duration-300 group-hover:scale-110" strokeWidth={1.5} />}
+                  {reduceMotion && <IconComponent className="w-12 h-12 mx-auto mb-3 text-primary transition-transform duration-300 group-hover:scale-110" strokeWidth={1.5} />}
                   <h3 className="text-xl font-semibold text-text">{t(labelKey)}</h3>
                   <p className="text-text-soft text-sm mt-1">
                     {businessCounts[cat]} {t('home.listings') || 'listings'}

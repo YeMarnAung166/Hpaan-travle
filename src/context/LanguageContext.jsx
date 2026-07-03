@@ -1,3 +1,4 @@
+/* eslint-disable react-refresh/only-export-components */
 import { createContext, useContext, useState, useEffect } from 'react';
 import en from '../locales/en.json';
 import my from '../locales/my.json';
@@ -34,7 +35,7 @@ export const LanguageProvider = ({ children }) => {
   };
 
   // Helper function to get localized content from database items
-  const getLocalized = (item, fieldEn, fieldMy) => {
+  const getLocalized = (item, fieldEn) => {
     if (!item) return '';
     if (language === 'my' && item[`${fieldEn}_my`]) {
       return item[`${fieldEn}_my`];

@@ -21,8 +21,6 @@ export default function BusinessReviews({ businessId }) {
   const [averageRating, setAverageRating] = useState(0);
   const [totalReviews, setTotalReviews] = useState(0);
 
-  useEffect(() => { fetchReviews(); }, [businessId]);
-
   const fetchReviews = async () => {
     setLoading(true);
     const { data, error } = await supabase
@@ -51,6 +49,9 @@ export default function BusinessReviews({ businessId }) {
     }
     setLoading(false);
   };
+
+  // eslint-disable-next-line react-hooks/set-state-in-effect
+  useEffect(() => { fetchReviews(); }, [businessId]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();

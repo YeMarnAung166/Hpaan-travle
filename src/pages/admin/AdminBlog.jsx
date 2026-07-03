@@ -18,14 +18,15 @@ export default function AdminBlog() {
     content: '', content_my: '', image: '', author: '', published: false,
   });
 
-  useEffect(() => { fetchPosts(); }, []);
-
   const fetchPosts = async () => {
     const { data, error } = await supabase.from('blog_posts').select('*').order('created_at', { ascending: false });
     if (!error) setPosts(data || []);
     setLoading(false);
   };
-
+  useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    fetchPosts();
+  }, []);
   const resetForm = () => {
     setForm({ title: '', title_my: '', slug: '', excerpt: '', excerpt_my: '', content: '', content_my: '', image: '', author: '', published: false });
     setEditing(null);

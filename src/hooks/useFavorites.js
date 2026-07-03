@@ -18,19 +18,19 @@ export function useFavorites(userId) {
         });
         return true;
       }
-    } catch (_) {}
+    } catch { /* ignore cache miss */ }
     return false;
   }, []);
 
   useEffect(() => {
-    if (!userId) {
-      setFavorites({ businesses: new Set(), destinations: new Set() });
-      return;
-    }
-
-    if (loadFromCache(userId)) return;
-
     const fetchFavorites = async () => {
+      if (!userId) {
+        setFavorites({ businesses: new Set(), destinations: new Set() });
+        return;
+      }
+
+      if (loadFromCache(userId)) return;
+
       const { data, error } = await supabase
         .from('user_favorites')
         .select('item_type, item_id')

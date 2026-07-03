@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef, memo } from 'react';
 import { NavLink, Link, useLocation } from 'react-router-dom';
+// eslint-disable-next-line no-unused-vars
 import { motion, AnimatePresence } from 'framer-motion';
 import { useUser } from '../context/UserContext';
 import { useLanguage } from '../context/LanguageContext';
@@ -29,6 +30,8 @@ const Header = memo(function Header({ onLoginClick, onLogoutClick }) {
     if (user) refresh();
   }, [user, refresh]);
 
+  const closeMenu = () => setIsMenuOpen(false);
+
   useEffect(() => {
     if (!isMenuOpen) return;
     const handleKey = (e) => { if (e.key === 'Escape') closeMenu(); };
@@ -37,7 +40,6 @@ const Header = memo(function Header({ onLoginClick, onLogoutClick }) {
   }, [isMenuOpen]);
 
   const toggleMenu = () => setIsMenuOpen(!isMenuOpen);
-  const closeMenu = () => setIsMenuOpen(false);
 
   const isHomepage = location.pathname === '/';
   const isTransparent = isHomepage && !scrolled;
@@ -121,6 +123,7 @@ const Header = memo(function Header({ onLoginClick, onLogoutClick }) {
                     ? isTransparent ? 'bg-white/20 text-white' : 'bg-primary text-white'
                     : isTransparent ? 'text-white/60 hover:text-white' : 'text-text-soft hover:text-text'
                 }`}
+                aria-label="Switch to English"
               >
                 EN
               </button>
@@ -131,6 +134,7 @@ const Header = memo(function Header({ onLoginClick, onLogoutClick }) {
                     ? isTransparent ? 'bg-white/20 text-white' : 'bg-primary text-white'
                     : isTransparent ? 'text-white/60 hover:text-white' : 'text-text-soft hover:text-text'
                 }`}
+                aria-label="Switch to Myanmar"
               >
                 မြန်
               </button>
@@ -187,7 +191,7 @@ const Header = memo(function Header({ onLoginClick, onLogoutClick }) {
           </button>
         </div>
 
-        <nav className="hidden md:flex items-center justify-center gap-1 mt-2">
+        <nav className="hidden md:flex items-center justify-center gap-1 mt-2" aria-label="Main navigation">
           {navLinks.map(link => (
             <NavLink key={link.to} to={link.to} className={desktopLinkClass} end={link.to === '/'}>
               {({ isActive }) => (
@@ -240,6 +244,7 @@ const Header = memo(function Header({ onLoginClick, onLogoutClick }) {
                   <button
                     onClick={() => setTheme(theme === 'light' ? 'dark' : 'light')}
                     className="p-2 rounded-full bg-overlay text-text hover:bg-border transition"
+                    aria-label="Toggle theme"
                   >
                     {theme === 'light' ? (
                       <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" /></svg>
@@ -248,20 +253,22 @@ const Header = memo(function Header({ onLoginClick, onLogoutClick }) {
                     )}
                   </button>
                   <div className="flex gap-0.5 bg-overlay rounded-full p-0.5">
-                    <button
-                      onClick={() => setLanguage('en')}
-                      className={`px-2.5 py-1 text-xs font-medium rounded-full transition ${
-                        language === 'en' ? 'bg-primary text-white' : 'text-text-soft hover:text-text'
-                      }`}
-                    >
-                      EN
-                    </button>
-                    <button
-                      onClick={() => setLanguage('my')}
-                      className={`px-2.5 py-1 text-xs font-medium rounded-full transition ${
-                        language === 'my' ? 'bg-primary text-white' : 'text-text-soft hover:text-text'
-                      }`}
-                    >
+                  <button
+                    onClick={() => setLanguage('en')}
+                    className={`px-2.5 py-1 text-xs font-medium rounded-full transition ${
+                      language === 'en' ? 'bg-primary text-white' : 'text-text-soft hover:text-text'
+                    }`}
+                    aria-label="Switch to English"
+                  >
+                    EN
+                  </button>
+                  <button
+                    onClick={() => setLanguage('my')}
+                    className={`px-2.5 py-1 text-xs font-medium rounded-full transition ${
+                      language === 'my' ? 'bg-primary text-white' : 'text-text-soft hover:text-text'
+                    }`}
+                    aria-label="Switch to Myanmar"
+                  >
                       မြန်
                     </button>
                   </div>

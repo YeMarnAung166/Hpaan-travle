@@ -20,12 +20,11 @@ export default function Favorites() {
   const [bizPage, setBizPage] = useState(1);
 
   useEffect(() => {
-    if (!user) {
-      setLoading(false);
-      return;
-    }
-
     const fetchFavorites = async () => {
+      if (!user) {
+        setLoading(false);
+        return;
+      }
       const { data: favData } = await supabase
         .from('user_favorites')
         .select('item_type, item_id')

@@ -6,7 +6,7 @@ import { useLanguage } from '../context/LanguageContext';
 import { useToast } from '../context/ToastContext';
 import Button from './ui/Button';
 
-export default function AddToTripButton({ itemType, itemId, itemName }) {
+export default function AddToTripButton({ itemType, itemId }) {
   const user = useUser();
   const { t } = useLanguage();
   const { toast } = useToast();

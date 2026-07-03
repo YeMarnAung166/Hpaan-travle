@@ -1,4 +1,5 @@
-import { useEffect, useState, useRef } from 'react';
+/* global L */
+import { useEffect, useState } from 'react';
 import {
   MapContainer,
   TileLayer,
@@ -123,8 +124,11 @@ export default function MapPage() {
     if (startParam && endParam) {
       const [startLat, startLng] = startParam.split(',').map(Number);
       const [endLat, endLng] = endParam.split(',').map(Number);
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setRouteStart({ lat: startLat, lng: startLng });
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setRouteEnd({ lat: endLat, lng: endLng });
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setRoutingActive(true);
     }
   }, [searchParams]);
@@ -135,7 +139,9 @@ export default function MapPage() {
       try {
         const waypoints = JSON.parse(decodeURIComponent(waypointsParam));
         if (Array.isArray(waypoints) && waypoints.length >= 2) {
+          // eslint-disable-next-line react-hooks/set-state-in-effect
           setTripWaypoints(waypoints);
+          // eslint-disable-next-line react-hooks/set-state-in-effect
           setTripRouteLoading(true);
           const coordinates = waypoints.map(p => `${p.lng},${p.lat}`).join(';');
           const url = `https://router.project-osrm.org/route/v1/driving/${coordinates}?overview=full&geometries=geojson`;

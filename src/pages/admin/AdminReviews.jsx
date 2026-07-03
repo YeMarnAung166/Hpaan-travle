@@ -1,6 +1,5 @@
 import { useEffect, useState } from 'react';
 import { supabase } from '../../supabaseClient';
-import { useLanguage } from '../../context/LanguageContext';
 import { useToast } from '../../context/ToastContext';
 import ConfirmDialog from '../../components/ConfirmDialog';
 import { SkeletonTable } from '../../components/ui/Skeleton';
@@ -12,12 +11,7 @@ export default function AdminReviews() {
   const [tab, setTab] = useState('business');
   const [selected, setSelected] = useState(new Set());
   const [confirmDelete, setConfirmDelete] = useState(null);
-  const { t } = useLanguage();
   const { toast } = useToast();
-
-  useEffect(() => {
-    fetchReviews();
-  }, [tab]);
 
   const fetchReviews = async () => {
     setLoading(true);
@@ -36,6 +30,11 @@ export default function AdminReviews() {
     }
     setLoading(false);
   };
+
+  useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    fetchReviews();
+  }, [tab]);
 
   const toggleSelect = (id) => {
     setSelected(prev => {

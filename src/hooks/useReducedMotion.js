@@ -5,12 +5,12 @@ export function useReducedMotion() {
 
   useEffect(() => {
     const mediaQuery = window.matchMedia('(prefers-reduced-motion: reduce)');
-    setShouldReduceMotion(mediaQuery.matches);
 
     const handler = (event) => {
       setShouldReduceMotion(event.matches);
     };
 
+    handler(mediaQuery);
     mediaQuery.addEventListener('change', handler);
     return () => mediaQuery.removeEventListener('change', handler);
   }, []);

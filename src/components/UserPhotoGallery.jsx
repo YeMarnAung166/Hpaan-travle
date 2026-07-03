@@ -12,10 +12,6 @@ export default function UserPhotoGallery({ businessId, itineraryId, destinationI
   const user = useUser();
   const { language } = useLanguage();
 
-  useEffect(() => {
-    fetchPhotos();
-  }, [businessId, itineraryId, destinationId]);
-
   const fetchPhotos = async () => {
     setLoading(true);
     let query = supabase
@@ -57,6 +53,11 @@ export default function UserPhotoGallery({ businessId, itineraryId, destinationI
     }
     setLoading(false);
   };
+
+  useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    fetchPhotos();
+  }, [businessId, itineraryId, destinationId]);
 
   const handleDelete = async (photoId) => {
     if (!confirm('Delete this photo?')) return;

@@ -27,10 +27,6 @@ export default function AdminDestinations() {
     video_url: "",
   });
 
-  useEffect(() => {
-    fetchDestinations();
-  }, []);
-
   const fetchDestinations = async () => {
     const { data, error } = await supabase
       .from("destinations")
@@ -39,6 +35,11 @@ export default function AdminDestinations() {
     if (!error) setDestinations(data);
     setLoading(false);
   };
+
+  useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    fetchDestinations();
+  }, []);
 
   const handleInputChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });

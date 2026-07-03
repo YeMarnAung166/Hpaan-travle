@@ -1,6 +1,5 @@
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { motion } from 'framer-motion';
 import { supabase } from '../supabaseClient';
 import { useLanguage } from '../context/LanguageContext';
 import { useScrollReveal } from '../hooks/useScrollReveal';
@@ -47,7 +46,7 @@ export default function BlogPreview() {
           </p>
         </motion.div>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-5xl mx-auto">
-          {posts.map((post, i) => (
+          {posts.map((post) => (
             <motion.div key={post.id} variants={fadeInUp}>
               <Link to={`/blog/${post.slug}`} className="group block bg-white rounded-xl overflow-hidden shadow-md hover:shadow-xl transition-all duration-300">
                 <div className="relative h-44 overflow-hidden">

@@ -33,7 +33,7 @@ export default function WeatherWidget() {
           setLoading(false);
           return;
         }
-      } catch (_) {}
+      } catch { /* ignore parse error */ }
     }
 
     const fetchWeather = async () => {
@@ -99,15 +99,6 @@ export default function WeatherWidget() {
 
   // Helper to get weather icon URL
   const getIconUrl = (icon) => `https://openweathermap.org/img/wn/${icon}@2x.png`;
-
-  // Format date
-  const formatDate = (timestamp, isDay = false) => {
-    const date = new Date(timestamp * 1000);
-    if (isDay) {
-      return date.toLocaleDateString(language === 'my' ? 'my' : 'en', { weekday: 'short', day: 'numeric' });
-    }
-    return date.toLocaleTimeString(language === 'my' ? 'my' : 'en', { hour: '2-digit', minute: '2-digit' });
-  };
 
   const dayName = (dateStr) => {
     const date = new Date(dateStr);

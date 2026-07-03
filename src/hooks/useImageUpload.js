@@ -21,7 +21,7 @@ export function useImageUpload(bucket = 'images') {
     }
   };
 
-  const upload = async (file, folderPath, onProgress) => {
+  const upload = async (file, folderPath) => {
     if (!file) return null;
     setUploading(true);
     setError(null);
@@ -39,7 +39,7 @@ export function useImageUpload(bucket = 'images') {
       // 3. Upload to Supabase Storage (with manual progress simulation if needed)
       //    Supabase JS client does not expose upload progress, but we can simulate
       //    or you can use a custom fetch with XHR. For simplicity, we'll just show an indeterminate spinner.
-      const { data, error: uploadError } = await supabase.storage
+      const { error: uploadError } = await supabase.storage
         .from(bucket)
         .upload(fullPath, compressedFile, {
           cacheControl: '3600',

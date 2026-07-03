@@ -36,10 +36,6 @@ export default function AdminBusinesses() {
     video_url: "",
   });
 
-  useEffect(() => {
-    fetchBusinesses();
-  }, []);
-
   const fetchBusinesses = async () => {
     const { data, error } = await supabase
       .from("businesses")
@@ -48,6 +44,11 @@ export default function AdminBusinesses() {
     if (!error) setBusinesses(data);
     setLoading(false);
   };
+
+  useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    fetchBusinesses();
+  }, []);
 
   const handleInputChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });

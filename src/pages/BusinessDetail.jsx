@@ -27,7 +27,7 @@ export default function BusinessDetail() {
   const [business, setBusiness] = useState(null);
   const [loading, setLoading] = useState(true);
   const user = useUser();
-  const { t, getLocalized, language } = useLanguage();
+  const { getLocalized, language } = useLanguage();
   const { toast } = useToast();
   const { favorites, toggleFavorite } = useFavorites(user?.id);
   const isSaved = user && favorites.businesses.has(parseInt(id));

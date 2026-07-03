@@ -10,11 +10,11 @@ export function useProfile(userId) {
   const refresh = () => setRefreshTrigger(prev => prev + 1);
 
   useEffect(() => {
-    if (!userId) {
-      setLoading(false);
-      return;
-    }
     const fetchProfile = async () => {
+      if (!userId) {
+        setLoading(false);
+        return;
+      }
       setLoading(true);
       const { data, error } = await supabase
         .from('profiles')

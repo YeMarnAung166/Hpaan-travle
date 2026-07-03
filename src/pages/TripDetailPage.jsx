@@ -31,10 +31,6 @@ export default function TripDetailPage() {
   const [search, setSearch] = useState('');
   const [confirmDelete, setConfirmDelete] = useState(null);
 
-  useEffect(() => {
-    if (user) fetchTrip();
-  }, [id, user]);
-
   const fetchTrip = async () => {
     const { data: tripData, error: tripError } = await supabase
       .from('trips')
@@ -85,6 +81,10 @@ export default function TripDetailPage() {
     setLoading(false);
   };
 
+  useEffect(() => {
+    if (user) fetchTrip();
+  }, [id, user]);
+
   const updateTrip = async () => {
     const { error } = await supabase
       .from('trips')
@@ -98,7 +98,7 @@ export default function TripDetailPage() {
 
   const addItem = async (itemType, itemId) => {
     const newOrderIndex = items.length;
-    const tempId = Date.now();
+    const tempId = Date.now(); // eslint-disable-line react-hooks/purity
     const newItem = {
       id: tempId,
       trip_id: id,

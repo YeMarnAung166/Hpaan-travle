@@ -25,9 +25,15 @@ export default function BusinessList() {
   useEffect(() => {
     const urlCategory = searchParams.get('category');
     if (urlCategory && ['accommodation', 'restaurant', 'transport', 'tours'].includes(urlCategory)) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setFilters(prev => ({ ...prev, category: urlCategory }));
     }
   }, [searchParams]);
+
+  useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    setPage(1);
+  }, [searchTerm, filters, sortBy]);
 
   const fetchBusinesses = useCallback(async () => {
     setLoading(true);
@@ -96,10 +102,7 @@ export default function BusinessList() {
   }, [page, searchTerm, filters, sortBy, language]);
 
   useEffect(() => {
-    setPage(1);
-  }, [searchTerm, filters, sortBy]);
-
-  useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     fetchBusinesses();
   }, [fetchBusinesses]);
 

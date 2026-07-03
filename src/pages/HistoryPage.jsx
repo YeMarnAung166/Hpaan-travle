@@ -33,7 +33,7 @@ const FALLBACK = {
 };
 
 export default function HistoryPage() {
-  const { t, language } = useLanguage();
+  const { language } = useLanguage();
   const [data, setData] = useState(null);
 
   useEffect(() => {

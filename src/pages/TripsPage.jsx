@@ -20,10 +20,6 @@ export default function TripsPage() {
   const [newTitle, setNewTitle] = useState('');
   const [creating, setCreating] = useState(false);
 
-  useEffect(() => {
-    if (user) fetchTrips();
-  }, [user]);
-
   const fetchTrips = async () => {
     const { data, error } = await supabase
       .from('trips')
@@ -33,6 +29,11 @@ export default function TripsPage() {
     if (!error) setTrips(data);
     setLoading(false);
   };
+
+  useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    if (user) fetchTrips();
+  }, [user]);
 
   const createTrip = async () => {
     if (!newTitle.trim()) return;

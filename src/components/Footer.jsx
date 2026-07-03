@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
+// eslint-disable-next-line no-unused-vars
 import { motion } from 'framer-motion';
 import { useLanguage } from '../context/LanguageContext';
 import { useUser } from '../context/UserContext';
@@ -93,7 +94,8 @@ export default function Footer() {
                 { Icon: InstagramIcon, href: 'https://instagram.com/hpaantravel' },
                 { Icon: TwitterIcon, href: 'https://twitter.com/hpaantravel' },
                 { Icon: YoutubeIcon, href: 'https://youtube.com/@hpaantravel' },
-              ].map(({ Icon, href }, i) => (
+              // eslint-disable-next-line no-unused-vars
+              ].map(({ href, Icon }, i) => (
                 <motion.a
                   key={i}
                   href={href}

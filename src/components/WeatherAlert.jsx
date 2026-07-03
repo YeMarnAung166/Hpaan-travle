@@ -6,10 +6,46 @@ const ALERT_KEY = 'weatherAlertDismissed';
 
 export default function WeatherAlert() {
   const { t } = useLanguage();
-  const [weather, setWeather] = useState(null);
+  const [_weather, setWeather] = useState(null);
   const [loading, setLoading] = useState(true);
   const [dismissedUntil, setDismissedUntil] = useState(null);
   const [alert, setAlert] = useState(null);
+
+  function checkAlerts(data) {
+    const alerts = [];
+    const temp = data.main?.temp;
+    const rain = data.rain?.['1h'] || 0;
+
+    if (temp && temp > 35) {
+      alerts.push({
+        type: 'heat',
+        icon: Thermometer,
+        message: t('weather.alert_heat') || 'Extreme heat! Stay hydrated and avoid outdoor activities.',
+        severity: 'high',
+      });
+    }
+
+    if (rain > 5) {
+      alerts.push({
+        type: 'rain',
+        icon: Droplets,
+        message: t('weather.alert_rain') || 'Heavy rain expected. Be cautious on roads and trails.',
+        severity: 'medium',
+      });
+    }
+
+    if (alerts.length > 0) {
+      const combined = alerts.length === 1 ? alerts[0] : {
+        type: 'combined',
+        icon: AlertTriangle,
+        message: alerts.map(a => a.message).join(' '),
+        severity: 'high',
+      };
+      setAlert(combined);
+    } else {
+      setAlert(null);
+    }
+  }
 
   useEffect(() => {
     // Check if dismissed
@@ -47,45 +83,6 @@ export default function WeatherAlert() {
     };
     fetchWeather();
   }, []);
-
-  const checkAlerts = (data) => {
-    const alerts = [];
-    const temp = data.main?.temp;
-    const rain = data.rain?.['1h'] || 0;
-
-    // Heat alert (temp > 35°C)
-    if (temp && temp > 35) {
-      alerts.push({
-        type: 'heat',
-        icon: Thermometer,
-        message: t('weather.alert_heat') || 'Extreme heat! Stay hydrated and avoid outdoor activities.',
-        severity: 'high',
-      });
-    }
-
-    // Heavy rain alert (rain > 5mm/h)
-    if (rain > 5) {
-      alerts.push({
-        type: 'rain',
-        icon: Droplets,
-        message: t('weather.alert_rain') || 'Heavy rain expected. Be cautious on roads and trails.',
-        severity: 'medium',
-      });
-    }
-
-    if (alerts.length > 0) {
-      // Combine alerts into one
-      const combined = alerts.length === 1 ? alerts[0] : {
-        type: 'combined',
-        icon: AlertTriangle,
-        message: alerts.map(a => a.message).join(' '),
-        severity: 'high',
-      };
-      setAlert(combined);
-    } else {
-      setAlert(null);
-    }
-  };
 
   const dismissAlert = () => {
     const oneHour = 60 * 60 * 1000;

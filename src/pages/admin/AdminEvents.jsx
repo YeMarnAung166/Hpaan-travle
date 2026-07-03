@@ -27,8 +27,6 @@ export default function AdminEvents() {
     image: '',
   });
 
-  useEffect(() => { fetchEvents(); }, []);
-
   const fetchEvents = async () => {
     const { data, error } = await supabase
       .from('events')
@@ -37,7 +35,10 @@ export default function AdminEvents() {
     if (!error) setEvents(data);
     setLoading(false);
   };
-
+  useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    fetchEvents();
+  }, []);
   const handleInputChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };

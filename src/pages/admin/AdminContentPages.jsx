@@ -1,6 +1,5 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '../../supabaseClient';
-import { useLanguage } from '../../context/LanguageContext';
 import { useToast } from '../../context/ToastContext';
 import FormModal from '../../components/admin/FormModal';
 import { SkeletonListItem } from '../../components/ui/Skeleton';
@@ -9,21 +8,21 @@ import { Helmet } from 'react-helmet-async';
 const DEFAULT_SLUGS = ['travel-tips', 'history', 'contact', 'privacy', 'terms'];
 
 export default function AdminContentPages() {
-  const { t } = useLanguage();
   const { toast } = useToast();
   const [pages, setPages] = useState([]);
   const [loading, setLoading] = useState(true);
   const [editing, setEditing] = useState(null);
   const [saving, setSaving] = useState(false);
 
-  useEffect(() => { fetchPages(); }, []);
-
   const fetchPages = async () => {
     const { data } = await supabase.from('content_pages').select('*').order('slug');
     setPages(data || []);
     setLoading(false);
   };
-
+  useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    fetchPages();
+  }, []);
   const openEdit = (page) => {
     setEditing({ ...page });
   };

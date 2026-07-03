@@ -1,4 +1,4 @@
-import { useEffect, useState, useMemo, useCallback } from 'react';
+import { useEffect, useState, useMemo } from 'react';
 import { supabase } from '../../supabaseClient';
 import { useLanguage } from '../../context/LanguageContext';
 import { useToast } from '../../context/ToastContext';
@@ -19,8 +19,6 @@ export default function AdminUserPhotos() {
   const { t, language } = useLanguage();
   const { toast } = useToast();
 
-  useEffect(() => { fetchPhotos(); }, []);
-
   useEffect(() => {
     const t = setTimeout(() => setDebouncedSearch(searchTerm), 300);
     return () => clearTimeout(t);
@@ -35,7 +33,10 @@ export default function AdminUserPhotos() {
     if (!error) setPhotos(data);
     setLoading(false);
   };
-
+  useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    fetchPhotos();
+  }, []);
   const processed = useMemo(() => {
     if (!debouncedSearch) return photos;
     const term = debouncedSearch.toLowerCase();
@@ -73,14 +74,6 @@ export default function AdminUserPhotos() {
       if (next.has(id)) next.delete(id); else next.add(id);
       return next;
     });
-  };
-
-  const toggleSelectAll = () => {
-    if (selected.size === paginated.length) {
-      setSelected(new Set());
-    } else {
-      setSelected(new Set(paginated.map(p => p.id)));
-    }
   };
 
   const handleApprove = async (id) => {

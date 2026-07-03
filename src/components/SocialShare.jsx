@@ -1,14 +1,12 @@
 import { useState } from 'react';
 import { useLanguage } from '../context/LanguageContext';
 
-export default function SocialShare({ title, url, description, image }) {
+export default function SocialShare({ title, url }) {
   const [copied, setCopied] = useState(false);
   const { t } = useLanguage();
 
   const encodedUrl = encodeURIComponent(url);
   const encodedTitle = encodeURIComponent(title);
-  const encodedDescription = encodeURIComponent(description || '');
-  const encodedImage = encodeURIComponent(image || '');
 
   const shareLinks = {
     facebook: `https://www.facebook.com/sharer/sharer.php?u=${encodedUrl}`,

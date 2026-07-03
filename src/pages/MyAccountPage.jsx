@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
 import { supabase } from "../supabaseClient";
 import { useUser } from "../context/UserContext";
 import { useProfileContext } from "../context/ProfileContext";
@@ -14,8 +14,7 @@ import { Helmet } from 'react-helmet-async';
 
 export default function MyAccountPage() {
   const user = useUser();
-  const navigate = useNavigate();
-  const { t, language } = useLanguage();
+  const { t } = useLanguage();
   const { toast } = useToast();
   const {
     profile,
@@ -33,7 +32,9 @@ export default function MyAccountPage() {
 
   useEffect(() => {
     if (profile) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setDisplayName(profile.display_name || "");
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setBio(profile.bio || "");
     }
   }, [profile]);
@@ -132,7 +133,6 @@ export default function MyAccountPage() {
   if (profileLoading || loadingStats)
     return <div className="container-custom pt-8"><SkeletonForm /></div>;
 
-  const name = profile?.display_name || user.email.split("@")[0];
   const avatarUrl = profile?.avatar_url;
 
   return (

@@ -12,7 +12,6 @@ export default function NearbyPlaces({ lat, lng, excludeId, type = 'destinations
   useEffect(() => {
     const fetch = async () => {
       const table = type === 'businesses' ? 'businesses' : 'destinations';
-      const nameField = language === 'my' ? 'name_my' : 'name';
       const rad = radius / 111;
       const { data, error } = await supabase
         .from(table)

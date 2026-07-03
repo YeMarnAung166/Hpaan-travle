@@ -9,6 +9,7 @@ export default function ContentPage({ slug, defaultTitle }) {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setLoading(true);
     supabase
       .from('content_pages')

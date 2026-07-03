@@ -4,8 +4,6 @@ import { getOptimizedImage } from '../utils/imageHelpers';
 export default function ImageGallery({ images, alt = 'Gallery image' }) {
   const [lightboxIndex, setLightboxIndex] = useState(null);
 
-  if (!images || images.length === 0) return null;
-
   const openLightbox = (idx) => setLightboxIndex(idx);
   const closeLightbox = () => setLightboxIndex(null);
 
@@ -15,6 +13,8 @@ export default function ImageGallery({ images, alt = 'Gallery image' }) {
     document.addEventListener('keydown', handleKey);
     return () => document.removeEventListener('keydown', handleKey);
   }, [lightboxIndex]);
+
+  if (!images || images.length === 0) return null;
 
   const next = () => setLightboxIndex((prev) => (prev + 1) % images.length);
   const prev = () => setLightboxIndex((prev) => (prev - 1 + images.length) % images.length);

@@ -15,10 +15,6 @@ export default function BlogList() {
   const [totalPages, setTotalPages] = useState(1);
   const perPage = 9;
 
-  useEffect(() => {
-    fetchPosts();
-  }, [page]);
-
   const fetchPosts = async () => {
     setLoading(true);
     const { count } = await supabase.from('blog_posts').select('*', { count: 'exact', head: true }).eq('published', true);
@@ -33,6 +29,11 @@ export default function BlogList() {
     if (!error) setPosts(data || []);
     setLoading(false);
   };
+
+  useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    fetchPosts();
+  }, [page]);
 
   const getLocal = (en, my) => language === 'my' && my ? my : en;
 

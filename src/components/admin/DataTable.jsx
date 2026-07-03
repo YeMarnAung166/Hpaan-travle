@@ -1,6 +1,5 @@
 import { useState, useMemo, useRef } from 'react';
 import { useLanguage } from '../../context/LanguageContext';
-import { motion } from 'framer-motion';
 import Button from '../ui/Button';
 import { Search, Download, Trash2, CheckSquare, XSquare, ChevronDown, ChevronUp } from 'lucide-react';
 

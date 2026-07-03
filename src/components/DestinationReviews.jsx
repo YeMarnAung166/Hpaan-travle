@@ -9,7 +9,7 @@ import ConfirmDialog from './ConfirmDialog';
 
 export default function DestinationReviews({ destinationId }) {
   const user = useUser();
-  const { t } = useLanguage();
+  useLanguage();
   const { toast } = useToast();
   const [reviews, setReviews] = useState([]);
   const [userReview, setUserReview] = useState(null);
@@ -20,8 +20,6 @@ export default function DestinationReviews({ destinationId }) {
   const [showConfirmDelete, setShowConfirmDelete] = useState(false);
   const [averageRating, setAverageRating] = useState(0);
   const [totalReviews, setTotalReviews] = useState(0);
-
-  useEffect(() => { fetchReviews(); }, [destinationId]);
 
   const fetchReviews = async () => {
     setLoading(true);
@@ -48,6 +46,11 @@ export default function DestinationReviews({ destinationId }) {
     }
     setLoading(false);
   };
+
+  useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    fetchReviews();
+  }, [destinationId]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();

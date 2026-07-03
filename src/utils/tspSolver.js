@@ -65,7 +65,7 @@ export function solveTsp(points) {
 }
 
 export function clusterByGeo(points, numClusters) {
-  if (points.length <= numClusters) return points.map((p, i) => [p]);
+  if (points.length <= numClusters) return points.map(p => [p]);
   if (numClusters <= 1) return [points];
 
   const sorted = [...points].sort((a, b) => a.lat - b.lat);

@@ -32,7 +32,7 @@ export default function RouteControl({ start, end, onRouteReady }) {
     return () => {
       isMounted.current = false;
       if (controlRef.current && map && map.removeControl) {
-        try { map.removeControl(controlRef.current); } catch (e) {}
+        try { map.removeControl(controlRef.current); } catch { /* already removed */ }
         controlRef.current = null;
       }
       markersRef.current.forEach(m => m.remove());
@@ -48,7 +48,7 @@ export default function RouteControl({ start, end, onRouteReady }) {
 
       // Remove previous control and markers
       if (controlRef.current) {
-        try { map.removeControl(controlRef.current); } catch (e) {}
+        try { map.removeControl(controlRef.current); } catch { /* already removed */ }
         controlRef.current = null;
       }
       markersRef.current.forEach(m => m.remove());
