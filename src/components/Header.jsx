@@ -7,7 +7,6 @@ import { useTheme } from '../context/ThemeContext';
 import { useProfileContext } from '../context/ProfileContext';
 import { useScroll } from '../hooks/useScroll';
 import Button from './ui/Button';
-import Logo from './Logo';
 
 const Header = memo(function Header({ onLoginClick, onLogoutClick }) {
   const user = useUser();
@@ -112,7 +111,11 @@ const Header = memo(function Header({ onLoginClick, onLogoutClick }) {
         <div className="flex justify-between items-center relative">
           <div className="flex-1 flex justify-start md:justify-center">
             <Link to="/" className="flex items-center" onClick={closeMenu}>
-              <Logo className="h-9 md:h-10 w-auto" light={isTransparent} />
+              <img
+                src="/pwa-192x192.png"
+                alt="Hpa-An Travel"
+                className="h-9 md:h-10 w-auto"
+              />
             </Link>
           </div>
           <div className="hidden md:flex items-center gap-2 absolute right-0">
