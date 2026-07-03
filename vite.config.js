@@ -39,8 +39,12 @@ export default defineConfig({
   plugins: [
     react(),
     VitePWA({
-      registerType: 'autoUpdate',
+      strategies: 'injectManifest',
+      srcDir: 'src',
+      filename: 'sw.js',
+      registerType: 'prompt',
       manifest: {
+        id: "/",
         name: "Hpa-An Travel Guide",
         short_name: "HpaAnGuide",
         description: "Your offline travel companion for Hpa-An",
@@ -48,6 +52,7 @@ export default defineConfig({
         background_color: "#F6F4EF",
         start_url: "/",
         display: "standalone",
+        display_override: ["window-controls-overlay", "standalone"],
         orientation: "portrait-primary",
         scope: "/",
         lang: "en",
@@ -66,53 +71,23 @@ export default defineConfig({
           }
         ],
         categories: ["travel", "navigation"],
-        screenshots: []
+        screenshots: [
+          {
+            src: "/screenshots/wide.png",
+            sizes: "1280x720",
+            type: "image/png",
+            form_factor: "wide"
+          },
+          {
+            src: "/screenshots/narrow.png",
+            sizes: "720x1280",
+            type: "image/png",
+            form_factor: "narrow"
+          }
+        ]
       },
       workbox: {
         globPatterns: ['**/*.{js,css,html,ico,png,svg,woff2}'],
-        runtimeCaching: [
-          {
-            urlPattern: /^https:\/\/hqzodqvstvdemmqxphbv\.supabase\.co\/rest\/v1\/.*/i,
-            handler: 'StaleWhileRevalidate',
-            options: {
-              cacheName: 'api-cache',
-              expiration: { maxEntries: 100, maxAgeSeconds: 86400 },
-            }
-          },
-          {
-            urlPattern: /^https:\/\/tile\.openstreetmap\.org\/.*/i,
-            handler: 'CacheFirst',
-            options: {
-              cacheName: 'map-tiles',
-              expiration: { maxEntries: 5000, maxAgeSeconds: 60 * 60 * 24 * 30 }
-            }
-          },
-          {
-            urlPattern: /^https:\/\/.*\.(?:png|jpg|jpeg|svg|webp|avif)$/i,
-            handler: 'CacheFirst',
-            options: {
-              cacheName: 'images',
-              expiration: { maxEntries: 500, maxAgeSeconds: 60 * 60 * 24 * 30 }
-            }
-          },
-          {
-            urlPattern: /^https:\/\/fonts\.gstatic\.com\/.*/i,
-            handler: 'CacheFirst',
-            options: {
-              cacheName: 'google-fonts',
-              expiration: { maxEntries: 20, maxAgeSeconds: 60 * 60 * 24 * 365 }
-            }
-          },
-          {
-            urlPattern: /^https:\/\/fonts\.googleapis\.com\/.*/i,
-            handler: 'StaleWhileRevalidate',
-            options: {
-              cacheName: 'google-fonts-styles',
-              expiration: { maxEntries: 10, maxAgeSeconds: 60 * 60 * 24 * 30 }
-            }
-          }
-        ],
-        offlineGoogleAnalytics: true,
       },
       devOptions: {
         enabled: false,

@@ -19,6 +19,8 @@ import LoadingSpinner from './components/ui/LoadingSpinner';
 import ErrorBoundary from './components/ErrorBoundary';
 import GenerateItinerary from './pages/GenerateItinerary';
 import OfflineIndicator from './components/OfflineIndicator';
+import InstallBanner from './components/InstallBanner';
+import UpdateToast from './components/UpdateToast';
 
 // Lazy load pages
 const HomePage = lazy(() => import('./pages/HomePage'));
@@ -65,6 +67,8 @@ const AppContent = React.memo(function AppContent({ showAuthModal, setShowAuthMo
     <>
       <ScrollToTop />
       <OfflineIndicator />
+      <InstallBanner />
+      <UpdateToast />
       <a
         href="#main-content"
         className="skip-link"

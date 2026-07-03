@@ -11,6 +11,7 @@ import Input from "../components/ui/Input";
 import StarRating from "../components/StarRating";
 import { SkeletonForm } from '../components/ui/Skeleton';
 import { Helmet } from 'react-helmet-async';
+import NotificationToggle from '../components/NotificationToggle';
 
 export default function MyAccountPage() {
   const user = useUser();
@@ -34,7 +35,6 @@ export default function MyAccountPage() {
     if (profile) {
       // eslint-disable-next-line react-hooks/set-state-in-effect
       setDisplayName(profile.display_name || "");
-      // eslint-disable-next-line react-hooks/set-state-in-effect
       setBio(profile.bio || "");
     }
   }, [profile]);
@@ -207,6 +207,13 @@ export default function MyAccountPage() {
           </div>
           <div className="text-xs sm:text-sm text-text-soft">Favorites</div>
         </div>
+      </div>
+
+      {/* Notifications */}
+      <div className="bg-white rounded-xl shadow-md p-6 mb-8">
+        <h2 className="text-xl font-semibold mb-1">Notifications</h2>
+        <p className="text-sm text-text-soft mb-4">Get notified about events, weather alerts, and travel tips</p>
+        <NotificationToggle />
       </div>
 
       {/* Recent Reviews */}

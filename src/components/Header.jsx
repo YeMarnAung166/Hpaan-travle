@@ -1,6 +1,5 @@
 import { useState, useEffect, useRef, memo } from 'react';
 import { NavLink, Link, useLocation } from 'react-router-dom';
-// eslint-disable-next-line no-unused-vars
 import { motion, AnimatePresence } from 'framer-motion';
 import { useUser } from '../context/UserContext';
 import { useLanguage } from '../context/LanguageContext';
@@ -18,6 +17,8 @@ const Header = memo(function Header({ onLoginClick, onLogoutClick }) {
   const location = useLocation();
   const scrolled = useScroll();
   const headerRef = useRef(null);
+  const menuRef = useRef(null);
+  const hamburgerRef = useRef(null);
 
   useEffect(() => {
     if (headerRef.current) {
@@ -30,16 +31,36 @@ const Header = memo(function Header({ onLoginClick, onLogoutClick }) {
     if (user) refresh();
   }, [user, refresh]);
 
-  const closeMenu = () => setIsMenuOpen(false);
+  const closeMenu = () => {
+    setIsMenuOpen(false);
+  };
 
   useEffect(() => {
     if (!isMenuOpen) return;
-    const handleKey = (e) => { if (e.key === 'Escape') closeMenu(); };
+    const handleKey = (e) => {
+      if (e.key === 'Escape') { closeMenu(); hamburgerRef.current?.focus(); return; }
+      if (e.key === 'Tab' && menuRef.current) {
+        const focusable = menuRef.current.querySelectorAll('button, a, [tabindex]:not([tabindex="-1"])');
+        if (focusable.length === 0) return;
+        const first = focusable[0];
+        const last = focusable[focusable.length - 1];
+        if (e.shiftKey && document.activeElement === first) {
+          e.preventDefault();
+          last.focus();
+        } else if (!e.shiftKey && document.activeElement === last) {
+          e.preventDefault();
+          first.focus();
+        }
+      }
+    };
     document.addEventListener('keydown', handleKey);
+    menuRef.current?.querySelector('a, button')?.focus();
     return () => document.removeEventListener('keydown', handleKey);
   }, [isMenuOpen]);
 
-  const toggleMenu = () => setIsMenuOpen(!isMenuOpen);
+  const toggleMenu = () => {
+    setIsMenuOpen(!isMenuOpen);
+  };
 
   const isHomepage = location.pathname === '/';
   const isTransparent = isHomepage && !scrolled;
@@ -179,8 +200,11 @@ const Header = memo(function Header({ onLoginClick, onLogoutClick }) {
             )}
           </div>
           <button
+            ref={hamburgerRef}
             onClick={toggleMenu}
             aria-label={isMenuOpen ? 'Close menu' : 'Open menu'}
+            aria-expanded={isMenuOpen}
+            aria-controls="mobile-menu"
             className={`md:hidden p-2 rounded-lg transition ${
               isTransparent ? 'text-white/70 hover:text-white hover:bg-white/10' : 'text-text-soft hover:text-text hover:bg-overlay'
             } absolute right-0`}
@@ -216,9 +240,15 @@ const Header = memo(function Header({ onLoginClick, onLogoutClick }) {
             <>
               <div className="fixed inset-0 z-40" onClick={closeMenu} aria-hidden="true" />
               <motion.div
+                ref={menuRef}
+                id="mobile-menu"
+                role="dialog"
+                aria-modal="true"
+                aria-label="Navigation menu"
                 initial={{ opacity: 0, y: -12, scale: 0.96 }}
                 animate={{ opacity: 1, y: 0, scale: 1 }}
                 exit={{ opacity: 0, y: -12, scale: 0.96 }}
+                onKeyDown={(e) => { if (e.key === 'Escape') { closeMenu(); hamburgerRef.current?.focus(); } }}
                 transition={{ duration: 0.2, ease: 'easeOut' }}
                 className="md:hidden absolute left-4 right-4 top-full mt-2 z-50 glass-card rounded-2xl shadow-elevated overflow-hidden border border-border"
               >
