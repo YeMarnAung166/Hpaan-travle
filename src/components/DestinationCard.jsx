@@ -1,6 +1,5 @@
 import { memo, useState } from 'react';
 import { Link } from 'react-router-dom';
-// eslint-disable-next-line no-unused-vars
 import { motion, useMotionValue, useTransform } from 'framer-motion';
 import { useUser } from '../context/UserContext';
 import { useFavorites } from '../hooks/useFavorites';
@@ -19,15 +18,17 @@ const DestinationCard = memo(function DestinationCard({ destination }) {
   const rotateX = useTransform(y, [-0.5, 0.5], [5, -5]);
   const rotateY = useTransform(x, [-0.5, 0.5], [-5, 5]);
 
-  function handleMouseMove(e) {
+  function handlePointerMove(e) {
     const rect = e.currentTarget.getBoundingClientRect();
-    const xVal = (e.clientX - rect.left) / rect.width - 0.5;
-    const yVal = (e.clientY - rect.top) / rect.height - 0.5;
+    const cx = 'touches' in e ? e.touches[0].clientX : e.clientX;
+    const cy = 'touches' in e ? e.touches[0].clientY : e.clientY;
+    const xVal = (cx - rect.left) / rect.width - 0.5;
+    const yVal = (cy - rect.top) / rect.height - 0.5;
     x.set(xVal);
     y.set(yVal);
   }
 
-  function handleMouseLeave() {
+  function handlePointerLeave() {
     x.set(0);
     y.set(0);
   }
@@ -39,8 +40,10 @@ const DestinationCard = memo(function DestinationCard({ destination }) {
     <motion.div
       className="group relative bg-white dark:bg-neutral-dark rounded-xl overflow-hidden shadow-md hover:shadow-xl transition-all duration-300"
       style={{ perspective: 1000, rotateX, rotateY }}
-      onMouseMove={handleMouseMove}
-      onMouseLeave={handleMouseLeave}
+      onMouseMove={handlePointerMove}
+      onTouchMove={handlePointerMove}
+      onMouseLeave={handlePointerLeave}
+      onTouchEnd={handlePointerLeave}
       whileHover={{ y: -6 }}
       transition={{ type: 'spring', stiffness: 300, damping: 20 }}
     >

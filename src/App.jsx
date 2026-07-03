@@ -8,6 +8,7 @@ import { ProfileProvider } from './context/ProfileContext';
 import { ToastProvider } from './context/ToastContext';
 import { HelmetProvider } from 'react-helmet-async';
 import { useAuthSession } from './hooks/useAuthSession';
+import useSwipeBack from './hooks/useSwipeBack';
 import { pageTransition } from './utils/animations';
 import AuthModal from './components/AuthModal';
 import Header from './components/Header';
@@ -21,6 +22,7 @@ import GenerateItinerary from './pages/GenerateItinerary';
 import OfflineIndicator from './components/OfflineIndicator';
 import InstallBanner from './components/InstallBanner';
 import UpdateToast from './components/UpdateToast';
+import BottomNav from './components/BottomNav';
 
 // Lazy load pages
 const HomePage = lazy(() => import('./pages/HomePage'));
@@ -63,6 +65,10 @@ const AppContent = React.memo(function AppContent({ showAuthModal, setShowAuthMo
   const location = useLocation();
   const isAdmin = location.pathname.startsWith('/admin');
 
+  useSwipeBack(() => {
+    if (window.history.length > 1) window.history.back();
+  }, !isAdmin && !showAuthModal);
+
   return (
     <>
       <ScrollToTop />
@@ -82,7 +88,7 @@ const AppContent = React.memo(function AppContent({ showAuthModal, setShowAuthMo
             onLogoutClick={handleLogout}
           />
         )}
-        <main id="main-content" className="flex-grow min-h-[calc(100vh-var(--header-h,96px))]">
+        <main id="main-content" className="flex-grow min-h-[calc(100vh-var(--header-h,96px))] pb-[72px] md:pb-0">
           <AnimatePresence mode="wait">
             <Motion.div key={isAdmin ? "/admin" : location.pathname} {...pageTransition}>
               <Suspense fallback={<LoadingSpinner size="lg" />}>
@@ -135,6 +141,7 @@ const AppContent = React.memo(function AppContent({ showAuthModal, setShowAuthMo
           </AnimatePresence>
         </main>
         {!isAdmin && <Footer />}
+        {!isAdmin && <BottomNav />}
         <AdminButton />
         <AuthModal isOpen={showAuthModal} onClose={() => setShowAuthModal(false)} />
       </div>

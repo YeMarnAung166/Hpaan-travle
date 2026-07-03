@@ -63,7 +63,7 @@ export default function UpdateToast() {
           animate={{ y: 0, opacity: 1 }}
           exit={{ y: 100, opacity: 0 }}
           transition={{ type: 'spring', stiffness: 300, damping: 25 }}
-          className="fixed bottom-20 left-4 right-4 z-[9999] max-w-md mx-auto"
+          className="fixed bottom-[136px] left-4 right-4 z-[9999] max-w-md mx-auto"
         >
           <div className="bg-white dark:bg-neutral-dark rounded-2xl shadow-elevated border border-border-light dark:border-border p-4 flex items-center gap-3">
             <RefreshCw className="w-5 h-5 text-primary flex-shrink-0" />

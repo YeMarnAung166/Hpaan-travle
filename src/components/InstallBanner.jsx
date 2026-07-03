@@ -62,7 +62,7 @@ export default function InstallBanner() {
           animate={{ y: 0, opacity: 1 }}
           exit={{ y: 100, opacity: 0 }}
           transition={{ type: 'spring', stiffness: 300, damping: 25 }}
-          className="fixed bottom-4 left-4 right-4 z-50 max-w-md mx-auto"
+          className="fixed bottom-[72px] left-4 right-4 z-50 max-w-md mx-auto"
         >
           <div className="bg-white dark:bg-neutral-dark rounded-2xl shadow-elevated border border-border-light dark:border-border p-4 flex items-center gap-4">
             <div className="w-12 h-12 rounded-xl bg-primary flex items-center justify-center flex-shrink-0">

@@ -75,6 +75,20 @@
     line-height: 1.625;
   }
 
+  input, select, textarea {
+    font-size: max(16px, 1em);
+  }
+
+  button, a, [role="button"], [role="menuitem"] {
+    min-height: 44px;
+    min-width: 44px;
+  }
+
+  button:has(svg:only-child), a:has(svg:only-child) {
+    min-width: 44px;
+    min-height: 44px;
+  }
+
   a {
     transition: color 0.2s;
   }
@@ -325,6 +339,10 @@
     -webkit-box-orient: vertical;
     -webkit-line-clamp: 4;
   }
+}
+
+.safe-bottom-pb {
+  padding-bottom: env(safe-area-inset-bottom, 0px);
 }
 
 @keyframes fadeInUp {

@@ -1,6 +1,5 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-// eslint-disable-next-line no-unused-vars
 import { motion } from 'framer-motion';
 import { useLanguage } from '../context/LanguageContext';
 import { useUser } from '../context/UserContext';
@@ -94,7 +93,6 @@ export default function Footer() {
                 { Icon: InstagramIcon, href: 'https://instagram.com/hpaantravel' },
                 { Icon: TwitterIcon, href: 'https://twitter.com/hpaantravel' },
                 { Icon: YoutubeIcon, href: 'https://youtube.com/@hpaantravel' },
-              // eslint-disable-next-line no-unused-vars
               ].map(({ href, Icon }, i) => (
                 <motion.a
                   key={i}
@@ -208,7 +206,7 @@ export default function Footer() {
           animate={{ opacity: 1, scale: 1 }}
           exit={{ opacity: 0, scale: 0.8 }}
           onClick={scrollToTop}
-          className="fixed bottom-6 right-6 z-40 w-10 h-10 rounded-full bg-gold text-white shadow-lg hover:bg-gold/90 transition flex items-center justify-center"
+          className="fixed bottom-[72px] right-6 z-40 w-10 h-10 rounded-full bg-gold text-white shadow-lg hover:bg-gold/90 transition flex items-center justify-center md:bottom-6"
           whileHover={{ y: -2 }}
           whileTap={{ scale: 0.95 }}
         >

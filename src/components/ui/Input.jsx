@@ -21,7 +21,7 @@ const Input = forwardRef(({ label, error, className = '', ...props }, ref) => {
         ref={ref}
         onFocus={() => setFocused(true)}
         onBlur={() => setFocused(false)}
-        className={`w-full px-3 py-2.5 bg-transparent border rounded-xl transition focus:outline-none ${
+        className={`w-full px-3 py-2.5 bg-transparent border rounded-xl transition focus:outline-none text-base ${
           error
             ? 'border-error focus:ring-2 focus:ring-error/30'
             : focused

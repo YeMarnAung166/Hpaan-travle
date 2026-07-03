@@ -26,9 +26,9 @@ const Button = forwardRef(({
   };
 
   const sizes = {
-    sm: 'px-3 py-1.5 text-sm gap-1.5',
-    md: 'px-5 py-2.5 text-base gap-2',
-    lg: 'px-7 py-3 text-lg gap-2.5',
+    sm: 'px-3 py-1.5 text-sm gap-1.5 min-h-[36px]',
+    md: 'px-5 py-2.5 text-base gap-2 min-h-[44px]',
+    lg: 'px-7 py-3 text-lg gap-2.5 min-h-[52px]',
   };
 
   function handleClick(e) {

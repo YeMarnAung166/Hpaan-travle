@@ -3,11 +3,20 @@ import { supabase } from '../supabaseClient';
 import { useUser } from '../context/UserContext';
 import { useToast } from '../context/ToastContext';
 import Button from './ui/Button';
+import BottomSheet from './BottomSheet';
 
 const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 const PHONE_REGEX = /^[+]?[\d\s()-]{6,20}$/;
 
 export default function BookingModal({ business, isOpen, onClose }) {
+  const [isMobile, setIsMobile] = useState(() => window.innerWidth < 768);
+
+  useEffect(() => {
+    const mq = window.matchMedia('(max-width: 767px)');
+    const handler = (e) => setIsMobile(e.matches);
+    mq.addEventListener('change', handler);
+    return () => mq.removeEventListener('change', handler);
+  }, []);
   const user = useUser();
   const { toast } = useToast();
   const [name, setName] = useState(user?.user_metadata?.full_name || '');
@@ -27,16 +36,25 @@ export default function BookingModal({ business, isOpen, onClose }) {
 
   if (!isOpen) return null;
 
+  const loginRequiredContent = (
+    <div className="text-center py-4">
+      <div className="w-12 h-12 mx-auto mb-4 rounded-full bg-primary/10 flex items-center justify-center">
+        <svg className="w-6 h-6 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 15v2m0 0v2m0-2h2m-2 0H10m9.364-6.364A9 9 0 1112 3a9 9 0 016.364 15.636z" /></svg>
+      </div>
+      <h2 className="text-xl font-bold text-text mb-2">Login Required</h2>
+      <p className="text-text-soft text-sm mb-6">Please log in to send a booking inquiry.</p>
+      <Button variant="primary" onClick={onClose} className="w-full">Close</Button>
+    </div>
+  );
+
   if (!user) {
+    if (isMobile) {
+      return <BottomSheet open={isOpen} onClose={onClose} title="Login Required">{loginRequiredContent}</BottomSheet>;
+    }
     return (
       <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm" onClick={onClose}>
         <div className="relative bg-white dark:bg-neutral-dark rounded-2xl shadow-2xl w-full max-w-sm p-6 mx-4 text-center" onClick={e => e.stopPropagation()}>
-          <div className="w-12 h-12 mx-auto mb-4 rounded-full bg-primary/10 flex items-center justify-center">
-            <svg className="w-6 h-6 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 15v2m0 0v2m0-2h2m-2 0H10m9.364-6.364A9 9 0 1112 3a9 9 0 016.364 15.636z" /></svg>
-          </div>
-          <h2 className="text-xl font-bold text-text mb-2">Login Required</h2>
-          <p className="text-text-soft text-sm mb-6">Please log in to send a booking inquiry.</p>
-          <Button variant="primary" onClick={onClose} className="w-full">Close</Button>
+          {loginRequiredContent}
           <button onClick={onClose} className="absolute top-3 right-3 text-text-soft hover:text-text transition">✕</button>
         </div>
       </div>
@@ -83,45 +101,55 @@ export default function BookingModal({ business, isOpen, onClose }) {
     onClose();
   };
 
+  const bookingForm = (
+    <>
+      <p className="text-text-soft text-sm mb-4">Send a booking request to {business.name || business.name_my}</p>
+      <form onSubmit={handleSubmit} className="space-y-3" noValidate>
+        <div>
+          <label className="block text-sm font-medium text-text mb-1">Name *</label>
+          <input type="text" value={name} onChange={e => { setName(e.target.value); setErrors(prev => ({ ...prev, name: null })); }} className={`w-full px-3 py-2.5 border rounded-lg focus:ring-2 focus:ring-primary/50 text-base ${errors.name ? 'border-error' : ''}`} />
+          {errors.name && <p className="text-xs text-error mt-1">{errors.name}</p>}
+        </div>
+        <div>
+          <label className="block text-sm font-medium text-text mb-1">Email *</label>
+          <input type="email" value={email} onChange={e => { setEmail(e.target.value); setErrors(prev => ({ ...prev, email: null })); }} className={`w-full px-3 py-2.5 border rounded-lg focus:ring-2 focus:ring-primary/50 text-base ${errors.email ? 'border-error' : ''}`} />
+          {errors.email && <p className="text-xs text-error mt-1">{errors.email}</p>}
+        </div>
+        <div>
+          <label className="block text-sm font-medium text-text mb-1">Phone</label>
+          <input type="tel" value={phone} onChange={e => { setPhone(e.target.value); setErrors(prev => ({ ...prev, phone: null })); }} className={`w-full px-3 py-2.5 border rounded-lg focus:ring-2 focus:ring-primary/50 text-base ${errors.phone ? 'border-error' : ''}`} />
+          {errors.phone && <p className="text-xs text-error mt-1">{errors.phone}</p>}
+        </div>
+        <div className="flex gap-3">
+          <div className="flex-1">
+            <label className="block text-sm font-medium text-text mb-1">Preferred Date</label>
+            <input type="date" value={date} onChange={e => { setDate(e.target.value); setErrors(prev => ({ ...prev, date: null })); }} className={`w-full px-3 py-2.5 border rounded-lg focus:ring-2 focus:ring-primary/50 text-base ${errors.date ? 'border-error' : ''}`} />
+            {errors.date && <p className="text-xs text-error mt-1">{errors.date}</p>}
+          </div>
+        </div>
+        <div>
+          <label className="block text-sm font-medium text-text mb-1">Notes</label>
+          <textarea value={notes} onChange={e => setNotes(e.target.value)} rows={3} className="w-full px-3 py-2.5 border rounded-lg focus:ring-2 focus:ring-primary/50 text-base resize-none" placeholder="Any special requests..." />
+        </div>
+        <div className="flex gap-3 pt-2">
+          <Button type="submit" variant="primary" disabled={loading} className="flex-1">
+            {loading ? 'Submitting...' : 'Send Inquiry'}
+          </Button>
+          <Button type="button" variant="outline" onClick={onClose}>Cancel</Button>
+        </div>
+      </form>
+    </>
+  );
+
+  if (isMobile) {
+    return <BottomSheet open={isOpen} onClose={onClose} title="Booking Inquiry">{bookingForm}</BottomSheet>;
+  }
+
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm" onClick={onClose}>
-      <div className="relative bg-white dark:bg-neutral-dark rounded-2xl shadow-2xl w-full max-w-md p-6 mx-4" onClick={e => e.stopPropagation()}>
+      <div className="relative bg-white dark:bg-neutral-dark rounded-2xl shadow-2xl w-full max-w-md p-6 mx-4 max-h-[90vh] overflow-y-auto overscroll-contain" onClick={e => e.stopPropagation()}>
         <h2 className="text-2xl font-serif font-bold text-text mb-1">Booking Inquiry</h2>
-        <p className="text-text-soft text-sm mb-4">Send a booking request to {business.name || business.name_my}</p>
-        <form onSubmit={handleSubmit} className="space-y-3" noValidate>
-          <div>
-            <label className="block text-sm font-medium text-text mb-1">Name *</label>
-            <input type="text" value={name} onChange={e => { setName(e.target.value); setErrors(prev => ({ ...prev, name: null })); }} className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-primary/50 text-sm ${errors.name ? 'border-error' : ''}`} />
-            {errors.name && <p className="text-xs text-error mt-1">{errors.name}</p>}
-          </div>
-          <div>
-            <label className="block text-sm font-medium text-text mb-1">Email *</label>
-            <input type="email" value={email} onChange={e => { setEmail(e.target.value); setErrors(prev => ({ ...prev, email: null })); }} className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-primary/50 text-sm ${errors.email ? 'border-error' : ''}`} />
-            {errors.email && <p className="text-xs text-error mt-1">{errors.email}</p>}
-          </div>
-          <div>
-            <label className="block text-sm font-medium text-text mb-1">Phone</label>
-            <input type="tel" value={phone} onChange={e => { setPhone(e.target.value); setErrors(prev => ({ ...prev, phone: null })); }} className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-primary/50 text-sm ${errors.phone ? 'border-error' : ''}`} />
-            {errors.phone && <p className="text-xs text-error mt-1">{errors.phone}</p>}
-          </div>
-          <div className="flex gap-3">
-            <div className="flex-1">
-              <label className="block text-sm font-medium text-text mb-1">Preferred Date</label>
-              <input type="date" value={date} onChange={e => { setDate(e.target.value); setErrors(prev => ({ ...prev, date: null })); }} className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-primary/50 text-sm ${errors.date ? 'border-error' : ''}`} />
-              {errors.date && <p className="text-xs text-error mt-1">{errors.date}</p>}
-            </div>
-          </div>
-          <div>
-            <label className="block text-sm font-medium text-text mb-1">Notes</label>
-            <textarea value={notes} onChange={e => setNotes(e.target.value)} rows={3} className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-primary/50 text-sm resize-none" placeholder="Any special requests..." />
-          </div>
-          <div className="flex gap-3 pt-2">
-            <Button type="submit" variant="primary" disabled={loading} className="flex-1">
-              {loading ? 'Submitting...' : 'Send Inquiry'}
-            </Button>
-            <Button type="button" variant="outline" onClick={onClose}>Cancel</Button>
-          </div>
-        </form>
+        {bookingForm}
         <button onClick={onClose} className="absolute top-3 right-3 text-text-soft hover:text-text transition">✕</button>
       </div>
     </div>
