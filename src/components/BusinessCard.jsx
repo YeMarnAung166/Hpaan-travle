@@ -94,6 +94,11 @@ const BusinessCard = memo(function BusinessCard({ business, avgRating: propAvgRa
         />
         <div className="absolute inset-0 bg-gradient-to-tr from-transparent via-white/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
         <div className="absolute bottom-0 left-0 right-0 h-32 bg-gradient-to-t from-primary/10 via-gold/5 to-transparent" />
+        {business.category && (
+          <span className="absolute top-3 left-3 px-2.5 py-1 bg-white/20 backdrop-blur-md rounded-full text-[11px] font-medium text-white uppercase tracking-wider">
+            {business.category}
+          </span>
+        )}
       </Link>
 
       <div className="p-4">
@@ -166,17 +171,15 @@ const BusinessCard = memo(function BusinessCard({ business, avgRating: propAvgRa
         <div className="flex justify-between items-center">
           <Link
             to={`/business/${business.id}`}
-            className="inline-flex items-center text-amber-600 font-medium hover:text-amber-700 transition-colors text-sm"
+            className="inline-flex items-center text-amber-600 dark:text-amber-400 font-medium hover:text-amber-700 dark:hover:text-amber-300 transition-colors text-sm group/link"
           >
             {t("business.details")}
-            <motion.svg
-              className="w-3.5 h-3.5 ml-1"
+            <svg
+              className="w-3.5 h-3.5 ml-1 transition-transform duration-300 group-hover/link:translate-x-1"
               fill="none" stroke="currentColor" viewBox="0 0 24 24"
-              animate={{ x: [0, 3, 0] }}
-              transition={{ duration: 1.5, repeat: Infinity, ease: 'easeInOut' }}
             >
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5l7 7-7 7" />
-            </motion.svg>
+            </svg>
           </Link>
 
           <div className="relative">

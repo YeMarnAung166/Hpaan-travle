@@ -44,7 +44,7 @@ export default function Pagination({ page, totalPages, onPageChange }) {
       <button
         onClick={() => onPageChange(page - 1)}
         disabled={page <= 1}
-        className="px-3 py-1.5 text-sm rounded-lg border border-border disabled:opacity-30 disabled:cursor-not-allowed hover:bg-overlay transition text-text"
+        className="px-3 py-1.5 text-sm rounded-lg border border-border-light dark:border-border disabled:opacity-30 disabled:cursor-not-allowed hover:bg-primary/5 dark:hover:bg-primary/10 hover:border-primary/30 transition text-text"
         aria-label="Previous page"
       >
         <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -62,7 +62,7 @@ export default function Pagination({ page, totalPages, onPageChange }) {
             className={`min-w-[36px] px-3 py-1.5 text-sm rounded-lg font-medium transition ${
               p === page
                 ? 'bg-primary text-white shadow-sm'
-                : 'text-text hover:bg-overlay border border-border'
+                : 'text-text hover:bg-primary/5 dark:hover:bg-primary/10 border border-border-light dark:border-border'
             }`}
             aria-current={p === page ? 'page' : undefined}
           >
@@ -74,7 +74,7 @@ export default function Pagination({ page, totalPages, onPageChange }) {
       <button
         onClick={() => onPageChange(page + 1)}
         disabled={page >= totalPages}
-        className="px-3 py-1.5 text-sm rounded-lg border border-border disabled:opacity-30 disabled:cursor-not-allowed hover:bg-overlay transition text-text"
+        className="px-3 py-1.5 text-sm rounded-lg border border-border-light dark:border-border disabled:opacity-30 disabled:cursor-not-allowed hover:bg-primary/5 dark:hover:bg-primary/10 hover:border-primary/30 transition text-text"
         aria-label="Next page"
       >
         <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">

@@ -100,7 +100,8 @@ export default function Footer() {
                   target="_blank"
                   rel="noopener noreferrer"
                   whileHover={{ scale: 1.15, y: -2 }}
-                  className="w-8 h-8 rounded-full bg-white/5 flex items-center justify-center text-gray-400 hover:bg-gold hover:text-white transition"
+                  whileTap={{ scale: 0.95 }}
+                  className="w-9 h-9 rounded-full bg-white/5 flex items-center justify-center text-gray-400 hover:bg-gold hover:text-white transition-all hover:shadow-lg hover:shadow-gold/20"
                   aria-label={`Follow us on ${['Facebook', 'Instagram', 'Twitter', 'YouTube'][i]}`}
                 >
                   <Icon />

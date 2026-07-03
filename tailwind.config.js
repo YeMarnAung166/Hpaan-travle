@@ -51,6 +51,7 @@ export default {
         elevated: 'var(--shadow-elevated)',
         glass: 'var(--shadow-glass)',
         lg: 'var(--shadow-lg)',
+        card: 'var(--shadow-card)',
       },
       borderRadius: {
         sm: 'var(--radius-sm)',

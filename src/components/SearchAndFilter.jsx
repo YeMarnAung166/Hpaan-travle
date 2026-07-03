@@ -41,22 +41,30 @@ export default function SearchAndFilter({
   };
 
   return (
-    <div className="bg-white rounded-xl shadow-md p-4 mb-6">
-      <div className="flex flex-col md:flex-row gap-3">
-        <input
-          type="text"
-          placeholder={t("common.search")}
-          value={searchTerm}
-          onChange={(e) => setSearchTerm(e.target.value)}
-          className="flex-1 px-4 py-2 border border-neutral-mid rounded-lg focus:ring-2 focus:ring-primary/50"
-        />
+    <div className="bg-white dark:bg-neutral-dark rounded-xl shadow-card border border-border-light dark:border-border p-3 sm:p-4 mb-6 transition-all duration-200">
+      <div className="flex flex-col md:flex-row gap-2 sm:gap-3">
+        <div className="relative flex-1">
+          <svg
+            className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-text-soft"
+            fill="none" stroke="currentColor" viewBox="0 0 24 24"
+          >
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+          </svg>
+          <input
+            type="text"
+            placeholder={t("common.search")}
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            className="w-full pl-9 pr-4 py-2.5 bg-neutral-light dark:bg-neutral-mid/20 border border-border-light dark:border-border rounded-lg text-sm focus:ring-2 focus:ring-primary/30 focus:border-primary outline-none transition"
+          />
+        </div>
         <Button
           variant="outline"
           onClick={() => setShowFilters(!showFilters)}
           size="md"
         >
           <svg
-            className="w-5 h-5 mr-1"
+            className="w-4 h-4 mr-1"
             fill="none"
             stroke="currentColor"
             viewBox="0 0 24 24"
@@ -73,7 +81,7 @@ export default function SearchAndFilter({
         <select
           value={sortBy}
           onChange={(e) => setSortBy(e.target.value)}
-          className="px-4 py-2 border border-neutral-mid rounded-lg focus:ring-2 focus:ring-primary/50"
+          className="px-3 sm:px-4 py-2.5 bg-neutral-light dark:bg-neutral-mid/20 border border-border-light dark:border-border rounded-lg text-sm focus:ring-2 focus:ring-primary/30 focus:border-primary outline-none transition min-w-[120px]"
         >
           <option value="newest">{t("filters.newest")}</option>
           <option value="oldest">{t("filters.oldest")}</option>
@@ -85,21 +93,21 @@ export default function SearchAndFilter({
         </select>
       </div>
       {showFilters && (
-        <div className="mt-4 pt-4 border-t">
+        <div className="mt-4 pt-4 border-t border-border-light dark:border-border">
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
             {/* Category filter (only for businesses) */}
             {type === "business" && (
               <div>
-                <label className="block text-sm font-medium mb-1">
+                <label className="block text-sm font-medium text-text mb-1.5">
                   {t("business.category")}
                 </label>
-                <select
-                  value={filters.category || "all"}
-                  onChange={(e) =>
-                    handleFilterChange("category", e.target.value)
-                  }
-                  className="w-full px-3 py-2 border rounded-lg"
-                >
+                  <select
+                    value={filters.category || "all"}
+                    onChange={(e) =>
+                      handleFilterChange("category", e.target.value)
+                    }
+                    className="w-full px-3 py-2 bg-neutral-light dark:bg-neutral-mid/20 border border-border-light dark:border-border rounded-lg text-sm focus:ring-2 focus:ring-primary/30 outline-none transition"
+                  >
                   <option value="all">{t("business.all")}</option>
                   <option value="accommodation">
                     {t("business.accommodation")}
@@ -114,14 +122,14 @@ export default function SearchAndFilter({
             {/* Type filter (only for destinations) */}
             {type === "destination" && (
               <div>
-                <label className="block text-sm font-medium mb-1">
+                <label className="block text-sm font-medium text-text mb-1.5">
                   Destination Type
                 </label>
-                <select
-                  value={filters.type || "all"}
-                  onChange={(e) => handleFilterChange("type", e.target.value)}
-                  className="w-full px-3 py-2 border rounded-lg"
-                >
+                  <select
+                    value={filters.type || "all"}
+                    onChange={(e) => handleFilterChange("type", e.target.value)}
+                    className="w-full px-3 py-2 bg-neutral-light dark:bg-neutral-mid/20 border border-border-light dark:border-border rounded-lg text-sm focus:ring-2 focus:ring-primary/30 outline-none transition"
+                  >
                   <option value="all">All Types</option>
                   <option value="cave">Cave</option>
                   <option value="mountain">Mountain</option>
@@ -134,7 +142,7 @@ export default function SearchAndFilter({
 
             {/* Rating filter – for both businesses AND destinations */}
             <div>
-              <label className="block text-sm font-medium mb-1">
+              <label className="block text-sm font-medium text-text mb-1.5">
                 {t("filters.min_rating_label")}
               </label>
               <div className="flex items-center gap-2">
@@ -162,7 +170,7 @@ export default function SearchAndFilter({
         </div>
       )}
       {(searchTerm || Object.values(filters).some((v) => v && v !== "all")) && (
-        <div className="mt-3 pt-3 border-t flex flex-wrap gap-2">
+        <div className="mt-3 pt-3 border-t border-border-light dark:border-border flex flex-wrap gap-2">
           {searchTerm && (
             <FilterChip
               label={`${t("common.search")}: ${searchTerm}`}
@@ -194,10 +202,10 @@ export default function SearchAndFilter({
 }
 
 const FilterChip = ({ label, onRemove }) => (
-  <span className="inline-flex items-center gap-1 px-2 py-1 bg-neutral-mid text-text rounded-full text-sm">
+  <span className="inline-flex items-center gap-1 px-2.5 py-1 bg-primary/10 dark:bg-primary/20 text-primary dark:text-primary-light rounded-full text-sm">
     {label}
-    <button onClick={onRemove} className="hover:text-error">
-      ×
+    <button onClick={onRemove} className="hover:text-error ml-0.5 font-bold leading-none">
+      &times;
     </button>
   </span>
 );

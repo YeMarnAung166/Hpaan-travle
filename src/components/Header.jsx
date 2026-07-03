@@ -164,10 +164,10 @@ const Header = memo(function Header({ onLoginClick, onLogoutClick }) {
             ) : (
               <button
                 onClick={onLoginClick}
-                className={`px-4 py-2 rounded-full text-sm font-medium transition ${
+                className={`px-5 py-2 rounded-full text-sm font-semibold transition-all ${
                   isTransparent
-                    ? 'bg-white/15 text-white backdrop-blur-sm hover:bg-white/25'
-                    : 'bg-primary text-white hover:bg-primary-light shadow-soft'
+                    ? 'bg-white/20 text-white backdrop-blur-sm hover:bg-white/30 hover:shadow-lg'
+                    : 'bg-primary text-white hover:bg-primary-light shadow-soft hover:shadow-md'
                 }`}
               >
                 {t('nav.login')}
@@ -212,19 +212,19 @@ const Header = memo(function Header({ onLoginClick, onLogoutClick }) {
             <>
               <div className="fixed inset-0 z-40" onClick={closeMenu} aria-hidden="true" />
               <motion.div
-                initial={{ opacity: 0, y: -8, scale: 0.98 }}
+                initial={{ opacity: 0, y: -12, scale: 0.96 }}
                 animate={{ opacity: 1, y: 0, scale: 1 }}
-                exit={{ opacity: 0, y: -8, scale: 0.98 }}
+                exit={{ opacity: 0, y: -12, scale: 0.96 }}
                 transition={{ duration: 0.2, ease: 'easeOut' }}
-                className="md:hidden absolute left-0 right-0 top-full mt-1 z-50 glass-card rounded-xl shadow-lg overflow-hidden"
+                className="md:hidden absolute left-4 right-4 top-full mt-2 z-50 glass-card rounded-2xl shadow-elevated overflow-hidden border border-border"
               >
-              <div className="flex flex-col">
+              <div className="flex flex-col p-3">
                 {navLinks.map((link, i) => (
                   <motion.div
                     key={link.to}
                     initial={{ opacity: 0, x: -8 }}
                     animate={{ opacity: 1, x: 0 }}
-                    transition={{ delay: i * 0.02, duration: 0.2 }}
+                    transition={{ delay: i * 0.03, duration: 0.2 }}
                   >
                     <NavLink
                       to={link.to}

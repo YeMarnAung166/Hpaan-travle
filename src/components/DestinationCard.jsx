@@ -60,7 +60,12 @@ const DestinationCard = memo(function DestinationCard({ destination }) {
             className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
           />
         )}
-        <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent" />
+        <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent" />
+        {destination.type && (
+          <span className="absolute top-3 left-3 px-2.5 py-1 bg-white/20 backdrop-blur-md rounded-full text-[11px] font-medium text-white uppercase tracking-wider">
+            {destination.type}
+          </span>
+        )}
         <div className="absolute bottom-3 left-3 right-3">
           <h3 className="text-white text-xl font-serif font-bold leading-tight line-clamp-2 drop-shadow-sm">{name}</h3>
         </div>
@@ -70,17 +75,15 @@ const DestinationCard = memo(function DestinationCard({ destination }) {
         <div className="flex justify-between items-center">
           <Link
             to={`/destination/${destination.id}`}
-            className="inline-flex items-center text-primary font-semibold hover:text-primary-light transition-colors text-sm"
+            className="inline-flex items-center text-primary font-semibold hover:text-primary-light transition-colors text-sm group/link"
           >
             {t('destinations.view_details')}
-            <motion.svg
-              className="w-4 h-4 ml-1"
+            <svg
+              className="w-4 h-4 ml-1 transition-transform duration-300 group-hover/link:translate-x-1"
               fill="none" stroke="currentColor" viewBox="0 0 24 24"
-              animate={{ x: [0, 3, 0] }}
-              transition={{ duration: 1.5, repeat: Infinity, ease: 'easeInOut' }}
             >
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5l7 7-7 7" />
-            </motion.svg>
+            </svg>
           </Link>
           {user && (
             <motion.button

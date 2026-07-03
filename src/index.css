@@ -84,6 +84,32 @@
     box-shadow: 0 0 0 2px var(--color-gold), 0 0 0 4px var(--color-neutral-dark);
   }
 
+  ::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+  }
+
+  ::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  ::-webkit-scrollbar-thumb {
+    background: var(--color-neutral-mid);
+    border-radius: 4px;
+  }
+
+  ::-webkit-scrollbar-thumb:hover {
+    background: var(--color-gold);
+  }
+
+  .dark ::-webkit-scrollbar-thumb {
+    background: var(--color-neutral-dark);
+  }
+
+  .dark ::-webkit-scrollbar-thumb:hover {
+    background: var(--color-gold);
+  }
+
   .btn-primary {
     border: 1px solid #fff;
     color: #fff;
@@ -261,4 +287,39 @@
   pointer-events: none;
   background-image: url('./assets/patterns/grid-pattern.svg');
   background-repeat: repeat;
+}
+
+@layer utilities {
+  .transition-fast {
+    transition: all 0.15s ease;
+  }
+  .transition-smooth {
+    transition: all 0.3s cubic-bezier(0.25, 0.1, 0.25, 1);
+  }
+  .animate-in {
+    animation: fadeInUp 0.5s ease forwards;
+  }
+  .line-clamp-3 {
+    overflow: hidden;
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 3;
+  }
+  .line-clamp-4 {
+    overflow: hidden;
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 4;
+  }
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }

@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { motion } from 'framer-motion';
+import { motion, useScroll, useTransform } from 'framer-motion';
 import { Helmet } from 'react-helmet-async';
 import { supabase } from '../supabaseClient';
 import { useLanguage } from '../context/LanguageContext';
@@ -33,6 +33,14 @@ export default function HomePage() {
   const [directoryRef, directoryInView] = useScrollReveal();
   const [whyVisitRef, whyVisitInView] = useScrollReveal();
   const [ctaRef, ctaInView] = useScrollReveal();
+  const [isMobile, setIsMobile] = useState(() => window.innerWidth < 768);
+
+  useEffect(() => {
+    const mq = window.matchMedia('(max-width: 767px)');
+    const handler = (e) => setIsMobile(e.matches);
+    mq.addEventListener('change', handler);
+    return () => mq.removeEventListener('change', handler);
+  }, []);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -63,6 +71,9 @@ export default function HomePage() {
     tours: { icon: Compass, labelKey: 'business.tours' },
   };
 
+  const { scrollY } = useScroll();
+  const heroImageY = useTransform(scrollY, [0, 500], [0, 150]);
+  const parallaxEnabled = !reduceMotion && !isMobile;
   const heroTransition = reduceMotion ? { duration: 0.01 } : { duration: 0.6, ease: [0.25, 0.1, 0.25, 1] };
 
   return (
@@ -76,16 +87,19 @@ export default function HomePage() {
         <meta property="og:url" content={window.location.href} />
       </Helmet>
       <section className="relative h-dvh overflow-hidden -mt-[var(--header-h,96px)]">
-        <div className="absolute inset-0">
+        <motion.div
+          className="absolute inset-0 will-change-transform"
+          style={parallaxEnabled ? { y: heroImageY } : {}}
+        >
           <img
             src={getOptimizedImage("https://hqzodqvstvdemmqxphbv.supabase.co/storage/v1/object/public/hpaan-assets/static/home.jpg", 800)}
             alt="Hpa-An landscape"
-            className="absolute inset-0 w-full h-full object-cover"
-            loading="lazy"
+            className="absolute inset-0 w-full h-full object-cover scale-110"
+            loading="eager"
             decoding="async"
           />
-        </div>
-        <div className="absolute inset-0 bg-gradient-to-b from-[#1A3A3A]/40 via-[#1A3A3A]/50 to-[#1A1815]/80" />
+        </motion.div>
+        <div className="absolute inset-0 bg-gradient-to-b from-[#1A3A3A]/60 via-[#1A3A3A]/40 to-[#1A1815]/90" />
 
         {!reduceMotion && (
           <>
@@ -133,13 +147,13 @@ export default function HomePage() {
           >
             <Link
               to="/destinations"
-              className="px-8 py-3 bg-white/10 backdrop-blur-sm text-white font-medium rounded-full border border-white/20 hover:bg-white hover:text-primary transition shadow-lg"
+              className="px-8 py-3 bg-white text-primary font-semibold rounded-full hover:bg-gray-100 hover:shadow-xl transition-all shadow-lg"
             >
               {t('home.explore_destinations') || 'Explore Destinations'}
             </Link>
             <Link
               to="/business"
-              className="px-8 py-3 bg-gold/20 backdrop-blur-sm text-white font-medium rounded-full border border-gold/30 hover:bg-gold/40 transition"
+              className="px-8 py-3 bg-gold/25 backdrop-blur-sm text-white font-semibold rounded-full border border-gold/40 hover:bg-gold/50 hover:shadow-xl transition-all"
             >
               {t('home.view_businesses') || 'View Local Businesses'}
             </Link>
@@ -293,21 +307,24 @@ export default function HomePage() {
             <motion.div
               key={i}
               variants={fadeInUp}
-              className="text-center p-6 group"
+              className="text-center p-8 group bg-white dark:bg-neutral-dark rounded-2xl shadow-soft hover:shadow-elevated transition-all duration-300 hover:-translate-y-1"
             >
               {!reduceMotion && (
                 <motion.div
                   whileHover={{ scale: 1.15, rotate: [0, -5, 5, 0] }}
                   transition={{ duration: 0.4 }}
+                  className="w-16 h-16 mx-auto mb-4 rounded-2xl bg-primary/5 dark:bg-primary/10 flex items-center justify-center"
                 >
-                  <item.icon className="w-12 h-12 mx-auto mb-3 text-primary transition-colors" strokeWidth={1.5} />
+                  <item.icon className="w-8 h-8 text-primary" strokeWidth={1.5} />
                 </motion.div>
               )}
               {reduceMotion && (
-                <item.icon className="w-12 h-12 mx-auto mb-3 text-primary transition-transform duration-300 group-hover:scale-110" strokeWidth={1.5} />
+                <div className="w-16 h-16 mx-auto mb-4 rounded-2xl bg-primary/5 dark:bg-primary/10 flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
+                  <item.icon className="w-8 h-8 text-primary" strokeWidth={1.5} />
+                </div>
               )}
               <h3 className="text-xl font-semibold text-text mb-2">{item.title}</h3>
-              <p className="text-text-soft">{item.desc}</p>
+              <p className="text-text-soft leading-relaxed">{item.desc}</p>
             </motion.div>
           ))}
         </div>
@@ -323,14 +340,18 @@ export default function HomePage() {
         initial="hidden"
         animate={ctaInView ? 'visible' : 'hidden'}
         variants={fadeIn}
-        className="bg-primary text-white py-16 relative overflow-hidden"
+        className="bg-primary text-white py-20 relative overflow-hidden"
       >
         {!reduceMotion && (
-          <motion.div
-            className="absolute inset-0 bg-gradient-to-r from-primary-dark/50 via-transparent to-primary-dark/50"
-            animate={{ opacity: [0.3, 0.6, 0.3] }}
-            transition={{ duration: 4, repeat: Infinity, ease: 'easeInOut' }}
-          />
+          <>
+            <motion.div
+              className="absolute inset-0 bg-gradient-to-r from-primary-dark/50 via-transparent to-primary-dark/50"
+              animate={{ opacity: [0.3, 0.6, 0.3] }}
+              transition={{ duration: 4, repeat: Infinity, ease: 'easeInOut' }}
+            />
+            <div className="absolute top-10 left-10 w-32 h-32 rounded-full bg-gold/5 blur-2xl" />
+            <div className="absolute bottom-10 right-10 w-48 h-48 rounded-full bg-secondary/5 blur-3xl" />
+          </>
         )}
         <div className="container mx-auto px-4 text-center relative z-10">
           <motion.h2
@@ -341,14 +362,14 @@ export default function HomePage() {
           </motion.h2>
           <motion.p
             variants={fadeInUp}
-            className="text-lg mb-8 max-w-2xl mx-auto opacity-90"
+            className="text-lg mb-10 max-w-2xl mx-auto opacity-90 leading-relaxed"
           >
             {t('home.cta_subtitle') || 'Start planning your trip with our curated guides and local insights.'}
           </motion.p>
-          <motion.div variants={fadeInUp} whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.97 }}>
+          <motion.div variants={fadeInUp}>
             <Link
               to="/destinations"
-              className="inline-block bg-white text-primary px-10 py-3 text-lg rounded-full font-medium hover:bg-gray-100 transition shadow-lg hover:shadow-xl"
+              className="inline-block bg-white text-primary px-10 py-3.5 text-lg rounded-full font-semibold hover:bg-gray-100 hover:shadow-2xl hover:-translate-y-0.5 transition-all shadow-xl"
             >
               {t('home.start_journey') || 'Start Your Journey'}
             </Link>

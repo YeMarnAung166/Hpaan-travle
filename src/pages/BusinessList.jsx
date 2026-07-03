@@ -108,7 +108,10 @@ export default function BusinessList() {
   if (loading && businesses.length === 0) {
     return (
       <div className="container-custom">
-        <h1 className="page-title">{t('business.title')}</h1>
+        <div className="mb-8">
+          <h1 className="page-title">{t('business.title')}</h1>
+          <p className="text-text-soft text-lg">{t('business.subtitle') || 'Find the best local services'}</p>
+        </div>
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
           <SkeletonCard count={6} />
         </div>
@@ -125,7 +128,10 @@ export default function BusinessList() {
         <meta property="og:description" content="Find accommodation, restaurants, transport, and tour services in Hpa-An." />
         <meta property="og:type" content="website" />
       </Helmet>
-      <h1 className="page-title">{t('business.title')}</h1>
+      <div className="mb-8">
+        <h1 className="page-title">{t('business.title')}</h1>
+        <p className="text-text-soft text-lg">{t('business.subtitle') || 'Find the best local services'}</p>
+      </div>
       <SearchAndFilter
         type="business"
         onSearch={setSearchTerm}
@@ -133,8 +139,13 @@ export default function BusinessList() {
         onSort={setSortBy}
       />
       {businesses.length === 0 ? (
-        <div className="text-center py-12">
-          <p className="text-text-soft">{t('common.no_results')}</p>
+        <div className="text-center py-16">
+          <div className="w-16 h-16 mx-auto mb-4 rounded-2xl bg-primary/5 dark:bg-primary/10 flex items-center justify-center">
+            <svg className="w-8 h-8 text-primary/40" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+            </svg>
+          </div>
+          <p className="text-text-soft text-lg">{t('common.no_results')}</p>
         </div>
       ) : (
         <>

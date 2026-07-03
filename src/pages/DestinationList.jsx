@@ -77,7 +77,10 @@ export default function DestinationList() {
   if (loading && destinations.length === 0) {
     return (
       <div className="container-custom">
-        <h1 className="page-title">{t('destinations.title') || 'Places to Visit'}</h1>
+        <div className="mb-8">
+          <h1 className="page-title">{t('destinations.title') || 'Places to Visit'}</h1>
+          <p className="text-text-soft text-lg">{t('destinations.subtitle') || 'Discover beautiful places in Hpa-An'}</p>
+        </div>
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
           {[...Array(6)].map((_, i) => <SkeletonCard key={i} />)}
         </div>
@@ -94,7 +97,10 @@ export default function DestinationList() {
         <meta property="og:description" content="Explore beautiful destinations in Hpa-An, Myanmar - from ancient caves and pagodas to stunning landscapes." />
         <meta property="og:type" content="website" />
       </Helmet>
-      <h1 className="page-title">{t('destinations.title') || 'Places to Visit'}</h1>
+      <div className="mb-8">
+        <h1 className="page-title">{t('destinations.title') || 'Places to Visit'}</h1>
+        <p className="text-text-soft text-lg">{t('destinations.subtitle') || 'Discover beautiful places in Hpa-An'}</p>
+      </div>
       <SearchAndFilter
         type="destination"
         onSearch={setSearchTerm}
@@ -102,8 +108,13 @@ export default function DestinationList() {
         onSort={setSortBy}
       />
       {destinations.length === 0 ? (
-        <div className="text-center py-12">
-          <p className="text-text-soft">{t('common.no_results')}</p>
+        <div className="text-center py-16">
+          <div className="w-16 h-16 mx-auto mb-4 rounded-2xl bg-primary/5 dark:bg-primary/10 flex items-center justify-center">
+            <svg className="w-8 h-8 text-primary/40" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+            </svg>
+          </div>
+          <p className="text-text-soft text-lg">{t('common.no_results')}</p>
         </div>
       ) : (
         <>
