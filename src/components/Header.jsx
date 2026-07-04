@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef, memo } from 'react';
 import { NavLink, Link, useLocation } from 'react-router-dom';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion } from 'framer-motion';
+import { Compass, MapPin, Map, Store, Calendar, Lightbulb, BookOpen, FileEdit, Heart, X } from 'lucide-react';
 import { useUser } from '../context/UserContext';
 import { useLanguage } from '../context/LanguageContext';
 import { useTheme } from '../context/ThemeContext';
@@ -66,39 +67,36 @@ const Header = memo(function Header({ onLoginClick, onLogoutClick }) {
   const isTransparent = isHomepage && !scrolled;
 
   const navLinks = [
-    { to: "/", label: t("nav.home") },
-    { to: "/destinations", label: t("nav.destinations") },
-    { to: "/map", label: t("nav.map") },
-    { to: "/business", label: t("nav.directory") },
-    { to: "/events", label: t("nav.events") },
-    { to: "/tips", label: t("nav.tips") },
-    { to: "/history", label: t("nav.history") },
-    { to: "/blog", label: "Blog" },
+    { to: "/", label: t("nav.home"), icon: Compass },
+    { to: "/destinations", label: t("nav.destinations"), icon: MapPin },
+    { to: "/map", label: t("nav.map"), icon: Map },
+    { to: "/business", label: t("nav.directory"), icon: Store },
+    { to: "/events", label: t("nav.events"), icon: Calendar },
+    { to: "/tips", label: t("nav.tips"), icon: Lightbulb },
+    { to: "/history", label: t("nav.history"), icon: BookOpen },
+    { to: "/blog", label: "Blog", icon: FileEdit },
   ];
   if (user) {
-    navLinks.push({ to: "/trips", label: t("nav.trips") || "My Trips" });
-    navLinks.push({ to: "/favorites", label: t("nav.favorites") });
+    navLinks.push({ to: "/trips", label: t("nav.trips") || "My Trips", icon: MapPin });
+    navLinks.push({ to: "/favorites", label: t("nav.favorites"), icon: Heart });
   }
 
   const desktopLinkClass = ({ isActive }) =>
-    `relative px-1 py-1 font-medium transition ${
+    `inline-flex items-center gap-1.5 px-3 py-1.5 text-xs md:text-sm font-medium whitespace-nowrap rounded-full transition-colors duration-200 ${
       isActive
-        ? isTransparent ? 'text-white' : 'text-primary'
-        : isTransparent ? 'text-white/80 hover:text-white' : 'text-text hover:text-primary'
-    }`;
-
-  // Mobile link styles
-  const mobileLinkClass = ({ isActive }) =>
-    `block w-full px-4 py-2 rounded-lg ${
-      isActive
-        ? 'font-semibold text-primary bg-primary/5'
-        : 'text-text hover:text-primary hover:bg-overlay transition'
+        ? isTransparent
+          ? 'text-white'
+          : 'text-primary dark:text-primary-light'
+        : isTransparent
+          ? 'text-white/70 hover:text-white'
+          : 'text-text-soft dark:text-text-soft/80 hover:text-text dark:hover:text-white'
     }`;
 
   const avatarUrl = profile?.avatar_url;
   const displayName = profile?.display_name || user?.email?.split('@')[0] || 'User';
 
   return (
+    <>
     <header
       ref={headerRef}
       className={`sticky top-0 z-50 w-full backdrop-blur-sm transition-colors duration-500 ${
@@ -107,24 +105,62 @@ const Header = memo(function Header({ onLoginClick, onLogoutClick }) {
           : 'bg-glass border-b border-border dark:border-border shadow-glass backdrop-blur-2xl'
       }`}
     >
-      <div className="container mx-auto px-4 py-3 relative">
-        <div className="flex justify-between items-center relative">
-          <div className="flex-1 flex justify-start md:justify-center">
-            <Link to="/" className="flex items-center" onClick={closeMenu}>
-              <img
-                src="/pwa-192x192.png"
-                alt="Hpa-An Travel"
-                className="h-9 md:h-10 w-auto"
-              />
-            </Link>
-          </div>
-          <div className="hidden md:flex items-center gap-2 absolute right-0">
+      <div className="container mx-auto px-4 py-2">
+        <div className="grid grid-cols-[1fr_auto_auto] md:grid-cols-[1fr_auto_1fr] items-center gap-1 md:gap-2">
+          <Link to="/" className="flex items-center gap-3 md:col-start-2 md:justify-self-center" onClick={closeMenu}>
+            <img
+              src="/pwa-192x192.png"
+              alt="Hpa-An Travel"
+              className="h-9 md:h-10 w-auto"
+            />
+            <div className="flex flex-col leading-tight">
+              <span className={`text-base md:text-lg font-bold transition-colors duration-500 ${
+                isTransparent ? 'text-white' : 'text-text dark:text-white'
+              }`}>Hpa‑An</span>
+              <span className={`text-[10px] md:text-xs font-medium tracking-[0.15em] uppercase transition-colors duration-500 ${
+                isTransparent ? 'text-white/60' : 'text-text-soft dark:text-white/70'
+              }`}>Travel</span>
+            </div>
+          </Link>
+
+          <button
+            onClick={() => setTheme(theme === 'light' ? 'dark' : 'light')}
+            className={`md:hidden flex items-center justify-center w-9 h-9 rounded-full transition ${
+              isTransparent
+                ? 'text-white/70 hover:text-white hover:bg-white/10'
+                : 'text-text-soft dark:text-text-soft/80 hover:text-text dark:hover:text-white hover:bg-overlay dark:hover:bg-white/10'
+            }`}
+            aria-label="Toggle theme"
+          >
+            {theme === 'light' ? (
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" /></svg>
+            ) : (
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" /></svg>
+            )}
+          </button>
+
+          <button
+            ref={hamburgerRef}
+            onClick={toggleMenu}
+            aria-label={isMenuOpen ? 'Close menu' : 'Open menu'}
+            aria-expanded={isMenuOpen}
+            aria-controls="mobile-menu"
+            className={`md:hidden flex items-center justify-center w-9 h-9 rounded-lg transition ${
+              isTransparent ? 'text-white/70 hover:text-white hover:bg-white/10' : 'text-text-soft hover:text-text hover:bg-overlay dark:hover:bg-white/10'
+            }`}
+          >
+            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 6h16M4 12h16M4 18h16" />
+            </svg>
+          </button>
+
+          <div className="hidden md:flex items-center justify-end gap-2">
             <button
               onClick={() => setTheme(theme === 'light' ? 'dark' : 'light')}
-              className={`p-2 rounded-full transition ${
+              className={`flex items-center justify-center w-9 h-9 rounded-full transition ${
                 isTransparent
                   ? 'text-white/70 hover:text-white hover:bg-white/10'
-                  : 'text-text-soft hover:text-text hover:bg-overlay'
+                  : 'text-text-soft dark:text-text-soft/80 hover:text-text dark:hover:text-white hover:bg-overlay dark:hover:bg-white/10'
               }`}
               aria-label="Toggle theme"
             >
@@ -134,13 +170,13 @@ const Header = memo(function Header({ onLoginClick, onLogoutClick }) {
                 <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" /></svg>
               )}
             </button>
-            <div className={`flex gap-0.5 rounded-full p-0.5 ${isTransparent ? '' : 'bg-overlay'}`}>
+            <div className={`flex gap-0.5 rounded-full p-0.5 ${isTransparent ? '' : 'bg-overlay dark:bg-white/10'}`}>
               <button
                 onClick={() => setLanguage('en')}
                 className={`px-2.5 py-1 text-xs font-medium rounded-full transition ${
                   language === 'en'
                     ? isTransparent ? 'bg-white/20 text-white' : 'bg-primary text-white'
-                    : isTransparent ? 'text-white/60 hover:text-white' : 'text-text-soft hover:text-text'
+                    : isTransparent ? 'text-white/60 hover:text-white' : 'text-text-soft dark:text-text-soft/80 hover:text-text dark:hover:text-white'
                 }`}
                 aria-label="Switch to English"
               >
@@ -151,7 +187,7 @@ const Header = memo(function Header({ onLoginClick, onLogoutClick }) {
                 className={`px-2.5 py-1 text-xs font-medium rounded-full transition ${
                   language === 'my'
                     ? isTransparent ? 'bg-white/20 text-white' : 'bg-primary text-white'
-                    : isTransparent ? 'text-white/60 hover:text-white' : 'text-text-soft hover:text-text'
+                    : isTransparent ? 'text-white/60 hover:text-white' : 'text-text-soft dark:text-text-soft/80 hover:text-text dark:hover:text-white'
                 }`}
                 aria-label="Switch to Myanmar"
               >
@@ -163,7 +199,7 @@ const Header = memo(function Header({ onLoginClick, onLogoutClick }) {
                 <Link
                   to="/account"
                   className={`flex items-center gap-2 transition ${
-                    isTransparent ? 'text-white/80 hover:text-white' : 'text-text-soft hover:text-text'
+                    isTransparent ? 'text-white/80 hover:text-white' : 'text-text-soft dark:text-text-soft/80 hover:text-text dark:hover:text-white'
                   }`}
                 >
                   {avatarUrl ? (
@@ -179,7 +215,7 @@ const Header = memo(function Header({ onLoginClick, onLogoutClick }) {
                   variant="ghost"
                   size="sm"
                   onClick={onLogoutClick}
-                  className={isTransparent ? 'text-white/80 hover:text-white' : ''}
+                  className={isTransparent ? 'text-white/80 hover:text-white dark:text-white/80 dark:hover:text-white' : ''}
                 >
                   {t('nav.logout')}
                 </Button>
@@ -197,150 +233,176 @@ const Header = memo(function Header({ onLoginClick, onLogoutClick }) {
               </button>
             )}
           </div>
-          <button
-            ref={hamburgerRef}
-            onClick={toggleMenu}
-            aria-label={isMenuOpen ? 'Close menu' : 'Open menu'}
-            aria-expanded={isMenuOpen}
-            aria-controls="mobile-menu"
-            className={`md:hidden p-2 rounded-lg transition ${
-              isTransparent ? 'text-white/70 hover:text-white hover:bg-white/10' : 'text-text-soft hover:text-text hover:bg-overlay'
-            } absolute right-0`}
-          >
-            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 6h16M4 12h16M4 18h16" />
-            </svg>
-          </button>
         </div>
 
-        <nav className="hidden md:flex items-center justify-center gap-1 mt-2" aria-label="Main navigation">
-          {navLinks.map(link => (
+        <nav className="hidden md:flex items-center justify-center gap-0.5 mt-2 overflow-x-auto scrollbar-hide" aria-label="Main navigation">
+          {navLinks.map(link => {
+            const Icon = link.icon;
+            return (
             <NavLink key={link.to} to={link.to} className={desktopLinkClass} end={link.to === '/'}>
               {({ isActive }) => (
-                <span className="relative px-2 py-1 text-sm">
-                  {link.label}
+                <span className="relative inline-flex items-center gap-1.5 px-1.5 py-1">
+                  <Icon size={14} strokeWidth={isActive ? 2.5 : 1.5} />
+                  <span>{link.label}</span>
                   {isActive && (
                     <motion.span
                       layoutId="nav-underline"
-                      className={`absolute bottom-0 left-0 right-0 h-0.5 rounded-full ${
-                        isTransparent ? 'bg-white' : 'bg-primary'
+                      className={`absolute bottom-0 left-2 right-2 h-0.5 rounded-full ${
+                        isTransparent ? 'bg-white' : 'bg-primary dark:bg-primary-light'
                       }`}
+                      transition={{ type: 'spring', stiffness: 500, damping: 35 }}
                     />
                   )}
                 </span>
               )}
             </NavLink>
-          ))}
+          );
+        })}
         </nav>
-
-        <AnimatePresence>
-          {isMenuOpen && (
-            <>
-              <div className="fixed inset-0 z-40" onClick={closeMenu} aria-hidden="true" />
-              <motion.div
-                ref={menuRef}
-                id="mobile-menu"
-                role="dialog"
-                aria-modal="true"
-                aria-label="Navigation menu"
-                initial={{ opacity: 0, y: -12, scale: 0.96 }}
-                animate={{ opacity: 1, y: 0, scale: 1 }}
-                exit={{ opacity: 0, y: -12, scale: 0.96 }}
-                onKeyDown={(e) => { if (e.key === 'Escape') { closeMenu(); hamburgerRef.current?.focus(); } }}
-                transition={{ duration: 0.2, ease: 'easeOut' }}
-                className="md:hidden absolute left-4 right-4 top-full mt-2 z-50 glass-card rounded-2xl shadow-elevated overflow-hidden border border-border"
-              >
-              <div className="flex flex-col p-3">
-                {navLinks.map((link, i) => (
-                  <motion.div
-                    key={link.to}
-                    initial={{ opacity: 0, x: -8 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    transition={{ delay: i * 0.03, duration: 0.2 }}
-                  >
-                    <NavLink
-                      to={link.to}
-                      className={mobileLinkClass}
-                      onClick={closeMenu}
-                      end={link.to === '/'}
-                    >
-                      {link.label}
-                    </NavLink>
-                  </motion.div>
-                ))}
-                <div className="flex items-center gap-4 pt-2 border-t border-border">
-                  <button
-                    onClick={() => setTheme(theme === 'light' ? 'dark' : 'light')}
-                    className="p-2 rounded-full bg-overlay text-text hover:bg-border transition"
-                    aria-label="Toggle theme"
-                  >
-                    {theme === 'light' ? (
-                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" /></svg>
-                    ) : (
-                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" /></svg>
-                    )}
-                  </button>
-                  <div className="flex gap-0.5 bg-overlay rounded-full p-0.5">
-                  <button
-                    onClick={() => setLanguage('en')}
-                    className={`px-2.5 py-1 text-xs font-medium rounded-full transition ${
-                      language === 'en' ? 'bg-primary text-white' : 'text-text-soft hover:text-text'
-                    }`}
-                    aria-label="Switch to English"
-                  >
-                    EN
-                  </button>
-                  <button
-                    onClick={() => setLanguage('my')}
-                    className={`px-2.5 py-1 text-xs font-medium rounded-full transition ${
-                      language === 'my' ? 'bg-primary text-white' : 'text-text-soft hover:text-text'
-                    }`}
-                    aria-label="Switch to Myanmar"
-                  >
-                      မြန်
-                    </button>
-                  </div>
-                </div>
-                {user ? (
-                  <div className="pt-1 space-y-2">
-                    <Link
-                      to="/account"
-                      className="flex items-center gap-3 px-4 py-2 rounded-lg text-text hover:text-primary hover:bg-overlay transition"
-                      onClick={closeMenu}
-                    >
-                      {avatarUrl ? (
-                        <img src={avatarUrl} alt="Avatar" className="w-8 h-8 rounded-full ring-2 ring-primary/20" />
-                      ) : (
-                        <span className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center text-sm font-medium text-primary">
-                          {displayName.charAt(0).toUpperCase()}
-                        </span>
-                      )}
-                      <span className="font-medium">{displayName}</span>
-                    </Link>
-                      <Button
-                      variant="ghost"
-                      size="sm"
-                      className="w-full px-4"
-                      onClick={() => { onLogoutClick(); closeMenu(); }}
-                      >
-                      {t('nav.logout')}
-                    </Button>
-                  </div>
-                ) : (
-                  <button
-                    onClick={() => { onLoginClick(); closeMenu(); }}
-                      className="w-full px-4 py-2 rounded-lg text-sm font-medium bg-primary text-white hover:bg-primary-light transition shadow-soft"
-                  >
-                    {t('nav.login')}
-                  </button>
-                )}
-              </div>
-            </motion.div>
-          </>
-          )}
-        </AnimatePresence>
       </div>
     </header>
+    {isMenuOpen && (
+      <div
+        className="fixed inset-0 z-[100] bg-black/70"
+        onClick={closeMenu}
+        aria-hidden="true"
+      />
+    )}
+    <div
+      ref={menuRef}
+      id="mobile-menu"
+      role="dialog"
+      aria-modal="true"
+      aria-label="Navigation menu"
+      onKeyDown={(e) => { if (e.key === 'Escape') { closeMenu(); hamburgerRef.current?.focus(); } }}
+      className={`md:hidden fixed top-0 right-0 bottom-0 w-[280px] max-w-[85vw] z-[110] shadow-2xl flex flex-col transition-transform duration-200 ease-out ${
+        isMenuOpen ? 'translate-x-0' : 'translate-x-full'
+      }`}
+      style={{ backgroundColor: '#ffffff' }}
+    >
+      <div className="flex items-center justify-between p-4 border-b border-border" style={{ backgroundColor: '#ffffff' }}>
+        <Link to="/" className="flex items-center gap-2" onClick={closeMenu}>
+          <img src="/pwa-192x192.png" alt="Hpa-An Travel" className="h-8 w-auto" />
+          <div className="flex flex-col leading-tight">
+            <span className="text-sm font-bold">Hpa‑An</span>
+            <span className="text-[9px] font-medium tracking-[0.15em] uppercase text-text-soft">Travel</span>
+          </div>
+        </Link>
+        <button
+          onClick={closeMenu}
+          className="p-1.5 rounded-full hover:bg-overlay transition text-text-soft hover:text-text"
+          aria-label="Close menu"
+        >
+          <X size={20} />
+        </button>
+      </div>
+
+      {user ? (
+        <div className="p-4 border-b border-border" style={{ backgroundColor: '#ffffff' }}>
+          <Link
+            to="/account"
+            onClick={closeMenu}
+            className="flex items-center gap-3 group"
+          >
+            {avatarUrl ? (
+              <img src={avatarUrl} alt="Avatar" className="w-10 h-10 rounded-full object-cover ring-2 ring-primary/20" />
+            ) : (
+              <span className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center text-sm font-medium text-primary">
+                {displayName.charAt(0).toUpperCase()}
+              </span>
+            )}
+            <div>
+              <p className="font-medium text-sm group-hover:text-primary transition">{displayName}</p>
+              <p className="text-xs text-text-soft">{t('nav.account') || 'Account'}</p>
+            </div>
+          </Link>
+        </div>
+      ) : (
+        <div className="p-4 border-b border-border" style={{ backgroundColor: '#ffffff' }}>
+          <button
+            onClick={() => { onLoginClick(); closeMenu(); }}
+            className="w-full px-4 py-2.5 rounded-lg text-sm font-medium bg-primary text-white hover:bg-primary-light transition shadow-soft"
+          >
+            {t('nav.login')}
+          </button>
+        </div>
+      )}
+
+      <div className="flex-1 overflow-y-auto p-2 space-y-0.5" style={{ backgroundColor: '#ffffff' }}>
+        {navLinks.map(link => {
+          const Icon = link.icon;
+          return (
+            <NavLink
+              key={link.to}
+              to={link.to}
+              onClick={closeMenu}
+              end={link.to === '/'}
+              className={({ isActive }) =>
+                `flex items-center gap-3 px-4 py-3 rounded-lg transition ${
+                  isActive
+                    ? 'font-semibold text-primary bg-primary/5'
+                    : 'text-gray-800 hover:text-primary hover:bg-gray-100'
+                }`
+              }
+            >
+              <Icon size={18} strokeWidth={1.5} />
+              <span>{link.label}</span>
+            </NavLink>
+          );
+        })}
+      </div>
+
+      <div className="p-4 border-t border-border" style={{ backgroundColor: '#ffffff' }}>
+        <div className="flex items-center justify-between">
+          <button
+            onClick={() => setTheme(theme === 'light' ? 'dark' : 'light')}
+            className="flex items-center gap-2 p-2 rounded-lg hover:bg-overlay transition text-text-soft hover:text-text"
+            aria-label="Toggle theme"
+          >
+            {theme === 'light' ? (
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" /></svg>
+            ) : (
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" /></svg>
+            )}
+            <span className="text-sm">{t('nav.theme') || 'Theme'}</span>
+          </button>
+          <div className="flex gap-0.5 bg-gray-100 rounded-full p-0.5">
+            <button
+              onClick={() => setLanguage('en')}
+              className={`px-2.5 py-1 text-xs font-medium rounded-full transition ${
+                language === 'en' ? 'bg-primary text-white' : 'text-gray-600 hover:text-gray-800'
+              }`}
+              aria-label="Switch to English"
+            >
+              EN
+            </button>
+            <button
+              onClick={() => setLanguage('my')}
+              className={`px-2.5 py-1 text-xs font-medium rounded-full transition ${
+                language === 'my' ? 'bg-primary text-white' : 'text-gray-600 hover:text-gray-800'
+              }`}
+              aria-label="Switch to Myanmar"
+            >
+              မြန်
+            </button>
+          </div>
+        </div>
+      </div>
+
+      {user && (
+        <div className="px-4 pb-4" style={{ backgroundColor: '#ffffff' }}>
+          <Button
+            variant="ghost"
+            size="sm"
+            className="w-full"
+            onClick={() => { onLogoutClick(); closeMenu(); }}
+          >
+            {t('nav.logout')}
+          </Button>
+        </div>
+      )}
+    </div>
+    </>
   );
 });
 

@@ -5,6 +5,7 @@ import { SkeletonTable } from '../../components/ui/Skeleton';
 import DataTable from '../../components/admin/DataTable';
 import ConfirmDialog from '../../components/ConfirmDialog';
 import Button from '../../components/ui/Button';
+import { ExternalLink } from 'lucide-react';
 import { Helmet } from 'react-helmet-async';
 
 const STATUS_COLORS = {
@@ -139,6 +140,17 @@ export default function AdminBookings() {
         }}
         renderActions={(item) => (
           <div className="flex gap-1">
+            {item.business_id && (
+              <a
+                href={`${window.location.origin}/business/${item.business_id}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-1 px-3 py-1.5 text-sm font-medium rounded-lg text-text-soft hover:text-primary hover:bg-primary/5 transition"
+              >
+                <ExternalLink size={14} />
+                View
+              </a>
+            )}
             {item.status !== 'confirmed' && (
               <Button variant="success" size="sm" onClick={() => handleStatus(item.id, 'confirmed')}>Confirm</Button>
             )}

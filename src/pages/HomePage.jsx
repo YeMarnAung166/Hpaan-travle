@@ -342,7 +342,7 @@ export default function HomePage() {
         initial="hidden"
         animate={ctaInView ? 'visible' : 'hidden'}
         variants={fadeIn}
-        className="bg-primary text-white py-20 relative overflow-hidden"
+        className="bg-primary text-white py-16 relative overflow-hidden"
       >
         {!reduceMotion && (
           <>

@@ -5,7 +5,7 @@ import { useUser } from "../../context/UserContext";
 import { motion as Motion, AnimatePresence } from "framer-motion";
 import {
   LayoutDashboard, MapPin, Store, Calendar, Star, Camera,
-  FileText, CalendarCheck, FileEdit, LogOut, Menu, X, PanelLeftClose, PanelLeft,
+  FileText, CalendarCheck, FileEdit, LogOut, Menu, X, PanelLeftClose, PanelLeft, ExternalLink,
 } from "lucide-react";
 
 const NAV_ICONS = {
@@ -166,6 +166,20 @@ export default function AdminLayout() {
               );
             })}
           </nav>
+
+          {/* Visit Site */}
+          <div className={`px-2 py-2 border-t border-border ${collapsed ? "md:flex md:justify-center" : ""}`}>
+            <a
+              href="/"
+              target="_blank"
+              rel="noopener noreferrer"
+              className={`flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm text-text-soft hover:text-primary hover:bg-primary/5 transition w-full ${collapsed ? "md:justify-center" : ""}`}
+              title={collapsed ? "Visit Site" : undefined}
+            >
+              <ExternalLink size={18} className="shrink-0" />
+              <span className={collapsed ? "md:hidden" : ""}>Visit Site</span>
+            </a>
+          </div>
 
           {/* Logout */}
           <div
