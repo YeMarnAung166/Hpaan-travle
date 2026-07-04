@@ -75,7 +75,7 @@ export default function BottomSheet({ open, onClose, title, children, className 
                   <h2 className="text-lg font-semibold text-text">{title}</h2>
                   <button
                     onClick={onClose}
-                    className="p-1.5 rounded-full text-text-soft hover:text-text hover:bg-overlay transition"
+                    className="flex items-center justify-center p-1.5 rounded-full text-text-soft hover:text-text hover:bg-overlay transition"
                     aria-label="Close"
                   >
                     <X className="w-5 h-5" />

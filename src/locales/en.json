@@ -340,5 +340,12 @@
   "generate": "Generate Itinerary",
   "preview": "Your Itinerary",
   "save_trip": "Save as Trip"
+},
+"ai_assistant": {
+  "title": "AI Travel Assistant",
+  "greeting": "Hi! Ask me anything about Hpa-An — caves, restaurants, weather, events, and more.",
+  "placeholder": "Ask about Hpa-An...",
+  "clear_chat": "Clear chat",
+  "suggested_questions": "Suggested questions"
 }
 }

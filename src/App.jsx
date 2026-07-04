@@ -22,6 +22,7 @@ import OfflineIndicator from './components/OfflineIndicator';
 import InstallBanner from './components/InstallBanner';
 import UpdateToast from './components/UpdateToast';
 import BottomNav from './components/BottomNav';
+import AiAssistantFAB from './components/AiAssistantFAB';
 
 // Lazy load pages
 const HomePage = lazy(() => import('./pages/HomePage'));
@@ -59,6 +60,7 @@ const PrivacyPage = lazy(() => import('./pages/PrivacyPage'));
 const TermsPage = lazy(() => import('./pages/TermsPage'));
 const BlogList = lazy(() => import('./pages/BlogList'));
 const BlogPost = lazy(() => import('./pages/BlogPost'));
+const AiAssistantPage = lazy(() => import('./pages/AiAssistantPage'));
 
 const AppContent = React.memo(function AppContent({ showAuthModal, setShowAuthModal, handleLogout }) {
   const location = useLocation();
@@ -112,6 +114,7 @@ const AppContent = React.memo(function AppContent({ showAuthModal, setShowAuthMo
                   <Route path="/generate-itinerary" element={<GenerateItinerary />} />
                   <Route path="/blog" element={<BlogList />} />
                   <Route path="/blog/:slug" element={<BlogPost />} />
+                  <Route path="/chat" element={<AiAssistantPage />} />
                   <Route path="/contact" element={<ContactPage />} />
                   <Route path="/privacy" element={<PrivacyPage />} />
                   <Route path="/terms" element={<TermsPage />} />
@@ -141,6 +144,7 @@ const AppContent = React.memo(function AppContent({ showAuthModal, setShowAuthMo
         </main>
         {!isAdmin && <Footer />}
         {!isAdmin && <BottomNav />}
+        {!isAdmin && <AiAssistantFAB />}
         <AuthModal isOpen={showAuthModal} onClose={() => setShowAuthModal(false)} />
       </div>
     </>
