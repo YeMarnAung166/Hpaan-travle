@@ -8,7 +8,7 @@ import { Helmet } from 'react-helmet-async';
 import { getOptimizedImage } from '../utils/imageHelpers';
 
 export default function BlogList() {
-  const { language } = useLanguage();
+  const { language, t } = useLanguage();
   const [posts, setPosts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [page, setPage] = useState(1);
@@ -40,7 +40,7 @@ export default function BlogList() {
   if (loading) {
     return (
       <div className="container-custom">
-        <h1 className="page-title">{language === 'my' ? 'ဘလော့ဂ်' : 'Blog'}</h1>
+        <h1 className="page-title">{t('nav.blog')}</h1>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           <SkeletonCard count={6} />
         </div>
@@ -53,11 +53,11 @@ export default function BlogList() {
       <Helmet>
         <title>Blog | Hpa-An Travel</title>
         <meta name="description" content="Travel stories, tips, and guides about Hpa-An, Myanmar." />
-        <meta property="og:title" content="Blog" />
+        <meta property="og:title" content={t('nav.blog')} />
         <meta property="og:description" content="Travel stories, tips, and guides about Hpa-An, Myanmar." />
         <meta property="og:type" content="website" />
       </Helmet>
-      <h1 className="page-title">{language === 'my' ? 'ဘလော့ဂ်' : 'Blog'}</h1>
+      <h1 className="page-title">{t('nav.blog')}</h1>
       <p className="text-text-soft mb-8">
         {language === 'my' ? 'ခရီးသွားအတွေ့အကြုံများနှင့် အကြံပြုချက်များ' : 'Travel experiences, tips, and stories from Hpa-An'}
       </p>

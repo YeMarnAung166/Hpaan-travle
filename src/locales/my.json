@@ -19,7 +19,10 @@
     "history": "သမိုင်း",
     "profile": "ပရိုဖိုင်",
     "back": "နောက်သို့",
-    "dashboard": "Dashboard"
+    "dashboard": "Dashboard",
+    "theme": "အပြင်အဆင်",
+    "account": "အကောင့်",
+    "blog": "ဘလော့ဂ်"
   },
   "home": {
     "title": "ဘားအံ ခရီးသွားလမ်းညွှန်",
@@ -85,6 +88,7 @@
     "not_found": "နေရာ မတွေ့ပါ"
   },
   "business": {
+    "subtitle": "ဘားအံရှိ အကောင်းဆုံး ဒေသခံလုပ်ငန်းများကို ရှာဖွေပါ",
     "title": "ဒေသခံလုပ်ငန်းများ",
     "accommodation": "နေရာထိုင်ခင်း",
     "restaurant": "စားသောက်ဆိုင်",

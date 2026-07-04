@@ -74,7 +74,7 @@ const Header = memo(function Header({ onLoginClick, onLogoutClick }) {
     { to: "/events", label: t("nav.events"), icon: Calendar },
     { to: "/tips", label: t("nav.tips"), icon: Lightbulb },
     { to: "/history", label: t("nav.history"), icon: BookOpen },
-    { to: "/blog", label: "Blog", icon: FileEdit },
+    { to: "/blog", label: t("nav.blog"), icon: FileEdit },
   ];
   if (user) {
     navLinks.push({ to: "/trips", label: t("nav.trips") || "My Trips", icon: MapPin });
@@ -289,7 +289,7 @@ const Header = memo(function Header({ onLoginClick, onLogoutClick }) {
         </Link>
         <button
           onClick={closeMenu}
-          className="p-1.5 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700 transition text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white"
+          className="flex items-center justify-center p-1.5 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700 transition text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white"
           aria-label="Close menu"
         >
           <X size={20} />
@@ -345,7 +345,7 @@ const Header = memo(function Header({ onLoginClick, onLogoutClick }) {
                   }`
                 }
               >
-                <Icon size={18} strokeWidth={1.5} />
+                <span className="w-5 flex items-center justify-center"><Icon size={18} strokeWidth={1.5} /></span>
                 <span>{link.label}</span>
               </NavLink>
             );

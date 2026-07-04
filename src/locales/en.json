@@ -19,7 +19,10 @@
     "history": "History",
     "profile": "Profile",
     "back": "back",
-    "dashboard": "Dashboard"
+    "dashboard": "Dashboard",
+    "theme": "Theme",
+    "account": "Account",
+    "blog": "Blog"
   },
   
   "home": {
@@ -52,6 +55,7 @@
     "not_found": "Destination not found"
   },
   "business": {
+    "subtitle": "Find the best local businesses in Hpa‑An",
     "title": "Local Businesses",
     "accommodation": "Accommodation",
     "restaurant": "Restaurants",
