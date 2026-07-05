@@ -98,7 +98,7 @@ export default function BusinessDetail() {
       </Helmet>
       {/* Hero Section */}
       <div className="relative h-[40vh] sm:h-[50vh] overflow-hidden">
-        <img src={getOptimizedImage(business.image, 800)} alt={name} className="w-full h-full object-cover" loading="lazy" decoding="async" />
+        <img src={getOptimizedImage(business.image, 800)} alt={name} className="w-full h-full object-cover" loading="lazy" decoding="async" onError={(e) => { e.target.style.display = 'none'; }} />
         <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/30 to-transparent" />
         {user && (
           <button

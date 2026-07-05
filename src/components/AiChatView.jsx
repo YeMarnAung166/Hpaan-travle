@@ -2,7 +2,7 @@ import { useRef, useEffect, useCallback } from 'react';
 import { useState } from 'react';
 import { useLanguage } from '../context/LanguageContext';
 import useLocalAIChat from '../hooks/useLocalAIChat';
-import { Send, Bot, User, RefreshCw, Sparkles, MapPin, Sun, Calendar, Star, Loader2, Download } from 'lucide-react';
+import { Send, Bot, User, RefreshCw, Sparkles, MapPin, Sun, Calendar, Star, AlertTriangle } from 'lucide-react';
 
 const SUGGESTED_QUESTIONS = [
   'What are the best caves to visit in Hpa-An?',
@@ -210,41 +210,15 @@ function TypingIndicator() {
   );
 }
 
-function ModelLoadingState({ progress }) {
-  const pct = progress?.progress ? Math.round(progress.progress * 100) : 0;
-  const isDownloading = progress?.status === 'downloading';
-
-  return (
-    <div className="px-4 py-6 text-center">
-      <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-primary to-amber-500 flex items-center justify-center mx-auto mb-3">
-        <Download size={22} className="text-white" />
-      </div>
-      <h3 className="text-base font-semibold text-text mb-1">Loading AI Model</h3>
-      <p className="text-sm text-text-soft mb-4">
-        {isDownloading
-          ? `Downloading model... ${pct}% (~250MB on first load, cached afterward)`
-          : 'Preparing the AI assistant...'}
-      </p>
-      <div className="w-48 h-2 bg-neutral-mid rounded-full mx-auto overflow-hidden">
-        <div
-          className="h-full bg-gradient-to-r from-primary to-amber-500 rounded-full transition-all duration-300"
-          style={{ width: `${Math.max(pct, 5)}%` }}
-        />
-      </div>
-    </div>
-  );
-}
-
 export default function AiChatView({ showSuggested = true }) {
   const { t } = useLanguage();
   const [input, setInput] = useState('');
   const messagesEndRef = useRef(null);
   const inputRef = useRef(null);
 
-  const { messages, sendMessage, status, modelProgress, error, clearChat, stop } = useLocalAIChat();
+  const { messages, sendMessage, status, error, clearChat, stop } = useLocalAIChat();
 
   const isLoading = status === 'generating';
-  const isModelLoading = status === 'loading-model';
   const isReady = status === 'ready';
   const showSuggestions = showSuggested && messages.length === 0 && isReady;
 
@@ -258,10 +232,10 @@ export default function AiChatView({ showSuggested = true }) {
 
   const handleSubmit = useCallback((e) => {
     e?.preventDefault();
-    if (!input.trim() || isLoading || isModelLoading) return;
+    if (!input.trim() || isLoading) return;
     sendMessage(input.trim());
     setInput('');
-  }, [input, isLoading, isModelLoading, sendMessage]);
+  }, [input, isLoading, sendMessage]);
 
   const handleSuggestedClick = useCallback((question) => {
     sendMessage(question);
@@ -274,7 +248,6 @@ export default function AiChatView({ showSuggested = true }) {
   return (
     <div className="flex flex-col h-full">
       <div className="flex-1 overflow-y-auto py-3 space-y-1">
-        {isModelLoading && <ModelLoadingState progress={modelProgress} />}
 
         {showSuggestions && (
           <div className="px-4 py-6 text-center">
@@ -311,7 +284,10 @@ export default function AiChatView({ showSuggested = true }) {
 
         {error && (
           <div className="px-4 py-2 text-center">
-            <p className="text-xs text-red-500">{error}</p>
+            <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-lg bg-red-500/10 text-red-500 text-xs">
+              <AlertTriangle size={14} />
+              <span>{error}</span>
+            </div>
           </div>
         )}
 
@@ -326,7 +302,7 @@ export default function AiChatView({ showSuggested = true }) {
             value={input}
             onChange={(e) => setInput(e.target.value)}
             placeholder={t('ai_assistant.placeholder') || 'Ask about Hpa-An...'}
-            disabled={isLoading || isModelLoading}
+            disabled={isLoading}
             className="flex-1 bg-neutral-light dark:bg-neutral-mid rounded-xl px-4 py-2.5 text-sm text-text placeholder-text-soft outline-none focus:ring-2 focus:ring-primary/30 transition disabled:opacity-50"
           />
           {isLoading ? (

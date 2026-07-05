@@ -102,6 +102,7 @@ export default function UserPhotosPage() {
                 className="w-full h-48 object-cover"
                 loading="lazy"
                 decoding="async"
+                onError={(e) => { e.target.style.display = 'none'; }}
               />
               {isOwner && (
                 <button
@@ -138,6 +139,7 @@ export default function UserPhotosPage() {
               className="w-full h-auto max-h-[70vh] object-contain"
               loading="lazy"
               decoding="async"
+              onError={(e) => { e.target.style.display = 'none'; }}
             />
             <div className="p-4">
               <p className="text-text">

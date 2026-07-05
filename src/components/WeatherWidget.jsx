@@ -20,8 +20,9 @@ export default function WeatherWidget() {
       return;
     }
 
+    const abortController = new AbortController();
     const CACHE_KEY = 'hpaan_weather_cache';
-    const CACHE_TTL = 30 * 60 * 1000; // 30 minutes
+    const CACHE_TTL = 30 * 60 * 1000;
 
     const cached = localStorage.getItem(CACHE_KEY);
     if (cached) {
@@ -39,8 +40,8 @@ export default function WeatherWidget() {
     const fetchWeather = async () => {
       try {
         const [weatherRes, forecastRes] = await Promise.all([
-          fetch(`https://api.openweathermap.org/data/2.5/weather?lat=${lat}&lon=${lon}&units=metric&appid=${apiKey}`),
-          fetch(`https://api.openweathermap.org/data/2.5/forecast?lat=${lat}&lon=${lon}&units=metric&appid=${apiKey}`),
+          fetch(`https://api.openweathermap.org/data/2.5/weather?lat=${lat}&lon=${lon}&units=metric&appid=${apiKey}`, { signal: abortController.signal }),
+          fetch(`https://api.openweathermap.org/data/2.5/forecast?lat=${lat}&lon=${lon}&units=metric&appid=${apiKey}`, { signal: abortController.signal }),
         ]);
         if (!weatherRes.ok) throw new Error('Weather fetch failed');
         if (!forecastRes.ok) throw new Error('Forecast fetch failed');
@@ -48,7 +49,6 @@ export default function WeatherWidget() {
         const weatherData = await weatherRes.json();
         const forecastData = await forecastRes.json();
 
-        // Group by day and take the midday forecast (approx 12:00)
         const dailyForecasts = {};
         forecastData.list.forEach(item => {
           const date = item.dt_txt.split(' ')[0];
@@ -66,6 +66,7 @@ export default function WeatherWidget() {
           timestamp: Date.now(),
         }));
       } catch (err) {
+        if (err.name === 'AbortError') return;
         console.error(err);
         setError(err.message);
       } finally {
@@ -74,6 +75,8 @@ export default function WeatherWidget() {
     };
 
     fetchWeather();
+
+    return () => abortController.abort();
   }, [apiKey]);
 
   if (loading) {

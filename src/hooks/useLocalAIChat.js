@@ -1,7 +1,5 @@
-import { useState, useCallback, useRef, useEffect } from 'react';
+import { useState, useCallback } from 'react';
 import { supabase } from '../supabaseClient';
-
-const MODEL_ID = 'Xenova/LaMini-Flan-T5-248M';
 
 function generateId() {
   return Math.random().toString(36).slice(2, 10);
@@ -102,66 +100,74 @@ async function fetchWeather() {
 }
 
 async function searchDestinations(query) {
-  const keywords = extractKeywords(query).join(' ');
-  if (!keywords) return [];
-  const { data } = await supabase
-    .from('destinations')
-    .select('id, name, name_my, description, description_my, type, image, lat, lng, duration')
-    .or(`name.ilike.%${keywords}%,name_my.ilike.%${keywords}%,description.ilike.%${keywords}%,description_my.ilike.%${keywords}%`)
-    .limit(10);
-  return data || [];
+  try {
+    const keywords = extractKeywords(query).join(' ');
+    if (!keywords) return [];
+    const { data } = await supabase
+      .from('destinations')
+      .select('id, name, name_my, description, description_my, type, image, lat, lng')
+      .or(`name.ilike.%${keywords}%,name_my.ilike.%${keywords}%,description.ilike.%${keywords}%,description_my.ilike.%${keywords}%`)
+      .limit(10);
+    return data || [];
+  } catch { return []; }
 }
 
 async function searchBusinesses(query, category) {
-  const keywords = extractKeywords(query).join(' ');
-  let dbQuery = supabase
-    .from('businesses')
-    .select('id, name, name_my, description, description_my, category, image, address, address_my, phone, whatsapp, lat, lng');
-  if (category) dbQuery = dbQuery.eq('category', category);
-  if (keywords) dbQuery = dbQuery.or(`name.ilike.%${keywords}%,name_my.ilike.%${keywords}%,description.ilike.%${keywords}%`);
-  dbQuery = dbQuery.limit(10);
-  const { data } = await dbQuery;
-  if (!data || data.length === 0) return [];
+  try {
+    const keywords = extractKeywords(query).join(' ');
+    let dbQuery = supabase
+      .from('businesses')
+      .select('id, name, name_my, description, description_my, category, image, address, address_my, phone, lat, lng');
+    if (category) dbQuery = dbQuery.eq('category', category);
+    if (keywords) dbQuery = dbQuery.or(`name.ilike.%${keywords}%,name_my.ilike.%${keywords}%,description.ilike.%${keywords}%`);
+    dbQuery = dbQuery.limit(10);
+    const { data } = await dbQuery;
+    if (!data || data.length === 0) return [];
 
-  const ids = data.map(b => b.id);
-  const { data: ratings } = await supabase
-    .from('business_reviews')
-    .select('business_id, rating')
-    .in('business_id', ids);
+    const ids = data.map(b => b.id);
+    const { data: ratings } = await supabase
+      .from('business_reviews')
+      .select('business_id, rating')
+      .in('business_id', ids);
 
-  const ratingMap = {};
-  if (ratings) {
-    ratings.forEach(r => {
-      if (!ratingMap[r.business_id]) ratingMap[r.business_id] = { sum: 0, count: 0 };
-      ratingMap[r.business_id].sum += r.rating;
-      ratingMap[r.business_id].count += 1;
-    });
-  }
+    const ratingMap = {};
+    if (ratings) {
+      ratings.forEach(r => {
+        if (!ratingMap[r.business_id]) ratingMap[r.business_id] = { sum: 0, count: 0 };
+        ratingMap[r.business_id].sum += r.rating;
+        ratingMap[r.business_id].count += 1;
+      });
+    }
 
-  return data.map(b => ({
-    ...b,
-    avg_rating: ratingMap[b.id] ? Math.round((ratingMap[b.id].sum / ratingMap[b.id].count) * 10) / 10 : null,
-    review_count: ratingMap[b.id]?.count || 0,
-  }));
+    return data.map(b => ({
+      ...b,
+      avg_rating: ratingMap[b.id] ? Math.round((ratingMap[b.id].sum / ratingMap[b.id].count) * 10) / 10 : null,
+      review_count: ratingMap[b.id]?.count || 0,
+    }));
+  } catch { return []; }
 }
 
 async function fetchEvents() {
-  const today = new Date().toISOString().split('T')[0];
-  const { data } = await supabase
-    .from('events')
-    .select('id, name, name_my, description, description_my, date, location, image')
-    .gte('date', today)
-    .order('date', { ascending: true })
-    .limit(10);
-  return data || [];
+  try {
+    const today = new Date().toISOString().split('T')[0];
+    const { data } = await supabase
+      .from('events')
+      .select('id, name, name_my, description, description_my, date, location, image')
+      .gte('date', today)
+      .order('date', { ascending: true })
+      .limit(10);
+    return data || [];
+  } catch { return []; }
 }
 
 async function fetchPopularDestinations() {
-  const { data } = await supabase
-    .from('destinations')
-    .select('id, name, name_my, description, description_my, type, image, lat, lng, duration')
-    .limit(6);
-  return data || [];
+  try {
+    const { data } = await supabase
+      .from('destinations')
+      .select('id, name, name_my, description, description_my, type, image, lat, lng')
+      .limit(6);
+    return data || [];
+  } catch { return []; }
 }
 
 function composePrompt(userMessage, intents, data, conversationHistory) {
@@ -178,9 +184,10 @@ function composePrompt(userMessage, intents, data, conversationHistory) {
 
   prompt += `\nUser: ${userMessage}`;
 
-  if (data.destinations?.length > 0) {
+  const dests = data.destinations?.length > 0 ? data.destinations : (data.popular || []);
+  if (dests.length > 0) {
     prompt += '\n\nRelevant destinations found:';
-    data.destinations.forEach(d => {
+    dests.forEach(d => {
       prompt += `\n- ${d.name || d.name_my}${d.description ? ': ' + d.description : ''}${d.type ? ' (' + d.type + ')' : ''}`;
     });
   }
@@ -216,47 +223,8 @@ function composePrompt(userMessage, intents, data, conversationHistory) {
 
 export default function useLocalAIChat() {
   const [messages, setMessages] = useState([]);
-  const [status, setStatus] = useState('idle');
-  const [modelProgress, setModelProgress] = useState(null);
+  const [status, setStatus] = useState('ready');
   const [error, setError] = useState(null);
-  const pipelineRef = useRef(null);
-  const loadingRef = useRef(false);
-  useEffect(() => {
-    let cancelled = false;
-    async function loadModel() {
-      if (loadingRef.current || pipelineRef.current) return;
-      loadingRef.current = true;
-      setStatus('loading-model');
-      setModelProgress({ status: 'loading', progress: 0 });
-      try {
-        const { pipeline, env } = await import('@xenova/transformers');
-        env.localModelPath = '/models/';
-        env.allowRemoteModels = true;
-        setModelProgress({ status: 'downloading', progress: 0.1 });
-        const gen = await pipeline('text2text-generation', MODEL_ID, {
-          progress_callback: (progress) => {
-            if (progress.status === 'progress') {
-              const p = progress.loaded / progress.total;
-              setModelProgress({ status: 'downloading', progress: Math.min(p, 0.95) });
-            }
-          },
-        });
-        if (cancelled) return;
-        pipelineRef.current = gen;
-        setModelProgress({ status: 'ready', progress: 1 });
-        setStatus('ready');
-      } catch (err) {
-        if (cancelled) return;
-        console.error('Failed to load model:', err);
-        setError(`Failed to load AI model: ${err.message}. Refresh to try again.`);
-        setStatus('idle');
-      } finally {
-        loadingRef.current = false;
-      }
-    }
-    loadModel();
-    return () => { cancelled = true; };
-  }, []);
 
   const sendMessage = useCallback(async (text) => {
     const userMsg = {
@@ -280,13 +248,15 @@ export default function useLocalAIChat() {
       const intents = detectIntent(keywords);
       const retrievedData = {};
 
+      const isGeneralOnly = intents.length === 1 && intents[0] === 'general';
+
       const queries = [];
-      if (intents.includes('destinations') || intents.includes('general')) {
+      if (intents.includes('destinations') || isGeneralOnly) {
         queries.push(
           searchDestinations(text).then(data => { retrievedData.destinations = data; }),
         );
       }
-      if (intents.includes('businesses') || intents.includes('general')) {
+      if (intents.includes('businesses') || isGeneralOnly) {
         queries.push(
           searchBusinesses(text).then(data => { retrievedData.businesses = data; }),
         );
@@ -301,18 +271,26 @@ export default function useLocalAIChat() {
           fetchEvents().then(data => { retrievedData.events = data; }),
         );
       }
-      if (intents.includes('general')) {
+      if (isGeneralOnly) {
         queries.push(
           fetchPopularDestinations().then(data => { retrievedData.popular = data; }),
         );
       }
 
-      await Promise.all(queries);
+      await Promise.race([
+        Promise.all(queries),
+        new Promise((_, reject) => setTimeout(() => reject(new Error('data_timeout')), 6000)),
+      ]).catch(() => {
+        console.warn('Data fetching timed out, proceeding with partial data');
+      });
 
       const parts = [];
 
-      if (retrievedData.destinations?.length > 0) {
-        parts.push(createToolPart('searchDestinations', retrievedData.destinations));
+      const finalDestinations = retrievedData.destinations?.length > 0
+        ? retrievedData.destinations
+        : (retrievedData.popular || []);
+      if (finalDestinations.length > 0) {
+        parts.push(createToolPart('searchDestinations', finalDestinations));
       }
       if (retrievedData.businesses?.length > 0) {
         parts.push(createToolPart('searchBusinesses', retrievedData.businesses));
@@ -324,19 +302,26 @@ export default function useLocalAIChat() {
         parts.push(createToolPart('getUpcomingEvents', retrievedData.events));
       }
 
-      if (pipelineRef.current) {
-        const prompt = composePrompt(text, intents, retrievedData, messages);
-        const result = await pipelineRef.current(prompt, {
-          max_new_tokens: 200,
-          temperature: 0.7,
-          do_sample: true,
-        });
-        const responseText = result[0]?.generated_text || '';
-        parts.unshift(createTextPart(responseText));
-      } else {
-        const fallback = generateFallbackResponse(text, intents, retrievedData);
-        parts.unshift(createTextPart(fallback));
+      const prompt = composePrompt(text, intents, retrievedData, messages);
+
+      let responseText;
+      try {
+        const TIMEOUT_MS = 8000;
+        const result = await Promise.race([
+          supabase.functions.invoke('ai-chat', { body: { prompt } }),
+          new Promise((_, reject) => setTimeout(() => reject(new Error('timeout')), TIMEOUT_MS)),
+        ]);
+        if (result?.error || !result?.data?.response) {
+          responseText = generateFallbackResponse(text, intents, retrievedData);
+        } else {
+          responseText = result.data.response;
+        }
+      } catch (err) {
+        console.warn('Edge function error/timeout, using fallback:', err.message);
+        responseText = generateFallbackResponse(text, intents, retrievedData);
       }
+
+      parts.unshift(createTextPart(responseText));
 
       setMessages(prev => prev.map(m =>
         m.id === assistantMsg.id ? { ...m, parts } : m
@@ -363,7 +348,6 @@ export default function useLocalAIChat() {
     messages,
     sendMessage,
     status,
-    modelProgress,
     error,
     clearChat,
     stop,
@@ -380,7 +364,7 @@ function generateFallbackResponse(text, intents, data) {
     return 'I couldn\'t find specific information about that. Try asking about destinations like caves and pagodas, restaurants, the weather, or upcoming events in Hpa-An!';
   }
 
-  const dest = data.destinations || [];
+  const dest = data.destinations?.length > 0 ? data.destinations : (data.popular || []);
   const biz = data.businesses || [];
   const weather = data.weather;
   const events = data.events || [];

@@ -104,18 +104,26 @@ export default function MapPage() {
   const [tripRouteLoading, setTripRouteLoading] = useState(false);
 
   useEffect(() => {
+    let cancelled = false;
     const fetchData = async () => {
-      const { data: bizData } = await supabase
-        .from('businesses')
-        .select('id, name, name_my, description, description_my, lat, lng, category, image');
-      if (bizData) setBusinesses(bizData.filter(b => b.lat && b.lng));
-      const { data: destData } = await supabase
-        .from('destinations')
-        .select('id, name, name_my, description, description_my, lat, lng, image');
-      if (destData) setAttractions(destData.filter(d => d.lat && d.lng));
-      setLoading(false);
+      try {
+        const { data: bizData } = await supabase
+          .from('businesses')
+          .select('id, name, name_my, description, description_my, lat, lng, category, image');
+        const { data: destData } = await supabase
+          .from('destinations')
+          .select('id, name, name_my, description, description_my, lat, lng, image');
+        if (cancelled) return;
+        if (bizData) setBusinesses(bizData.filter(b => b.lat && b.lng));
+        if (destData) setAttractions(destData.filter(d => d.lat && d.lng));
+      } catch (err) {
+        console.error('Failed to fetch map data:', err);
+      } finally {
+        if (!cancelled) setLoading(false);
+      }
     };
     fetchData();
+    return () => { cancelled = true; };
   }, []);
 
   useEffect(() => {
@@ -135,34 +143,37 @@ export default function MapPage() {
 
   useEffect(() => {
     const waypointsParam = searchParams.get('waypoints');
-    if (waypointsParam) {
-      try {
-        const waypoints = JSON.parse(decodeURIComponent(waypointsParam));
-        if (Array.isArray(waypoints) && waypoints.length >= 2) {
-          // eslint-disable-next-line react-hooks/set-state-in-effect
-          setTripWaypoints(waypoints);
-          // eslint-disable-next-line react-hooks/set-state-in-effect
-          setTripRouteLoading(true);
-          const coordinates = waypoints.map(p => `${p.lng},${p.lat}`).join(';');
-          const url = `https://router.project-osrm.org/route/v1/driving/${coordinates}?overview=full&geometries=geojson`;
-          fetch(url)
-            .then(res => res.json())
-            .then(data => {
-              if (data.routes && data.routes.length > 0) {
-                const coords = data.routes[0].geometry.coordinates.map(c => [c[1], c[0]]);
-                setTripRouteCoords(coords);
-              } else {
-                const coords = waypoints.map(p => [p.lat, p.lng]);
-                setTripRouteCoords(coords);
-              }
-            })
-            .catch(err => console.error('Route fetch error:', err))
-            .finally(() => setTripRouteLoading(false));
-        }
-      } catch (e) {
-        console.error('Failed to parse waypoints', e);
+    if (!waypointsParam) return;
+
+    const abortController = new AbortController();
+    try {
+      const waypoints = JSON.parse(decodeURIComponent(waypointsParam));
+      if (Array.isArray(waypoints) && waypoints.length >= 2) {
+        setTripWaypoints(waypoints);
+        setTripRouteLoading(true);
+        const coordinates = waypoints.map(p => `${p.lng},${p.lat}`).join(';');
+        const url = `https://router.project-osrm.org/route/v1/driving/${coordinates}?overview=full&geometries=geojson`;
+        fetch(url, { signal: abortController.signal })
+          .then(res => { if (!res.ok) throw new Error('Route fetch failed'); return res.json(); })
+          .then(data => {
+            if (data.routes && data.routes.length > 0) {
+              const coords = data.routes[0].geometry.coordinates.map(c => [c[1], c[0]]);
+              setTripRouteCoords(coords);
+            } else {
+              setTripRouteCoords(waypoints.map(p => [p.lat, p.lng]));
+            }
+          })
+          .catch(err => {
+            if (err.name === 'AbortError') return;
+            console.error('Route fetch error:', err);
+          })
+          .finally(() => setTripRouteLoading(false));
       }
+    } catch (e) {
+      console.error('Failed to parse waypoints', e);
     }
+
+    return () => abortController.abort();
   }, [searchParams]);
 
   useEffect(() => {

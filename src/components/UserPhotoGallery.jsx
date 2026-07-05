@@ -99,6 +99,7 @@ export default function UserPhotoGallery({ businessId, itineraryId, destinationI
               className="w-full h-32 object-cover rounded-lg"
               loading="lazy"
               decoding="async"
+              onError={(e) => { e.target.style.display = 'none'; }}
             />
             {(user?.id === photo.user_id || user?.email?.includes('admin')) && (
               <button

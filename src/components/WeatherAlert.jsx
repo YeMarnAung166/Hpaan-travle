@@ -6,7 +6,6 @@ const ALERT_KEY = 'weatherAlertDismissed';
 
 export default function WeatherAlert() {
   const { t } = useLanguage();
-  const [_weather, setWeather] = useState(null);
   const [loading, setLoading] = useState(true);
   const [dismissedUntil, setDismissedUntil] = useState(null);
   const [alert, setAlert] = useState(null);
@@ -48,7 +47,7 @@ export default function WeatherAlert() {
   }
 
   useEffect(() => {
-    // Check if dismissed
+    const abortController = new AbortController();
     const stored = localStorage.getItem(ALERT_KEY);
     if (stored) {
       const until = parseInt(stored, 10);
@@ -69,19 +68,22 @@ export default function WeatherAlert() {
       }
       try {
         const res = await fetch(
-          `https://api.openweathermap.org/data/2.5/weather?lat=16.889&lon=97.635&units=metric&appid=${apiKey}`
+          `https://api.openweathermap.org/data/2.5/weather?lat=16.889&lon=97.635&units=metric&appid=${apiKey}`,
+          { signal: abortController.signal }
         );
         if (!res.ok) throw new Error('Weather fetch failed');
         const data = await res.json();
-        setWeather(data);
         checkAlerts(data);
       } catch (err) {
+        if (err.name === 'AbortError') return;
         console.error('WeatherAlert error:', err);
       } finally {
         setLoading(false);
       }
     };
     fetchWeather();
+
+    return () => abortController.abort();
   }, []);
 
   const dismissAlert = () => {
