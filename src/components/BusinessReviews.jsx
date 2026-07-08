@@ -96,7 +96,7 @@ export default function BusinessReviews({ businessId }) {
         <div className="flex items-center gap-4">
           <div className="text-center">
             <div className="text-4xl font-bold text-text">{averageRating.toFixed(1)}</div>
-            <StarRating rating={Math.round(averageRating)} readonly size="sm" />
+            <StarRating rating={averageRating} readonly size="sm" />
             <div className="text-sm text-text-soft">{totalReviews} {t('reviews.reviews_count')}</div>
           </div>
           <div className="text-sm text-text-soft">{t('reviews.based_on')} {totalReviews} {t('reviews.traveler_reviews')}</div>

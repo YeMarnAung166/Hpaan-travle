@@ -17,7 +17,7 @@ export default function BottomNav() {
 
   return (
     <nav
-      className="md:hidden fixed bottom-0 left-0 right-0 z-50 bg-white/95 dark:bg-neutral-dark/95 backdrop-blur-xl border-t border-border dark:border-border safe-bottom-pb"
+      className="md:hidden fixed bottom-0 left-0 right-0 z-50 bg-white/95 dark:bg-neutral-dark backdrop-blur-xl border-t border-border dark:border-border safe-bottom-pb shadow-[0_-4px_20px_rgba(0,0,0,0.08)] dark:shadow-[0_-4px_20px_rgba(0,0,0,0.3)]"
       aria-label="Bottom navigation"
     >
       <div className="flex items-center justify-around h-[64px] px-2">
@@ -34,7 +34,7 @@ export default function BottomNav() {
               className={`flex flex-col items-center justify-center gap-0.5 px-3 py-1.5 rounded-xl transition min-w-[56px] min-h-[44px] ${
                 isActive
                   ? 'text-primary dark:text-primary-light'
-                  : 'text-text-soft hover:text-text'
+                  : 'text-text-soft dark:text-text-soft/60 hover:text-text dark:hover:text-text'
               }`}
               aria-current={isActive ? 'page' : undefined}
             >

@@ -5,6 +5,7 @@ import FormModal from "../../components/admin/FormModal";
 import ConfirmDialog from "../../components/ConfirmDialog";
 import { useLanguage } from "../../context/LanguageContext";
 import ImageUploader from "../../components/ImageUploader";
+import LocationPicker from "../../components/LocationPicker";
 import { SkeletonTable } from '../../components/ui/Skeleton';
 import { Helmet } from 'react-helmet-async';
 
@@ -34,6 +35,8 @@ export default function AdminBusinesses() {
     phone: "",
     image: "",
     video_url: "",
+    lat: "",
+    lng: "",
   });
 
   const fetchBusinesses = async () => {
@@ -54,16 +57,25 @@ export default function AdminBusinesses() {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
+  const handleLocationChange = (lat, lng) => {
+    setFormData(prev => ({ ...prev, lat, lng }));
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setSubmitting(true);
+    const payload = {
+      ...formData,
+      lat: formData.lat ? parseFloat(formData.lat) : null,
+      lng: formData.lng ? parseFloat(formData.lng) : null,
+    };
     if (editingItem) {
       await supabase
         .from("businesses")
-        .update(formData)
+        .update(payload)
         .eq("id", editingItem.id);
     } else {
-      await supabase.from("businesses").insert([formData]);
+      await supabase.from("businesses").insert([payload]);
     }
     setModalOpen(false);
     setEditingItem(null);
@@ -77,6 +89,8 @@ export default function AdminBusinesses() {
       address_my: "",
       phone: "",
       image: "",
+      lat: "",
+      lng: "",
     });
     fetchBusinesses();
     setSubmitting(false);
@@ -95,6 +109,8 @@ export default function AdminBusinesses() {
       phone: item.phone || "",
       image: item.image || "",
       video_url: item.video_url || "",
+      lat: item.lat ?? "",
+      lng: item.lng ?? "",
     });
     setModalOpen(true);
   };
@@ -127,6 +143,8 @@ export default function AdminBusinesses() {
           : CATEGORIES.find((c) => c.value === val)?.label,
     },
     { key: "phone", label: "Phone" },
+    { key: "lat", label: "Latitude" },
+    { key: "lng", label: "Longitude" },
     {
       key: "image",
       label: "Image",
@@ -243,6 +261,13 @@ export default function AdminBusinesses() {
         {/* Media & Contact */}
         <div>
           <h3 className="font-semibold mb-2">Contact & Media</h3>
+          <div className="mb-4">
+            <LocationPicker
+              lat={formData.lat}
+              lng={formData.lng}
+              onLocationChange={handleLocationChange}
+            />
+          </div>
           <input
             type="tel"
             name="phone"

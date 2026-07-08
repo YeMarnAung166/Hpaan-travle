@@ -4,6 +4,7 @@ import { motion, useMotionValue, useTransform } from 'framer-motion';
 import { useUser } from '../context/UserContext';
 import { useFavorites } from '../hooks/useFavorites';
 import { useLanguage } from '../context/LanguageContext';
+import StarRating from './StarRating';
 import { getOptimizedImage } from '../utils/imageHelpers';
 
 const DestinationCard = memo(function DestinationCard({ destination }) {
@@ -76,6 +77,12 @@ const DestinationCard = memo(function DestinationCard({ destination }) {
       </Link>
       <div className="p-4">
         <p className="text-text text-sm line-clamp-2 mb-3 leading-relaxed">{description}</p>
+        {destination.avg_rating && (
+          <div className="flex items-center gap-1 mb-3">
+            <StarRating rating={destination.avg_rating} readonly size="sm" />
+            <span className="text-xs text-text-soft">({destination.review_count || 0})</span>
+          </div>
+        )}
         <div className="flex justify-between items-center">
           <Link
             to={`/destination/${destination.id}`}

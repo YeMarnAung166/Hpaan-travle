@@ -95,7 +95,7 @@ export default function DestinationReviews({ destinationId }) {
         <div className="flex items-center gap-4">
           <div className="text-center">
             <div className="text-4xl font-bold text-text">{averageRating.toFixed(1)}</div>
-            <StarRating rating={Math.round(averageRating)} readonly size="sm" />
+            <StarRating rating={averageRating} readonly size="sm" />
             <div className="text-sm text-text-soft">{totalReviews} reviews</div>
           </div>
           <div className="text-sm text-text-soft">Based on {totalReviews} traveler reviews</div>

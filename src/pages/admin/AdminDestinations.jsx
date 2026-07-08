@@ -5,6 +5,7 @@ import FormModal from "../../components/admin/FormModal";
 import ConfirmDialog from "../../components/ConfirmDialog";
 import { useLanguage } from "../../context/LanguageContext";
 import ImageUploader from "../../components/ImageUploader";
+import LocationPicker from "../../components/LocationPicker";
 import { SkeletonTable } from '../../components/ui/Skeleton';
 import { Helmet } from 'react-helmet-async';
 
@@ -43,6 +44,10 @@ export default function AdminDestinations() {
 
   const handleInputChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
+  };
+
+  const handleLocationChange = (lat, lng) => {
+    setFormData(prev => ({ ...prev, lat, lng }));
   };
 
   const handleSubmit = async (e) => {
@@ -202,22 +207,11 @@ export default function AdminDestinations() {
         </div>
         <div>
           <h3 className="font-semibold mb-2">Location & Media</h3>
-          <div className="flex gap-2 mb-2">
-            <input
-              type="text"
-              name="lat"
-              placeholder="Latitude"
-              value={formData.lat}
-              onChange={handleInputChange}
-              className="w-full border border-border dark:border-border rounded px-3 py-2 mb-2 bg-transparent text-text dark:text-text placeholder:text-text-soft focus:outline-none focus:ring-2 focus:ring-gold/30 dark:focus:ring-primary/30"
-            />
-            <input
-              type="text"
-              name="lng"
-              placeholder="Longitude"
-              value={formData.lng}
-              onChange={handleInputChange}
-              className="w-full border border-border dark:border-border rounded px-3 py-2 mb-2 bg-transparent text-text dark:text-text placeholder:text-text-soft focus:outline-none focus:ring-2 focus:ring-gold/30 dark:focus:ring-primary/30"
+          <div className="mb-2">
+            <LocationPicker
+              lat={formData.lat}
+              lng={formData.lng}
+              onLocationChange={handleLocationChange}
             />
           </div>
           <ImageUploader

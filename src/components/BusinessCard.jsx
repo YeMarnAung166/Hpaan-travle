@@ -141,7 +141,7 @@ const BusinessCard = memo(function BusinessCard({ business, avgRating: propAvgRa
         <div className="flex flex-wrap items-center gap-2 mb-2">
           {avgRating && (
             <div className="flex items-center gap-1">
-              <StarRating rating={Math.round(avgRating)} readonly size="sm" />
+              <StarRating rating={avgRating} readonly size="sm" />
               <span className="text-xs text-text-soft">({ratingCount})</span>
             </div>
           )}

@@ -4,6 +4,18 @@ import { supabase } from '../supabaseClient';
 import { useLanguage } from '../context/LanguageContext';
 import { getOptimizedImage } from '../utils/imageHelpers';
 
+function haversineDist(lat1, lng1, lat2, lng2) {
+  const R = 6371;
+  const dLat = ((lat2 - lat1) * Math.PI) / 180;
+  const dLng = ((lng2 - lng1) * Math.PI) / 180;
+  const a =
+    Math.sin(dLat / 2) ** 2 +
+    Math.cos((lat1 * Math.PI) / 180) *
+      Math.cos((lat2 * Math.PI) / 180) *
+      Math.sin(dLng / 2) ** 2;
+  return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+}
+
 export default function NearbyPlaces({ lat, lng, excludeId, type = 'destinations', radius = 10 }) {
   const { language } = useLanguage();
   const [places, setPlaces] = useState([]);
@@ -21,8 +33,17 @@ export default function NearbyPlaces({ lat, lng, excludeId, type = 'destinations
         .lte('lat', lat + rad)
         .gte('lng', lng - rad)
         .lte('lng', lng + rad)
-        .limit(6);
-      if (!error) setPlaces(data || []);
+        .limit(20);
+      if (!error && data) {
+        const filtered = data
+          .map(p => ({ ...p, distance: haversineDist(parseFloat(lat), parseFloat(lng), parseFloat(p.lat), parseFloat(p.lng)) }))
+          .filter(p => p.distance <= radius)
+          .sort((a, b) => a.distance - b.distance)
+          .slice(0, 6);
+        setPlaces(filtered);
+      } else {
+        setPlaces([]);
+      }
       setLoading(false);
     };
     fetch();
@@ -43,6 +64,7 @@ export default function NearbyPlaces({ lat, lng, excludeId, type = 'destinations
           <p className="text-sm font-medium text-text mt-1 truncate group-hover:text-primary transition-colors">
             {language === 'my' && p.name_my ? p.name_my : p.name}
           </p>
+          <p className="text-xs text-text-soft">{p.distance.toFixed(1)} km</p>
         </Link>
       ))}
     </div>

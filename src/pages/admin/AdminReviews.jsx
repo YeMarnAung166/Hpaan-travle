@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { supabase } from '../../supabaseClient';
 import { useToast } from '../../context/ToastContext';
 import ConfirmDialog from '../../components/ConfirmDialog';
+import StarRating from '../../components/StarRating';
 import { SkeletonTable } from '../../components/ui/Skeleton';
 import { Helmet } from 'react-helmet-async';
 
@@ -138,7 +139,7 @@ export default function AdminReviews() {
                   <td className="px-4 py-3 text-sm text-text">{new Date(item.created_at).toLocaleDateString()}</td>
                   <td className="px-4 py-3 text-sm text-text">{item.businesses?.name || item.destinations?.name || 'Unknown'}</td>
                   <td className="px-4 py-3 text-sm text-text">{item.user_email}</td>
-                  <td className="px-4 py-3 text-sm text-gold">{'★'.repeat(item.rating) + '☆'.repeat(5 - item.rating)}</td>
+                  <td className="px-4 py-3 text-sm"><StarRating rating={item.rating} readonly size="sm" /></td>
                   <td className="px-4 py-3 text-sm text-text"><div className="max-w-xs truncate">{item.comment || '—'}</div></td>
                   <td className="px-4 py-3">
                     <button onClick={() => setConfirmDelete(item.id)} className="text-sm text-red-600 hover:underline">Delete</button>

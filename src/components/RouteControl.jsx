@@ -31,11 +31,19 @@ export default function RouteControl({ start, end, onRouteReady }) {
     isMounted.current = true;
     return () => {
       isMounted.current = false;
-      if (controlRef.current && map && map.removeControl) {
-        try { map.removeControl(controlRef.current); } catch { /* already removed */ }
+      if (controlRef.current) {
+        if (controlRef.current._router && controlRef.current._router._pendingRequest) {
+          controlRef.current._router._pendingRequest.abort();
+        }
+        controlRef.current._clearLines = function() {};
+        if (map && map.removeControl) {
+          try { map.removeControl(controlRef.current); } catch { /* already removed */ }
+        }
         controlRef.current = null;
       }
-      markersRef.current.forEach(m => m.remove());
+      markersRef.current.forEach(m => {
+        try { m.remove(); } catch {}
+      });
       markersRef.current = [];
     };
   }, [map]);
@@ -48,10 +56,16 @@ export default function RouteControl({ start, end, onRouteReady }) {
 
       // Remove previous control and markers
       if (controlRef.current) {
+        if (controlRef.current._router && controlRef.current._router._pendingRequest) {
+          controlRef.current._router._pendingRequest.abort();
+        }
+        controlRef.current._clearLines = function() {};
         try { map.removeControl(controlRef.current); } catch { /* already removed */ }
         controlRef.current = null;
       }
-      markersRef.current.forEach(m => m.remove());
+      markersRef.current.forEach(m => {
+        try { m.remove(); } catch {}
+      });
       markersRef.current = [];
 
       // Add custom start/end markers
