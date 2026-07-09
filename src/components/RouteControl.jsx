@@ -6,25 +6,32 @@ import 'leaflet-routing-machine';
 import 'leaflet-routing-machine/dist/leaflet-routing-machine.css';
 
 const redIcon = L.divIcon({
-  html: `<svg width="32" height="32" viewBox="0 0 32 32"><path d="M16 2 C10 2 5 7 5 13 C5 21 15 29 16 30 C17 29 27 21 27 13 C27 7 22 2 16 2 Z" fill="#E53935" stroke="#B71C1C" stroke-width="1"/><circle cx="16" cy="13" r="4" fill="white"/></svg>`,
-  iconSize: [32, 32],
-  iconAnchor: [16, 32],
-  popupAnchor: [0, -20],
+  html: `<svg width="22" height="22" viewBox="0 0 22 22"><path d="M11 1C7 1 4 4.5 4 9C4 15 10 21 11 22C12 21 18 15 18 9C18 4.5 15 1 11 1Z" fill="#E53935" stroke="#B71C1C" stroke-width="1"/><circle cx="11" cy="9" r="3.5" fill="white"/></svg>`,
+  iconSize: [22, 22],
+  iconAnchor: [11, 22],
+  popupAnchor: [0, -22],
   className: 'custom-marker',
 });
 
-const greenIcon = L.divIcon({
-  html: `<svg width="32" height="32" viewBox="0 0 32 32"><path d="M16 2 C10 2 5 7 5 13 C5 21 15 29 16 30 C17 29 27 21 27 13 C27 7 22 2 16 2 Z" fill="#2D6A4F" stroke="#1B4332" stroke-width="1"/><circle cx="16" cy="13" r="4" fill="white"/></svg>`,
-  iconSize: [32, 32],
-  iconAnchor: [16, 32],
-  popupAnchor: [0, -20],
+const blueIcon = L.divIcon({
+  html: `<svg width="22" height="22" viewBox="0 0 22 22"><path d="M11 1C7 1 4 4.5 4 9C4 15 10 21 11 22C12 21 18 15 18 9C18 4.5 15 1 11 1Z" fill="#2563EB" stroke="#1D4ED8" stroke-width="1"/><circle cx="11" cy="9" r="3.5" fill="white"/></svg>`,
+  iconSize: [22, 22],
+  iconAnchor: [11, 22],
+  popupAnchor: [0, -22],
   className: 'custom-marker',
 });
 
-export default function RouteControl({ start, end, onRouteReady }) {
+const waypointIcon = L.divIcon({
+  html: `<svg width="22" height="22" viewBox="0 0 22 22"><path d="M11 1C7 1 4 4.5 4 9C4 15 10 21 11 22C12 21 18 15 18 9C18 4.5 15 1 11 1Z" fill="#8B5CF6" stroke="#7C3AED" stroke-width="1"/><circle cx="11" cy="9" r="3.5" fill="white"/></svg>`,
+  iconSize: [22, 22],
+  iconAnchor: [11, 22],
+  popupAnchor: [0, -22],
+  className: 'custom-marker',
+});
+
+export default function RouteControl({ waypoints, onRouteReady }) {
   const map = useMap();
   const controlRef = useRef(null);
-  const markersRef = useRef([]);
   const isMounted = useRef(true);
 
   useEffect(() => {
@@ -41,20 +48,15 @@ export default function RouteControl({ start, end, onRouteReady }) {
         }
         controlRef.current = null;
       }
-      markersRef.current.forEach(m => {
-        try { m.remove(); } catch {}
-      });
-      markersRef.current = [];
     };
   }, [map]);
 
   useEffect(() => {
-    if (!map || !start || !end) return;
+    if (!map || !waypoints || waypoints.length < 2) return;
 
     const initRouting = () => {
       if (!isMounted.current) return;
 
-      // Remove previous control and markers
       if (controlRef.current) {
         if (controlRef.current._router && controlRef.current._router._pendingRequest) {
           controlRef.current._router._pendingRequest.abort();
@@ -63,30 +65,20 @@ export default function RouteControl({ start, end, onRouteReady }) {
         try { map.removeControl(controlRef.current); } catch { /* already removed */ }
         controlRef.current = null;
       }
-      markersRef.current.forEach(m => {
-        try { m.remove(); } catch {}
-      });
-      markersRef.current = [];
 
-      // Add custom start/end markers
-      const startMarker = L.marker([start.lat, start.lng], { icon: redIcon }).bindPopup('Your location');
-      const endMarker = L.marker([end.lat, end.lng], { icon: greenIcon }).bindPopup('Destination');
-      startMarker.addTo(map);
-      endMarker.addTo(map);
-      markersRef.current = [startMarker, endMarker];
-
-      // Create routing control – collapsible panel (minimise / expand)
+      const len = waypoints.length;
       const routingControl = L.Routing.control({
-        waypoints: [
-          L.latLng(start.lat, start.lng),
-          L.latLng(end.lat, end.lng),
-        ],
+        waypoints: waypoints.map(w => L.latLng(w.lat, w.lng)),
         routeWhileDragging: true,
         showAlternatives: true,
         fitSelectedRoutes: true,
         lineOptions: { styles: [{ color: '#2D6A4F', weight: 5 }] },
-        collapsible: true,   // 👈 adds toggle button to collapse/expand the directions list
+        collapsible: true,
         show: true,
+        createMarker: function(i, waypoint) {
+          const icon = i === 0 ? redIcon : i === len - 1 ? blueIcon : waypointIcon;
+          return L.marker(waypoint.latLng, { icon, draggable: true });
+        },
       }).addTo(map);
 
       controlRef.current = routingControl;
@@ -98,7 +90,7 @@ export default function RouteControl({ start, end, onRouteReady }) {
     } else {
       map.whenReady(initRouting);
     }
-  }, [map, start, end, onRouteReady]);
+  }, [map, waypoints, onRouteReady]);
 
   return null;
 }

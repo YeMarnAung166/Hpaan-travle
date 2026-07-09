@@ -1,5 +1,5 @@
 /* global L */
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import {
   MapContainer,
   TileLayer,
@@ -23,35 +23,57 @@ import LoadingSpinner from '../components/ui/LoadingSpinner';
 import { useLanguage } from '../context/LanguageContext';
 import { useToast } from '../context/ToastContext';
 import { Helmet } from 'react-helmet-async';
+import { getOptimizedImage } from '../utils/imageHelpers';
 
-const businessIcon = new L.Icon({
-  iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-green.png',
-  iconSize: [25, 41],
-  iconAnchor: [12, 41],
-  popupAnchor: [1, -34],
-  shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-shadow.png',
-  shadowSize: [41, 41],
+const destinationIcon = L.divIcon({
+  html: `
+    <svg width="22" height="22" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+      <path d="M11 1C7 1 4 4.5 4 9C4 15 10 21 11 22C12 21 18 15 18 9C18 4.5 15 1 11 1Z" fill="#2D6A4F" stroke="#1B4332" stroke-width="1"/>
+      <circle cx="11" cy="9" r="3.5" fill="white"/>
+    </svg>
+  `,
+  iconSize: [22, 22],
+  iconAnchor: [11, 22],
+  popupAnchor: [0, -22],
+  className: 'custom-marker',
 });
 
-const attractionIcon = new L.Icon({
-  iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-blue.png',
-  iconSize: [25, 41],
-  iconAnchor: [12, 41],
-  popupAnchor: [1, -34],
-  shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-shadow.png',
-  shadowSize: [41, 41],
+const directoryIcon = L.divIcon({
+  html: `
+    <svg width="22" height="22" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+      <path d="M11 1C7 1 4 4.5 4 9C4 15 10 21 11 22C12 21 18 15 18 9C18 4.5 15 1 11 1Z" fill="#2563EB" stroke="#1D4ED8" stroke-width="1"/>
+      <circle cx="11" cy="9" r="3.5" fill="white"/>
+    </svg>
+  `,
+  iconSize: [22, 22],
+  iconAnchor: [11, 22],
+  popupAnchor: [0, -22],
+  className: 'custom-marker',
 });
 
 const userIcon = L.divIcon({
   html: `
-    <svg width="32" height="32" viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg">
-      <path d="M16 2 C10 2 5 7 5 13 C5 21 15 29 16 30 C17 29 27 21 27 13 C27 7 22 2 16 2 Z" fill="#E53935" stroke="#B71C1C" stroke-width="1"/>
-      <circle cx="16" cy="13" r="4" fill="white"/>
+    <svg width="22" height="22" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+      <path d="M11 1C7 1 4 4.5 4 9C4 15 10 21 11 22C12 21 18 15 18 9C18 4.5 15 1 11 1Z" fill="#E53935" stroke="#B71C1C" stroke-width="1"/>
+      <circle cx="11" cy="9" r="3.5" fill="white"/>
     </svg>
   `,
-  iconSize: [32, 32],
-  iconAnchor: [16, 32],
-  popupAnchor: [0, -20],
+  iconSize: [22, 22],
+  iconAnchor: [11, 22],
+  popupAnchor: [0, -22],
+  className: 'custom-marker',
+});
+
+const waypointIcon = L.divIcon({
+  html: `
+    <svg width="22" height="22" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+      <path d="M11 1C7 1 4 4.5 4 9C4 15 10 21 11 22C12 21 18 15 18 9C18 4.5 15 1 11 1Z" fill="#8B5CF6" stroke="#7C3AED" stroke-width="1"/>
+      <circle cx="11" cy="9" r="3.5" fill="white"/>
+    </svg>
+  `,
+  iconSize: [22, 22],
+  iconAnchor: [11, 22],
+  popupAnchor: [0, -22],
   className: 'custom-marker',
 });
 
@@ -86,15 +108,33 @@ function GeocoderControl({ onPlaceSelected }) {
   return null;
 }
 
+function MapClickHandler({ active, onAddWaypoint }) {
+  const map = useMap();
+  const activeRef = useRef(active);
+  const addWpRef = useRef(onAddWaypoint);
+  useEffect(() => {
+    activeRef.current = active;
+    addWpRef.current = onAddWaypoint;
+  });
+  useEffect(() => {
+    const handler = (e) => {
+      if (activeRef.current) addWpRef.current({ lat: e.latlng.lat, lng: e.latlng.lng });
+    };
+    map.on('click', handler);
+    return () => map.off('click', handler);
+  }, [map]);
+  return null;
+}
+
 export default function MapPage() {
-  const { t } = useLanguage();
+  const { t, getLocalized } = useLanguage();
   const { toast } = useToast();
   const [attractions, setAttractions] = useState([]);
   const [businesses, setBusinesses] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [routeStart, setRouteStart] = useState(null);
-  const [routeEnd, setRouteEnd] = useState(null);
+  const [routeWaypoints, setRouteWaypoints] = useState([]);
   const [routingActive, setRoutingActive] = useState(false);
+  const [customRouteMode, setCustomRouteMode] = useState(false);
   const [searchParams] = useSearchParams();
   const [userLocation, setUserLocation] = useState(null);
   const [mapInstance, setMapInstance] = useState(null);
@@ -133,13 +173,13 @@ export default function MapPage() {
       const [startLat, startLng] = startParam.split(',').map(Number);
       const [endLat, endLng] = endParam.split(',').map(Number);
       // eslint-disable-next-line react-hooks/set-state-in-effect
-      setRouteStart({ lat: startLat, lng: startLng });
-      // eslint-disable-next-line react-hooks/set-state-in-effect
-      setRouteEnd({ lat: endLat, lng: endLng });
-      // eslint-disable-next-line react-hooks/set-state-in-effect
-      setRoutingActive(true);
+      setRouteWaypoints([{ lat: startLat, lng: startLng }, { lat: endLat, lng: endLng }]);
     }
   }, [searchParams]);
+
+  useEffect(() => {
+    setRoutingActive(routeWaypoints.length >= 2);
+  }, [routeWaypoints]);
 
   useEffect(() => {
     const waypointsParam = searchParams.get('waypoints');
@@ -178,7 +218,7 @@ export default function MapPage() {
 
   useEffect(() => {
     if (!mapReady || !mapInstance) return;
-    if (routingActive && routeStart) return;
+    if (routingActive || customRouteMode) return;
     const locate = () => {
       if (!navigator.geolocation) return;
       navigator.geolocation.getCurrentPosition(
@@ -194,30 +234,36 @@ export default function MapPage() {
     };
     const timer = setTimeout(locate, 500);
     return () => clearTimeout(timer);
-  }, [mapReady, mapInstance, routingActive, routeStart]);
+  }, [mapReady, mapInstance, routingActive, customRouteMode]);
 
   const startRouting = (endCoords) => {
     if (!userLocation) {
       toast({ type: 'warning', message: 'Please allow location access or click the location button first.' });
       return;
     }
-    setRouteStart(userLocation);
-    setRouteEnd(endCoords);
-    setRoutingActive(true);
+    setRouteWaypoints([userLocation, endCoords]);
+    setCustomRouteMode(false);
+  };
+
+  const addWaypoint = (coords) => {
+    setRouteWaypoints(prev => [...prev, coords]);
+  };
+
+  const toggleCustomRoute = () => {
+    if (customRouteMode) {
+      setCustomRouteMode(false);
+    } else {
+      setRouteWaypoints([]);
+      setCustomRouteMode(true);
+    }
   };
 
   const clearRouting = () => {
-    setRouteStart(null);
-    setRouteEnd(null);
-    setRoutingActive(false);
+    setRouteWaypoints([]);
+    setCustomRouteMode(false);
   };
 
   if (loading) return <LoadingSpinner size="lg" />;
-
-  const allMarkers = [
-    ...attractions.map(a => ({ ...a, type: 'attraction', icon: attractionIcon })),
-    ...businesses.map(b => ({ ...b, type: 'business', icon: businessIcon }))
-  ];
 
   return (
     <div className="relative h-[calc(100vh-70px)] w-full">
@@ -268,31 +314,76 @@ export default function MapPage() {
               maxZoom={17}
             />
           </LayersControl.BaseLayer>
-        </LayersControl>
 
-        {/* ===== MARKERS WITH CLUSTERING AND DISTANCE ===== */}
-        <MarkerClusterGroup chunkedLoading>
-          {allMarkers.map((marker) => (
-            <Marker
-              key={`${marker.type}-${marker.id}`}
-              position={[marker.lat, marker.lng]}
-              icon={marker.icon}
-            >
-              <Tooltip direction="top" offset={[0, -20]} opacity={0.9} sticky>
-                <strong>{marker.name}</strong>
-              </Tooltip>
-              <Popup>
-                <div className="text-center min-w-[200px]">
-                  <strong>{marker.name}</strong>
-                  {marker.description && <p className="text-sm mt-1">{marker.description}</p>}
-                  {/* Distance from user */}
-                  {userLocation && (
-                    <p className="text-xs text-text-soft mt-1">
-                      {getDistance(userLocation.lat, userLocation.lng, marker.lat, marker.lng).toFixed(1)} {t('map.km_away')}
-                    </p>
-                  )}
-                  {marker.type === 'business' && (
-                    <>
+          <LayersControl.Overlay name={t('map.destinations')} checked>
+            <MarkerClusterGroup chunkedLoading>
+              {attractions.map((marker) => (
+                <Marker
+                  key={`attraction-${marker.id}`}
+                  position={[marker.lat, marker.lng]}
+                  icon={destinationIcon}
+                >
+                  <Tooltip direction="top" offset={[0, -5]} opacity={0.95} sticky>
+                    <span className="font-semibold text-xs whitespace-nowrap">{getLocalized(marker, 'name')}</span>
+                  </Tooltip>
+                  <Popup>
+                    <div className="text-center min-w-[200px]">
+                      {marker.image && (
+                        <img
+                          src={getOptimizedImage(marker.image, 400)}
+                          alt={getLocalized(marker, 'name')}
+                          className="w-full h-28 object-cover rounded mb-1"
+                          loading="lazy"
+                        />
+                      )}
+                      <strong>{getLocalized(marker, 'name')}</strong>
+                      {getLocalized(marker, 'description') && <p className="text-sm mt-1">{getLocalized(marker, 'description')}</p>}
+                      {userLocation && (
+                        <p className="text-xs text-text-soft mt-1">
+                          {getDistance(userLocation.lat, userLocation.lng, marker.lat, marker.lng).toFixed(1)} {t('map.km_away')}
+                        </p>
+                      )}
+                      <button
+                        onClick={() => startRouting({ lat: marker.lat, lng: marker.lng })}
+                        className="inline-block mt-2 text-blue-600 text-sm hover:underline"
+                      >
+                        Get Directions
+                      </button>
+                    </div>
+                  </Popup>
+                </Marker>
+              ))}
+            </MarkerClusterGroup>
+          </LayersControl.Overlay>
+
+          <LayersControl.Overlay name={t('map.directory')} checked>
+            <MarkerClusterGroup chunkedLoading>
+              {businesses.map((marker) => (
+                <Marker
+                  key={`business-${marker.id}`}
+                  position={[marker.lat, marker.lng]}
+                  icon={directoryIcon}
+                >
+                  <Tooltip direction="top" offset={[0, -5]} opacity={0.95} sticky>
+                    <span className="font-semibold text-xs whitespace-nowrap">{getLocalized(marker, 'name')}</span>
+                  </Tooltip>
+                  <Popup>
+                    <div className="text-center min-w-[200px]">
+                      {marker.image && (
+                        <img
+                          src={getOptimizedImage(marker.image, 400)}
+                          alt={getLocalized(marker, 'name')}
+                          className="w-full h-28 object-cover rounded mb-1"
+                          loading="lazy"
+                        />
+                      )}
+                      <strong>{getLocalized(marker, 'name')}</strong>
+                      {getLocalized(marker, 'description') && <p className="text-sm mt-1">{getLocalized(marker, 'description')}</p>}
+                      {userLocation && (
+                        <p className="text-xs text-text-soft mt-1">
+                          {getDistance(userLocation.lat, userLocation.lng, marker.lat, marker.lng).toFixed(1)} {t('map.km_away')}
+                        </p>
+                      )}
                       <Link to={`/business/${marker.id}`} className="inline-block mt-2 text-green-600 text-sm hover:underline">
                         View Details →
                       </Link>
@@ -302,21 +393,13 @@ export default function MapPage() {
                       >
                         Directions
                       </button>
-                    </>
-                  )}
-                  {marker.type === 'attraction' && (
-                    <button
-                      onClick={() => startRouting({ lat: marker.lat, lng: marker.lng })}
-                      className="inline-block mt-2 text-blue-600 text-sm hover:underline"
-                    >
-                      Get Directions
-                    </button>
-                  )}
-                </div>
-              </Popup>
-            </Marker>
-          ))}
-        </MarkerClusterGroup>
+                    </div>
+                  </Popup>
+                </Marker>
+              ))}
+            </MarkerClusterGroup>
+          </LayersControl.Overlay>
+        </LayersControl>
 
         {/* ===== TRIP ROUTE ===== */}
         {tripRouteCoords.length > 0 && !routingActive && (
@@ -332,9 +415,19 @@ export default function MapPage() {
           />
         )}
 
+        {/* ===== MAP CLICK HANDLER (custom route) ===== */}
+        <MapClickHandler active={customRouteMode} onAddWaypoint={addWaypoint} />
+
+        {/* ===== CUSTOM ROUTE WAYPOINT MARKERS ===== */}
+        {customRouteMode && routeWaypoints.map((wp, i) => (
+          <Marker key={`wp-${i}`} position={[wp.lat, wp.lng]} icon={waypointIcon}>
+            <Popup>Stop {i + 1}</Popup>
+          </Marker>
+        ))}
+
         {/* ===== DIRECTION ROUTE ===== */}
-        {routingActive && routeStart && routeEnd && (
-          <RouteControl start={routeStart} end={routeEnd} onRouteReady={() => {}} />
+        {routingActive && routeWaypoints.length >= 2 && (
+          <RouteControl waypoints={routeWaypoints} onRouteReady={() => {}} />
         )}
 
         {/* ===== GEOCODER ===== */}
@@ -351,20 +444,36 @@ export default function MapPage() {
         />
 
         {/* ===== USER LOCATION MARKER ===== */}
-        {userLocation && !routingActive && (
+        {userLocation && !routingActive && !customRouteMode && (
           <Marker position={[userLocation.lat, userLocation.lng]} icon={userIcon}>
             <Popup>{t('map.you_are_here')}</Popup>
           </Marker>
         )}
-        {userLocation && routingActive && (
-          <Marker position={[userLocation.lat, userLocation.lng]} icon={userIcon}>
-            <Popup>{t('map.your_location_start')}</Popup>
-          </Marker>
-        )}
       </MapContainer>
 
+      {/* ===== CUSTOM ROUTE BUTTON ===== */}
+      <div className="absolute bottom-5 left-5 z-[1000]">
+        <button
+          onClick={toggleCustomRoute}
+          className={`px-3 py-2 rounded-lg shadow-md transition flex items-center gap-2 ${
+            customRouteMode
+              ? 'bg-blue-600 text-white ring-2 ring-blue-300'
+              : 'bg-white text-gray-800 hover:bg-gray-100'
+          }`}
+        >
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="2" className={customRouteMode ? 'text-white' : 'text-gray-600'}>
+            <circle cx="8" cy="8" r="2.5" />
+            <line x1="8" y1="1" x2="8" y2="4" />
+            <line x1="8" y1="12" x2="8" y2="15" />
+            <line x1="1" y1="8" x2="4" y2="8" />
+            <line x1="12" y1="8" x2="15" y2="8" />
+          </svg>
+          <span className="text-sm font-medium">{customRouteMode ? t('map.tap_to_add_stops') : t('map.custom_route')}</span>
+        </button>
+      </div>
+
       {/* ===== CLEAR ROUTE BUTTON ===== */}
-      {routingActive && (
+      {(routingActive || customRouteMode) && (
         <div className="absolute bottom-5 right-5 z-[1000]">
           <button
             onClick={clearRouting}
