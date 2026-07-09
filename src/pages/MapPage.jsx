@@ -17,6 +17,7 @@ import 'leaflet-control-geocoder/dist/Control.Geocoder.css';
 import 'leaflet-control-geocoder';
 import LocationControl from '../components/LocationControl';
 import RouteControl from '../components/RouteControl';
+import RouteControls from '../components/RouteControls';
 import { supabase } from '../supabaseClient';
 import { Link, useSearchParams } from 'react-router-dom';
 import LoadingSpinner from '../components/ui/LoadingSpinner';
@@ -133,8 +134,8 @@ export default function MapPage() {
   const [businesses, setBusinesses] = useState([]);
   const [loading, setLoading] = useState(true);
   const [routeWaypoints, setRouteWaypoints] = useState([]);
-  const [routingActive, setRoutingActive] = useState(false);
   const [customRouteMode, setCustomRouteMode] = useState(false);
+  const routingActive = routeWaypoints.length >= 2;
   const [searchParams] = useSearchParams();
   const [userLocation, setUserLocation] = useState(null);
   const [mapInstance, setMapInstance] = useState(null);
@@ -176,10 +177,6 @@ export default function MapPage() {
       setRouteWaypoints([{ lat: startLat, lng: startLng }, { lat: endLat, lng: endLng }]);
     }
   }, [searchParams]);
-
-  useEffect(() => {
-    setRoutingActive(routeWaypoints.length >= 2);
-  }, [routeWaypoints]);
 
   useEffect(() => {
     const waypointsParam = searchParams.get('waypoints');
@@ -234,7 +231,7 @@ export default function MapPage() {
     };
     const timer = setTimeout(locate, 500);
     return () => clearTimeout(timer);
-  }, [mapReady, mapInstance, routingActive, customRouteMode]);
+  }, [mapReady, mapInstance, routingActive, customRouteMode, routeWaypoints]);
 
   const startRouting = (endCoords) => {
     if (!userLocation) {
@@ -419,7 +416,7 @@ export default function MapPage() {
         <MapClickHandler active={customRouteMode} onAddWaypoint={addWaypoint} />
 
         {/* ===== CUSTOM ROUTE WAYPOINT MARKERS ===== */}
-        {customRouteMode && routeWaypoints.map((wp, i) => (
+        {customRouteMode && !routingActive && routeWaypoints.map((wp, i) => (
           <Marker key={`wp-${i}`} position={[wp.lat, wp.lng]} icon={waypointIcon}>
             <Popup>Stop {i + 1}</Popup>
           </Marker>
@@ -443,47 +440,23 @@ export default function MapPage() {
           }}
         />
 
+        {/* ===== ROUTE CONTROLS ===== */}
+        <RouteControls
+          customRouteMode={customRouteMode}
+          routingActive={routingActive}
+          onToggleCustomRoute={toggleCustomRoute}
+          onClearRouting={clearRouting}
+          t={t}
+        />
+
         {/* ===== USER LOCATION MARKER ===== */}
         {userLocation && !routingActive && !customRouteMode && (
           <Marker position={[userLocation.lat, userLocation.lng]} icon={userIcon}>
             <Popup>{t('map.you_are_here')}</Popup>
           </Marker>
-        )}
+                )}
       </MapContainer>
-
-      {/* ===== CUSTOM ROUTE BUTTON ===== */}
-      <div className="absolute bottom-5 left-5 z-[1000]">
-        <button
-          onClick={toggleCustomRoute}
-          className={`px-3 py-2 rounded-lg shadow-md transition flex items-center gap-2 ${
-            customRouteMode
-              ? 'bg-blue-600 text-white ring-2 ring-blue-300'
-              : 'bg-white text-gray-800 hover:bg-gray-100'
-          }`}
-        >
-          <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="2" className={customRouteMode ? 'text-white' : 'text-gray-600'}>
-            <circle cx="8" cy="8" r="2.5" />
-            <line x1="8" y1="1" x2="8" y2="4" />
-            <line x1="8" y1="12" x2="8" y2="15" />
-            <line x1="1" y1="8" x2="4" y2="8" />
-            <line x1="12" y1="8" x2="15" y2="8" />
-          </svg>
-          <span className="text-sm font-medium">{customRouteMode ? t('map.tap_to_add_stops') : t('map.custom_route')}</span>
-        </button>
-      </div>
-
-      {/* ===== CLEAR ROUTE BUTTON ===== */}
-      {(routingActive || customRouteMode) && (
-        <div className="absolute bottom-5 right-5 z-[1000]">
-          <button
-            onClick={clearRouting}
-            className="bg-white text-gray-800 px-3 py-2 rounded-lg shadow-md hover:bg-gray-100 transition flex items-center gap-2"
-          >
-            <span className="text-red-500 text-lg">✕</span>
-            <span className="text-sm font-medium">{t('map.clear_route')}</span>
-          </button>
-        </div>
-      )}
     </div>
   );
 }
+

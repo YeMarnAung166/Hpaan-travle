@@ -69,6 +69,9 @@ export default function RouteControl({ waypoints, onRouteReady }) {
       const len = waypoints.length;
       const routingControl = L.Routing.control({
         waypoints: waypoints.map(w => L.latLng(w.lat, w.lng)),
+        router: L.Routing.osrmv1({
+          serviceUrl: 'https://router.project-osrm.org/route/v1',
+        }),
         routeWhileDragging: true,
         showAlternatives: true,
         fitSelectedRoutes: true,
