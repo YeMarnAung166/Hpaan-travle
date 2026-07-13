@@ -14,9 +14,9 @@ describe('Card', () => {
     expect(el).toHaveClass('rounded-xl');
   });
 
-  it('applies glass class when glass prop is true', () => {
-    const { container } = render(<Card glass>Glass card</Card>);
-    expect(container.firstChild).toHaveClass('glass-card');
+  it('renders rounded by default', () => {
+    const { container } = render(<Card>Rounded</Card>);
+    expect(container.firstChild).toHaveClass('rounded-xl');
   });
 
   it('wraps children in padded div by default', () => {

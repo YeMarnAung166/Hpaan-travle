@@ -1,5 +1,5 @@
 import { useState, useMemo, useRef } from 'react';
-import { motion } from 'framer-motion';
+
 import { useLanguage } from '../../context/LanguageContext';
 import Button from '../ui/Button';
 import { Search, Download, Trash2, CheckSquare, XSquare, ChevronDown, ChevronUp } from 'lucide-react';
@@ -129,11 +129,8 @@ export default function DataTable({
   }, [totalPages, currentPage]);
 
   const renderMobileCard = (item, idx) => (
-    <motion.div
+    <div
       key={item.id || idx}
-      initial={{ opacity: 0, y: 8 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ delay: idx * 0.03 }}
       className="bg-white dark:bg-neutral-dark rounded-xl border border-border p-4 space-y-2 relative"
     >
       {selectable && (
@@ -166,7 +163,7 @@ export default function DataTable({
           </>
         )}
       </div>
-    </motion.div>
+    </div>
   );
 
   return (
@@ -280,11 +277,8 @@ export default function DataTable({
               </tr>
             ) : (
               paginated.map((item, idx) => (
-                <motion.tr
+                <tr
                   key={item.id || idx}
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  transition={{ delay: idx * 0.02 }}
                   className={`border-t border-border transition ${
                     selectable && selected.has(item.id)
                       ? 'bg-primary/5 hover:bg-primary/10'
@@ -320,7 +314,7 @@ export default function DataTable({
                       )}
                     </div>
                   </td>
-                </motion.tr>
+                </tr>
               ))
             )}
           </tbody>

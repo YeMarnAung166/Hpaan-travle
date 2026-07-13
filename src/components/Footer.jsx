@@ -1,11 +1,7 @@
-import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { motion } from 'framer-motion';
 import { useLanguage } from '../context/LanguageContext';
 import { useUser } from '../context/UserContext';
-import { Mail, Phone, MapPin, ChevronUp, ExternalLink } from 'lucide-react';
-import { useReducedMotion } from '../hooks/useReducedMotion';
-import CurrencyConverter from './CurrencyConverter';
+import { Mail, Phone, MapPin } from 'lucide-react';
 
 const FacebookIcon = () => (
   <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
@@ -34,18 +30,6 @@ const YoutubeIcon = () => (
 export default function Footer() {
   const { t, language, setLanguage } = useLanguage();
   const user = useUser();
-  const reduceMotion = useReducedMotion();
-  const [showBackToTop, setShowBackToTop] = useState(false);
-
-  useEffect(() => {
-    const handleScroll = () => setShowBackToTop(window.scrollY > 600);
-    window.addEventListener('scroll', handleScroll, { passive: true });
-    return () => window.removeEventListener('scroll', handleScroll);
-  }, []);
-
-  const scrollToTop = () => {
-    window.scrollTo({ top: 0, behavior: 'smooth' });
-  };
 
   const mainLinks = [
     { to: '/', label: t('nav.home') },
@@ -63,38 +47,18 @@ export default function Footer() {
     extraLinks.push({ to: '/favorites', label: t('nav.favorites') });
     extraLinks.push({ to: '/account', label: t('nav.profile') || 'My Account' });
   }
-  const containerVariants = {
-    hidden: { opacity: 0 },
-    visible: { transition: { staggerChildren: 0.06, delayChildren: 0.1 } },
-  };
-  const itemVariants = {
-    hidden: { opacity: 0, y: 20 },
-    visible: { opacity: 1, y: 0, transition: { duration: 0.5, ease: [0.25, 0.1, 0.25, 1] } },
-  };
 
   const SectionHeading = ({ children }) => (
     <div className="mb-5">
       <h4 className="text-sm font-semibold text-white uppercase tracking-wider">{children}</h4>
-      <div className="w-8 h-0.5 bg-gradient-to-r from-gold to-gold/20 rounded-full mt-2" />
     </div>
   );
 
   return (
-    <footer className="bg-[#1A1815] text-gray-300 relative overflow-hidden">
-      {!reduceMotion && (
-        <>
-          <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-gold/30 to-transparent" />
-          <div className="absolute -top-40 -left-40 w-80 h-80 rounded-full bg-gold/[0.02] blur-3xl pointer-events-none" />
-          <div className="absolute -bottom-40 -right-40 w-96 h-96 rounded-full bg-primary/[0.02] blur-3xl pointer-events-none" />
-        </>
-      )}
+    <footer className="bg-[#1A1815] text-gray-300">
       <div className="container mx-auto px-4 py-16 md:py-20">
-        <motion.div
-          initial="visible"
-          variants={containerVariants}
-          className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-10 lg:gap-12"
-        >
-          <motion.div variants={itemVariants} className="space-y-5">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-10 lg:gap-12">
+          <div className="space-y-5">
             <h3 className="text-2xl font-serif font-bold text-white tracking-tight">
               Hpa‑An Travel
             </h3>
@@ -108,23 +72,21 @@ export default function Footer() {
                 { Icon: TwitterIcon, href: 'https://twitter.com/hpaantravel', name: 'Twitter' },
                 { Icon: YoutubeIcon, href: 'https://youtube.com/@hpaantravel', name: 'YouTube' },
               ].map(({ href, Icon, name }, i) => (
-                <motion.a
+                <a
                   key={i}
                   href={href}
                   target="_blank"
                   rel="noopener noreferrer"
-                  whileHover={!reduceMotion ? { scale: 1.15, y: -2 } : {}}
-                  whileTap={!reduceMotion ? { scale: 0.95 } : {}}
-                  className="w-9 h-9 rounded-full bg-white/5 flex items-center justify-center text-gray-400 hover:bg-gold hover:text-white hover:shadow-lg hover:shadow-gold/20 transition-all duration-300"
+                  className="w-9 h-9 rounded-full bg-white/5 flex items-center justify-center text-gray-400 hover:bg-gold hover:text-white transition-colors"
                   aria-label={`Follow us on ${name}`}
                 >
                   <Icon />
-                </motion.a>
+                </a>
               ))}
             </div>
-          </motion.div>
+          </div>
 
-          <motion.div variants={itemVariants}>
+          <div>
             <SectionHeading>{t('footer.quick_links') || 'Quick Links'}</SectionHeading>
             <div className="grid grid-cols-2 gap-x-4 gap-y-3">
               {[...mainLinks, ...extraLinks].map(link => (
@@ -138,9 +100,9 @@ export default function Footer() {
                 </Link>
               ))}
             </div>
-          </motion.div>
+          </div>
 
-          <motion.div variants={itemVariants}>
+          <div>
             <SectionHeading>{t('footer.contact') || 'Contact'}</SectionHeading>
             <ul className="space-y-4 text-sm">
               {[
@@ -156,17 +118,17 @@ export default function Footer() {
                 </li>
               ))}
             </ul>
-          </motion.div>
+          </div>
 
-          <motion.div variants={itemVariants} className="space-y-6">
+          <div className="space-y-6">
             <div>
               <SectionHeading>{t('footer.language') || 'Language'}</SectionHeading>
               <div className="flex gap-2">
                 <button
                   onClick={() => setLanguage('en')}
-                  className={`px-4 py-1.5 rounded-full text-xs font-medium transition-all duration-200 ${
+                  className={`px-4 py-1.5 rounded-full text-xs font-medium transition-colors ${
                     language === 'en'
-                      ? 'bg-gold text-white shadow-sm shadow-gold/30'
+                      ? 'bg-gold text-white'
                       : 'bg-white/5 text-gray-400 hover:bg-white/10 hover:text-white'
                   }`}
                 >
@@ -174,9 +136,9 @@ export default function Footer() {
                 </button>
                 <button
                   onClick={() => setLanguage('my')}
-                  className={`px-4 py-1.5 rounded-full text-xs font-medium transition-all duration-200 ${
+                  className={`px-4 py-1.5 rounded-full text-xs font-medium transition-colors ${
                     language === 'my'
-                      ? 'bg-gold text-white shadow-sm shadow-gold/30'
+                      ? 'bg-gold text-white'
                       : 'bg-white/5 text-gray-400 hover:bg-white/10 hover:text-white'
                   }`}
                 >
@@ -184,14 +146,10 @@ export default function Footer() {
                 </button>
               </div>
             </div>
-            <CurrencyConverter />
-          </motion.div>
-        </motion.div>
+          </div>
+        </div>
 
-        <motion.div
-          initial={{ opacity: 1 }}
-          className="mt-14 pt-8 border-t border-white/5 flex flex-col md:flex-row justify-between items-center gap-4 text-sm text-gray-500"
-        >
+        <div className="mt-14 pt-8 border-t border-white/5 flex flex-col md:flex-row justify-between items-center gap-4 text-sm text-gray-500">
           <p>
             &copy; {new Date().getFullYear()} Hpa‑An Travel. {t('footer.rights') || 'All rights reserved.'}
           </p>
@@ -201,28 +159,13 @@ export default function Footer() {
               { to: '/terms', label: t('footer.terms') || 'Terms of Service' },
               { to: '/contact', label: t('footer.contact_us') || 'Contact Us' },
             ].map(link => (
-              <Link key={link.to} to={link.to} className="hover:text-gold transition-colors duration-200 flex items-center gap-1">
+              <Link key={link.to} to={link.to} className="hover:text-gold transition-colors flex items-center gap-1">
                 {link.label}
-                <ExternalLink className="w-3 h-3 opacity-0 group-hover:opacity-100 transition-opacity" />
               </Link>
             ))}
           </div>
-        </motion.div>
+        </div>
       </div>
-
-      {showBackToTop && (
-        <motion.button
-          initial={{ opacity: 0, scale: 0.8 }}
-          animate={{ opacity: 1, scale: 1 }}
-          exit={{ opacity: 0, scale: 0.8 }}
-          onClick={scrollToTop}
-          className="fixed bottom-[72px] right-6 z-40 w-10 h-10 rounded-full bg-gold text-white shadow-lg hover:bg-gold/90 hover:shadow-xl hover:shadow-gold/20 transition-all flex items-center justify-center md:bottom-6"
-          whileHover={!reduceMotion ? { y: -2 } : {}}
-          whileTap={!reduceMotion ? { scale: 0.95 } : {}}
-        >
-          <ChevronUp className="w-5 h-5" />
-        </motion.button>
-      )}
     </footer>
   );
 }

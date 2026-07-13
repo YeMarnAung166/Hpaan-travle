@@ -9,7 +9,7 @@ import { ToastProvider } from './context/ToastContext';
 import { HelmetProvider } from 'react-helmet-async';
 import { useAuthSession } from './hooks/useAuthSession';
 import useSwipeBack from './hooks/useSwipeBack';
-import { pageTransition } from './utils/animations';
+import { fadeInUp } from './utils/animations';
 import AuthModal from './components/AuthModal';
 import Header from './components/Header';
 import Footer from './components/Footer';
@@ -91,7 +91,7 @@ const AppContent = React.memo(function AppContent({ showAuthModal, setShowAuthMo
         )}
         <main id="main-content" className="flex-grow min-h-[calc(100vh-var(--header-h,96px))] pb-[72px] md:pb-0">
           <AnimatePresence mode="wait">
-            <Motion.div key={isAdmin ? "/admin" : location.pathname} {...pageTransition}>
+            <Motion.div key={isAdmin ? "/admin" : location.pathname} initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.3 }}>
               <Suspense fallback={<LoadingSpinner size="lg" />}>
                 <Routes location={location}>
                   <Route path="/" element={<HomePage />} />

@@ -19,6 +19,10 @@ export default {
           DEFAULT: 'var(--color-gold)',
           light: 'var(--color-gold-light)',
         },
+        'accent-orange': {
+          1: 'var(--color-accent-orange-1)',
+          2: 'var(--color-accent-orange-2)',
+        },
         neutral: {
           light: 'var(--color-neutral-light)',
           mid: 'var(--color-neutral-mid)',

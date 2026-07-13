@@ -4,7 +4,7 @@ import { Link } from 'react-router-dom';
 import { useLanguage } from '../../context/LanguageContext';
 import { SkeletonStatCard } from '../../components/ui/Skeleton';
 import { Helmet } from 'react-helmet-async';
-import { motion as Motion } from 'framer-motion';
+
 import {
   BarChart, Bar, AreaChart, Area,
   XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend,
@@ -53,11 +53,7 @@ const ICONS = {
 
 function StatCard({ title, value, link, icon, gradient, trend, trendLabel, index }) {
   return (
-    <Motion.div
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ delay: index * 0.08, duration: 0.4, ease: [0.25, 0.1, 0.25, 1] }}
-    >
+    <div>
       <Link
         to={link}
         className={`relative overflow-hidden rounded-2xl p-5 bg-gradient-to-br ${gradient} text-white block group hover:shadow-elevated hover:-translate-y-0.5 transition-all duration-300`}
@@ -79,7 +75,7 @@ function StatCard({ title, value, link, icon, gradient, trend, trendLabel, index
           )}
         </div>
       </Link>
-    </Motion.div>
+    </div>
   );
 }
 
@@ -273,11 +269,7 @@ export default function AdminDashboard() {
   }
 
   return (
-    <Motion.div
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      transition={{ duration: 0.3 }}
-    >
+    <div>
       <Helmet>
         <title>Admin Dashboard | Hpa-An Travel</title>
         <meta name="description" content="Analytics and management dashboard for Hpa-An Travel" />
@@ -312,11 +304,8 @@ export default function AdminDashboard() {
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
-        <Motion.div
+        <div
           className="bg-white dark:bg-neutral-dark rounded-2xl border border-border shadow-soft p-5"
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.2, duration: 0.4 }}
         >
           <h3 className="text-lg font-semibold mb-4 flex items-center gap-2">
             <CalendarCheck size={20} className="text-primary" />
@@ -338,13 +327,10 @@ export default function AdminDashboard() {
           ) : (
             <div className="flex items-center justify-center h-[250px] text-text-soft">{t('admin.no_data_chart')}</div>
           )}
-        </Motion.div>
+        </div>
 
-        <Motion.div
+        <div
           className="bg-white dark:bg-neutral-dark rounded-2xl border border-border shadow-soft p-5"
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.3, duration: 0.4 }}
         >
           <h3 className="text-lg font-semibold mb-4 flex items-center gap-2">
             <TrendingUp size={20} className="text-primary" />
@@ -375,15 +361,12 @@ export default function AdminDashboard() {
           ) : (
             <div className="flex items-center justify-center h-[250px] text-text-soft">{t('admin.no_data_chart')}</div>
           )}
-        </Motion.div>
+        </div>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        <Motion.div
+        <div
           className="bg-white dark:bg-neutral-dark rounded-2xl border border-border shadow-soft p-5"
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.35, duration: 0.4 }}
         >
           <h3 className="text-lg font-semibold mb-4 flex items-center gap-2">
             <Star size={20} className="text-gold" />
@@ -417,13 +400,10 @@ export default function AdminDashboard() {
           ) : (
             <p className="text-text-soft text-sm py-8 text-center">{t('admin.no_data_chart')}</p>
           )}
-        </Motion.div>
+        </div>
 
-        <Motion.div
+        <div
           className="bg-white dark:bg-neutral-dark rounded-2xl border border-border shadow-soft p-5"
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.4, duration: 0.4 }}
         >
           <h3 className="text-lg font-semibold mb-4 flex items-center gap-2">
             <ClipboardList size={20} className="text-primary" />
@@ -455,13 +435,10 @@ export default function AdminDashboard() {
           ) : (
             <p className="text-text-soft text-sm py-8 text-center">{t('admin.no_data_chart')}</p>
           )}
-        </Motion.div>
+        </div>
 
-        <Motion.div
+        <div
           className="bg-white dark:bg-neutral-dark rounded-2xl border border-border shadow-soft p-5"
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.45, duration: 0.4 }}
         >
           <h3 className="text-lg font-semibold mb-4 flex items-center gap-2">
             <PlusCircle size={20} className="text-primary" />
@@ -505,8 +482,8 @@ export default function AdminDashboard() {
               </div>
             </Link>
           </div>
-        </Motion.div>
+        </div>
       </div>
-    </Motion.div>
+    </div>
   );
 }

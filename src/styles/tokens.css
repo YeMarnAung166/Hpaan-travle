@@ -11,6 +11,8 @@
   --color-secondary-dark: #A35147;
   --color-gold: #C4956A;
   --color-gold-light: #D4AD8A;
+  --color-accent-orange-1: #FF6B35;
+  --color-accent-orange-2: #FF8C42;
   --color-neutral-light: #F4F1EA;
   --color-neutral-mid: #DED8CE;
   --color-neutral-dark: #8A8578;
@@ -28,6 +30,7 @@
 
   --font-family-serif: 'Playfair Display', 'Noto Sans Myanmar', Georgia, serif;
   --font-family-sans: 'Inter', 'Noto Sans Myanmar', system-ui, sans-serif;
+  --font-family-pixel: 'Press Start 2P', monospace;
 
   --shadow-soft: 0 2px 8px rgba(80, 60, 30, 0.10), 0 1px 3px rgba(80, 60, 30, 0.06);
   --shadow-elevated: 0 8px 30px rgba(80, 60, 30, 0.14), 0 2px 8px rgba(80, 60, 30, 0.08);
@@ -55,6 +58,8 @@
   --color-secondary-dark: #B8665A;
   --color-gold: #D4AD8A;
   --color-gold-light: #E0C4A8;
+  --color-accent-orange-1: #FF8C42;
+  --color-accent-orange-2: #FFA66B;
   --color-neutral-light: #161412;
   --color-neutral-mid: #2A2622;
   --color-neutral-dark: #3D3833;

@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef, memo } from 'react';
 import { NavLink, Link, useLocation } from 'react-router-dom';
-import { motion } from 'framer-motion';
+
 import { Compass, MapPin, Map, Store, Calendar, Lightbulb, BookOpen, FileEdit, Heart, X } from 'lucide-react';
 import { useUser } from '../context/UserContext';
 import { useLanguage } from '../context/LanguageContext';
@@ -242,16 +242,12 @@ const Header = memo(function Header({ onLoginClick, onLogoutClick }) {
             <NavLink key={link.to} to={link.to} className={desktopLinkClass} end={link.to === '/'}>
               {({ isActive }) => (
                 <span className="relative inline-flex items-center gap-1.5 px-1.5 py-1">
-                  <Icon size={14} strokeWidth={isActive ? 2.5 : 1.5} />
+                  <Icon size={14} />
                   <span>{link.label}</span>
                   {isActive && (
-                    <motion.span
-                      layoutId="nav-underline"
-                      className={`absolute bottom-0 left-2 right-2 h-0.5 rounded-full ${
-                        isTransparent ? 'bg-white' : 'bg-primary dark:bg-primary-light'
-                      }`}
-                      transition={{ type: 'spring', stiffness: 500, damping: 35 }}
-                    />
+                    <span className={`absolute bottom-0 left-2 right-2 h-0.5 rounded-full ${
+                      isTransparent ? 'bg-white' : 'bg-primary dark:bg-primary-light'
+                    }`} />
                   )}
                 </span>
               )}

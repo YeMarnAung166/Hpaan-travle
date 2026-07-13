@@ -2,7 +2,7 @@ import { useState } from "react";
 import { Link, Outlet, useLocation } from "react-router-dom";
 import { useLanguage } from "../../context/LanguageContext";
 import { useUser } from "../../context/UserContext";
-import { motion as Motion, AnimatePresence } from "framer-motion";
+
 import {
   LayoutDashboard, MapPin, Store, Calendar, Star, Camera,
   FileText, CalendarCheck, FileEdit, LogOut, Menu, X, PanelLeftClose, PanelLeft, ExternalLink,
@@ -42,17 +42,12 @@ export default function AdminLayout() {
   return (
     <div className="h-screen overflow-hidden bg-neutral-light/50 dark:bg-neutral-mid/10">
       {/* Mobile backdrop */}
-      <AnimatePresence>
-        {sidebarOpen && (
-          <Motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            onClick={() => setSidebarOpen(false)}
-            className="md:hidden fixed inset-0 bg-black/40 backdrop-blur-sm z-40"
-          />
-        )}
-      </AnimatePresence>
+      {sidebarOpen && (
+        <div
+          onClick={() => setSidebarOpen(false)}
+          className="md:hidden fixed inset-0 bg-black/40 z-40"
+        />
+      )}
 
       <div className="flex h-full">
         {/* Sidebar - always visible on desktop */}
@@ -144,11 +139,7 @@ export default function AdminLayout() {
                   title={collapsed ? item.label : undefined}
                 >
                   {isActive && (
-                    <Motion.span
-                      layoutId="activeTab"
-                      className="absolute left-0 inset-y-2 w-0.5 bg-primary rounded-r-full"
-                      transition={{ type: "spring", stiffness: 400, damping: 30 }}
-                    />
+                    <span className="absolute left-0 inset-y-2 w-0.5 bg-primary rounded-r-full" />
                   )}
                   <Icon
                     size={18}

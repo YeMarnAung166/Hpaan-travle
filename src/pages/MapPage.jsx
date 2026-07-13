@@ -1,6 +1,6 @@
 /* global L */
 import { useEffect, useState, useRef } from 'react';
-import { motion } from 'framer-motion';
+
 import {
   MapContainer,
   TileLayer,
@@ -271,17 +271,12 @@ export default function MapPage() {
         <meta property="og:description" content="Interactive map of Hpa-An with destinations, businesses, and route planning." />
         <meta property="og:type" content="website" />
       </Helmet>
-      <motion.div
-        initial={{ opacity: 1 }}
-        animate={{ opacity: mapReady ? 0 : 1 }}
-        transition={{ duration: 0.4, ease: 'easeOut' }}
-        className={`absolute inset-0 z-10 flex items-center justify-center bg-neutral-light dark:bg-neutral-dark pointer-events-none`}
-      >
+      <div className={`absolute inset-0 z-10 flex items-center justify-center bg-neutral-light dark:bg-neutral-dark ${mapReady ? 'hidden' : ''}`}>
         <div className="text-center">
           <LoadingSpinner size="md" />
           <p className="text-text-soft text-sm">Loading map tiles...</p>
         </div>
-      </motion.div>
+      </div>
       <MapContainer
         center={[16.89, 97.65]}
         zoom={12}
