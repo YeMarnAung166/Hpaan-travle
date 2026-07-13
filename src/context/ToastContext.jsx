@@ -1,5 +1,6 @@
 /* eslint-disable react-refresh/only-export-components */
 import { createContext, useContext, useState, useCallback } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
 
 const ToastContext = createContext();
 
@@ -30,9 +31,19 @@ export const ToastProvider = ({ children }) => {
       {children}
       <div className="fixed bottom-4 right-4 md:bottom-4 md:right-4 z-[100] flex flex-col gap-2 pointer-events-none md:max-w-[420px]
         max-[767px]:top-4 max-[767px]:bottom-auto max-[767px]:left-4 max-[767px]:right-4 max-[767px]:items-center">
-        {toasts.map(t => (
-          <ToastItem key={t.id} toast={t} onDismiss={() => dismissToast(t.id)} />
-        ))}
+        <AnimatePresence>
+          {toasts.map(t => (
+            <motion.div
+              key={t.id}
+              initial={{ opacity: 0, y: 24, scale: 0.95 }}
+              animate={{ opacity: 1, y: 0, scale: 1 }}
+              exit={{ opacity: 0, y: -12, scale: 0.95, transition: { duration: 0.2 } }}
+              transition={{ type: 'spring', stiffness: 400, damping: 25 }}
+            >
+              <ToastItem toast={t} onDismiss={() => dismissToast(t.id)} />
+            </motion.div>
+          ))}
+        </AnimatePresence>
       </div>
     </ToastContext.Provider>
   );

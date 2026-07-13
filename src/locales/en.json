@@ -45,7 +45,17 @@
   "cta_subtitle": "Start planning your trip with our curated guides and local insights.",
   "start_journey": "Start Your Journey",
   "hero_tagline": "Discover the Hidden Gem",
-  "scroll": "Scroll for More Info"
+  "scroll": "Scroll for More Info",
+  "stat_destinations": "Destinations",
+  "stat_businesses": "Local Businesses",
+  "stat_events": "Yearly Events",
+  "stat_rating": "Traveler Rating",
+  "destinations_label": "Explore",
+  "directory_label": "Directory",
+  "why_visit_label": "Why Hpa‑An",
+  "why_visit_title": "Why Hpa‑An",
+  "why_visit_subtitle": "Limestone, legends & local warmth",
+  "cta_badge": "Trusted by travelers exploring Myanmar"
 },
   "destinations": {
     "title": "Places to Visit",

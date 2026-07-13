@@ -3,7 +3,8 @@ import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { useLanguage } from '../context/LanguageContext';
 import { useUser } from '../context/UserContext';
-import { Mail, Phone, MapPin, ChevronUp } from 'lucide-react';
+import { Mail, Phone, MapPin, ChevronUp, ExternalLink } from 'lucide-react';
+import { useReducedMotion } from '../hooks/useReducedMotion';
 import CurrencyConverter from './CurrencyConverter';
 
 const FacebookIcon = () => (
@@ -33,6 +34,7 @@ const YoutubeIcon = () => (
 export default function Footer() {
   const { t, language, setLanguage } = useLanguage();
   const user = useUser();
+  const reduceMotion = useReducedMotion();
   const [showBackToTop, setShowBackToTop] = useState(false);
 
   useEffect(() => {
@@ -70,39 +72,51 @@ export default function Footer() {
     visible: { opacity: 1, y: 0, transition: { duration: 0.5, ease: [0.25, 0.1, 0.25, 1] } },
   };
 
+  const SectionHeading = ({ children }) => (
+    <div className="mb-5">
+      <h4 className="text-sm font-semibold text-white uppercase tracking-wider">{children}</h4>
+      <div className="w-8 h-0.5 bg-gradient-to-r from-gold to-gold/20 rounded-full mt-2" />
+    </div>
+  );
+
   return (
     <footer className="bg-[#1A1815] text-gray-300 relative overflow-hidden">
-      <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-gold/20 to-transparent" />
-      <div className="footer-grid-pattern" />
-      <div className="container mx-auto px-4 py-16">
+      {!reduceMotion && (
+        <>
+          <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-gold/30 to-transparent" />
+          <div className="absolute -top-40 -left-40 w-80 h-80 rounded-full bg-gold/[0.02] blur-3xl pointer-events-none" />
+          <div className="absolute -bottom-40 -right-40 w-96 h-96 rounded-full bg-primary/[0.02] blur-3xl pointer-events-none" />
+        </>
+      )}
+      <div className="container mx-auto px-4 py-16 md:py-20">
         <motion.div
           initial="visible"
           variants={containerVariants}
-          className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-10"
+          className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-10 lg:gap-12"
         >
-          <motion.div variants={itemVariants}>
-            <h3 className="text-xl font-serif font-bold text-white mb-4 tracking-tight">
+          <motion.div variants={itemVariants} className="space-y-5">
+            <h3 className="text-2xl font-serif font-bold text-white tracking-tight">
               Hpa‑An Travel
             </h3>
             <p className="text-gray-400 text-sm leading-relaxed">
               {t('footer.description') || 'Your ultimate travel guide to Hpa‑An, Myanmar. Discover limestone mountains, ancient caves, and authentic Kayin culture.'}
             </p>
-            <div className="flex gap-3 mt-5">
+            <div className="flex gap-3">
               {[
-                { Icon: FacebookIcon, href: 'https://facebook.com/hpaantravel' },
-                { Icon: InstagramIcon, href: 'https://instagram.com/hpaantravel' },
-                { Icon: TwitterIcon, href: 'https://twitter.com/hpaantravel' },
-                { Icon: YoutubeIcon, href: 'https://youtube.com/@hpaantravel' },
-              ].map(({ href, Icon }, i) => (
+                { Icon: FacebookIcon, href: 'https://facebook.com/hpaantravel', name: 'Facebook' },
+                { Icon: InstagramIcon, href: 'https://instagram.com/hpaantravel', name: 'Instagram' },
+                { Icon: TwitterIcon, href: 'https://twitter.com/hpaantravel', name: 'Twitter' },
+                { Icon: YoutubeIcon, href: 'https://youtube.com/@hpaantravel', name: 'YouTube' },
+              ].map(({ href, Icon, name }, i) => (
                 <motion.a
                   key={i}
                   href={href}
                   target="_blank"
                   rel="noopener noreferrer"
-                  whileHover={{ scale: 1.15, y: -2 }}
-                  whileTap={{ scale: 0.95 }}
-                  className="w-9 h-9 rounded-full bg-white/5 flex items-center justify-center text-gray-400 hover:bg-gold hover:text-white transition-all hover:shadow-lg hover:shadow-gold/20"
-                  aria-label={`Follow us on ${['Facebook', 'Instagram', 'Twitter', 'YouTube'][i]}`}
+                  whileHover={!reduceMotion ? { scale: 1.15, y: -2 } : {}}
+                  whileTap={!reduceMotion ? { scale: 0.95 } : {}}
+                  className="w-9 h-9 rounded-full bg-white/5 flex items-center justify-center text-gray-400 hover:bg-gold hover:text-white hover:shadow-lg hover:shadow-gold/20 transition-all duration-300"
+                  aria-label={`Follow us on ${name}`}
                 >
                   <Icon />
                 </motion.a>
@@ -111,12 +125,15 @@ export default function Footer() {
           </motion.div>
 
           <motion.div variants={itemVariants}>
-            <h4 className="text-sm font-semibold text-white mb-4 uppercase tracking-wider">
-              {t('footer.quick_links') || 'Quick Links'}
-            </h4>
-            <div className="grid grid-cols-2 gap-x-4 gap-y-2.5">
+            <SectionHeading>{t('footer.quick_links') || 'Quick Links'}</SectionHeading>
+            <div className="grid grid-cols-2 gap-x-4 gap-y-3">
               {[...mainLinks, ...extraLinks].map(link => (
-                <Link key={link.to} to={link.to} className="text-gray-400 hover:text-gold transition text-sm">
+                <Link
+                  key={link.to}
+                  to={link.to}
+                  className="group flex items-center gap-1.5 text-gray-400 hover:text-gold transition-colors duration-200 text-sm"
+                >
+                  <span className="w-0 group-hover:w-1.5 h-px bg-gold transition-all duration-200" />
                   {link.label}
                 </Link>
               ))}
@@ -124,41 +141,32 @@ export default function Footer() {
           </motion.div>
 
           <motion.div variants={itemVariants}>
-            <h4 className="text-sm font-semibold text-white mb-4 uppercase tracking-wider">
-              {t('footer.contact') || 'Contact'}
-            </h4>
-            <ul className="space-y-3 text-sm">
-              <li className="flex items-center gap-3 text-gray-400">
-                <Mail className="w-4 h-4 flex-shrink-0 text-gold/60" />
-                <a href="mailto:info@hpaan.travel" className="hover:text-gold transition">
-                  info@hpaan.travel
-                </a>
-              </li>
-              <li className="flex items-center gap-3 text-gray-400">
-                <Phone className="w-4 h-4 flex-shrink-0 text-gold/60" />
-                <a href="tel:+95912345678" className="hover:text-gold transition">
-                  +959 123 45678
-                </a>
-              </li>
-              <li className="flex items-center gap-3 text-gray-400">
-                <MapPin className="w-4 h-4 flex-shrink-0 text-gold/60" />
-                <span>Hpa‑An, Kayin State, Myanmar</span>
-              </li>
+            <SectionHeading>{t('footer.contact') || 'Contact'}</SectionHeading>
+            <ul className="space-y-4 text-sm">
+              {[
+                { Icon: Mail, content: <a href="mailto:info@hpaan.travel" className="hover:text-gold transition-colors duration-200">info@hpaan.travel</a> },
+                { Icon: Phone, content: <a href="tel:+95912345678" className="hover:text-gold transition-colors duration-200">+959 123 45678</a> },
+                { Icon: MapPin, content: <span>Hpa‑An, Kayin State, Myanmar</span> },
+              ].map(({ Icon, content }, i) => (
+                <li key={i} className="flex items-start gap-3 text-gray-400">
+                  <span className="w-5 h-5 rounded-full bg-white/5 flex items-center justify-center flex-shrink-0 mt-0.5">
+                    <Icon className="w-3 h-3 text-gold/70" />
+                  </span>
+                  <span className="leading-relaxed">{content}</span>
+                </li>
+              ))}
             </ul>
           </motion.div>
 
-          <motion.div variants={itemVariants}>
-            <CurrencyConverter />
-            <div className="mt-5">
-              <h4 className="text-sm font-semibold text-white mb-3 uppercase tracking-wider">
-                {t('footer.language') || 'Language'}
-              </h4>
+          <motion.div variants={itemVariants} className="space-y-6">
+            <div>
+              <SectionHeading>{t('footer.language') || 'Language'}</SectionHeading>
               <div className="flex gap-2">
                 <button
                   onClick={() => setLanguage('en')}
-                  className={`px-3 py-1.5 rounded-full text-xs font-medium transition ${
+                  className={`px-4 py-1.5 rounded-full text-xs font-medium transition-all duration-200 ${
                     language === 'en'
-                      ? 'bg-gold text-white'
+                      ? 'bg-gold text-white shadow-sm shadow-gold/30'
                       : 'bg-white/5 text-gray-400 hover:bg-white/10 hover:text-white'
                   }`}
                 >
@@ -166,9 +174,9 @@ export default function Footer() {
                 </button>
                 <button
                   onClick={() => setLanguage('my')}
-                  className={`px-3 py-1.5 rounded-full text-xs font-medium transition ${
+                  className={`px-4 py-1.5 rounded-full text-xs font-medium transition-all duration-200 ${
                     language === 'my'
-                      ? 'bg-gold text-white'
+                      ? 'bg-gold text-white shadow-sm shadow-gold/30'
                       : 'bg-white/5 text-gray-400 hover:bg-white/10 hover:text-white'
                   }`}
                 >
@@ -176,24 +184,26 @@ export default function Footer() {
                 </button>
               </div>
             </div>
+            <CurrencyConverter />
           </motion.div>
         </motion.div>
 
         <motion.div
           initial={{ opacity: 1 }}
-          className="border-t border-white/5 mt-12 pt-8 flex flex-col md:flex-row justify-between items-center gap-4 text-sm text-gray-500"
+          className="mt-14 pt-8 border-t border-white/5 flex flex-col md:flex-row justify-between items-center gap-4 text-sm text-gray-500"
         >
           <p>
             &copy; {new Date().getFullYear()} Hpa‑An Travel. {t('footer.rights') || 'All rights reserved.'}
           </p>
-          <div className="flex gap-5">
+          <div className="flex gap-6">
             {[
               { to: '/privacy', label: t('footer.privacy') || 'Privacy Policy' },
               { to: '/terms', label: t('footer.terms') || 'Terms of Service' },
               { to: '/contact', label: t('footer.contact_us') || 'Contact Us' },
             ].map(link => (
-              <Link key={link.to} to={link.to} className="hover:text-gold transition">
+              <Link key={link.to} to={link.to} className="hover:text-gold transition-colors duration-200 flex items-center gap-1">
                 {link.label}
+                <ExternalLink className="w-3 h-3 opacity-0 group-hover:opacity-100 transition-opacity" />
               </Link>
             ))}
           </div>
@@ -206,9 +216,9 @@ export default function Footer() {
           animate={{ opacity: 1, scale: 1 }}
           exit={{ opacity: 0, scale: 0.8 }}
           onClick={scrollToTop}
-          className="fixed bottom-[72px] right-6 z-40 w-10 h-10 rounded-full bg-gold text-white shadow-lg hover:bg-gold/90 transition flex items-center justify-center md:bottom-6"
-          whileHover={{ y: -2 }}
-          whileTap={{ scale: 0.95 }}
+          className="fixed bottom-[72px] right-6 z-40 w-10 h-10 rounded-full bg-gold text-white shadow-lg hover:bg-gold/90 hover:shadow-xl hover:shadow-gold/20 transition-all flex items-center justify-center md:bottom-6"
+          whileHover={!reduceMotion ? { y: -2 } : {}}
+          whileTap={!reduceMotion ? { scale: 0.95 } : {}}
         >
           <ChevronUp className="w-5 h-5" />
         </motion.button>

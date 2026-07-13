@@ -1,5 +1,5 @@
 /* eslint-disable react-refresh/only-export-components */
-import { createContext, useContext, useState, useEffect } from 'react';
+import { createContext, useContext, useState, useEffect, useCallback } from 'react';
 import en from '../locales/en.json';
 import my from '../locales/my.json';
 
@@ -20,7 +20,7 @@ export const LanguageProvider = ({ children }) => {
     document.documentElement.lang = language === 'en' ? 'en' : 'my';
   }, [language]);
 
-  const t = (key) => {
+  const t = useCallback((key) => {
     const keys = key.split('.');
     let value = translations[language];
     for (const k of keys) {
@@ -32,16 +32,15 @@ export const LanguageProvider = ({ children }) => {
       }
     }
     return value;
-  };
+  }, [language]);
 
-  // Helper function to get localized content from database items
-  const getLocalized = (item, fieldEn) => {
+  const getLocalized = useCallback((item, fieldEn) => {
     if (!item) return '';
     if (language === 'my' && item[`${fieldEn}_my`]) {
       return item[`${fieldEn}_my`];
     }
     return item[fieldEn];
-  };
+  }, [language]);
 
   return (
     <LanguageContext.Provider value={{ language, setLanguage, t, getLocalized }}>

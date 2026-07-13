@@ -14,7 +14,7 @@ import DestinationCard from '../components/DestinationCard';
 import { SkeletonCard } from '../components/ui/Skeleton';
 import WeatherAlert from '../components/WeatherAlert';
 import BlogPreview from '../components/BlogPreview';
-import { Building2, UtensilsCrossed, Bus, Compass, Mountain, Heart, Coffee, ChevronDown } from 'lucide-react';
+import { Building2, UtensilsCrossed, Bus, Compass, Mountain, Heart, Coffee } from 'lucide-react';
 import { getOptimizedImage } from '../utils/imageHelpers';
 
 export default function HomePage() {
@@ -100,15 +100,7 @@ export default function HomePage() {
             decoding="async"
           />
         </motion.div>
-        <div className="absolute inset-0 bg-gradient-to-b from-[#1A3A3A]/60 via-[#1A3A3A]/40 to-[#1A1815]/90" />
-
-        {!reduceMotion && (
-          <>
-            <div className="absolute top-32 left-1/4 w-72 h-72 rounded-full opacity-[0.08] bg-gold blur-3xl animate-pulse-slow" />
-            <div className="absolute bottom-48 right-1/4 w-96 h-96 rounded-full opacity-[0.06] bg-secondary blur-3xl animate-pulse-slow delay-1000" />
-            <div className="absolute top-1/2 right-1/3 w-48 h-48 rounded-full opacity-[0.04] bg-primary blur-3xl animate-pulse-slow delay-500" />
-          </>
-        )}
+        <div className="absolute inset-0 bg-gradient-to-b from-[#1A3A3A]/50 via-[#1A3A3A]/30 to-[#1A1815]/80" />
 
         <motion.div
           initial={{ opacity: 0 }}
@@ -154,38 +146,50 @@ export default function HomePage() {
             </Link>
             <Link
               to="/business"
-              className="px-8 py-3 bg-gold/25 backdrop-blur-sm text-white font-semibold rounded-full border border-gold/40 hover:bg-gold/50 hover:shadow-xl transition-all"
+              className="px-8 py-3 bg-white/15 backdrop-blur-sm text-white font-semibold rounded-full border border-white/25 hover:bg-white/25 hover:shadow-xl transition-all"
             >
               {t('home.view_businesses') || 'View Local Businesses'}
             </Link>
           </motion.div>
-          {!reduceMotion && (
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ delay: 1.4 }}
-              className="absolute bottom-8 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2"
-            >
-              <motion.span
-                animate={{ y: [0, 6, 0] }}
-                transition={{ duration: 2, repeat: Infinity }}
-                className="text-[10px] uppercase tracking-[0.3em] opacity-50"
-              >
-                {t('home.scroll') || 'Scroll for More Info'}
-              </motion.span>
-              <motion.div
-                animate={{ y: [0, 6, 0] }}
-                transition={{ duration: 2, repeat: Infinity }}
-              >
-                <ChevronDown className="w-4 h-4 opacity-50" />
-              </motion.div>
-            </motion.div>
-          )}
         </motion.div>
       </section>
       <div className="container mx-auto px-4 pt-4 relative z-10">
         <WeatherAlert />
       </div>
+
+      {/* Stats Bar */}
+      <section className="py-10">
+        <div className="container mx-auto px-4">
+          <motion.div
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: true, margin: '-40px' }}
+            variants={staggerContainer}
+            className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-8"
+          >
+            {[
+              { value: destinations.length || '—', label: t('home.stat_destinations') || 'Destinations', suffix: '+' },
+              { value: Object.values(businessCounts).reduce((a, b) => a + b, 0) || '—', label: t('home.stat_businesses') || 'Local Businesses', suffix: '+' },
+              { value: '10+', label: t('home.stat_events') || 'Yearly Events', suffix: '' },
+              { value: '4.8', label: t('home.stat_rating') || 'Traveler Rating', suffix: '' },
+            ].map((stat, i) => (
+              <motion.div
+                key={i}
+                variants={fadeInUp}
+                className="text-center"
+              >
+                <span className="block text-2xl md:text-3xl font-bold font-serif text-text">
+                  {stat.value}
+                  {stat.suffix && <span className="text-primary">{stat.suffix}</span>}
+                </span>
+                <span className="block text-xs md:text-sm text-text-soft mt-0.5 uppercase tracking-wider font-medium">
+                  {stat.label}
+                </span>
+              </motion.div>
+            ))}
+          </motion.div>
+        </div>
+      </section>
 
       <div className="relative">
         <div className="absolute inset-x-0 top-0 h-24 bg-gradient-to-b from-transparent to-neutral-light dark:to-neutral-dark pointer-events-none" />
@@ -211,11 +215,11 @@ export default function HomePage() {
         className="container mx-auto px-4 py-16"
       >
         <motion.div variants={fadeInUp} className="text-center mb-12">
-          <h2 className="text-3xl sm:text-4xl font-serif font-bold text-text">
+          <h2 className="text-3xl sm:text-4xl md:text-5xl font-serif font-bold text-text max-w-3xl mx-auto leading-tight">
             {t('home.popular_destinations') || 'Popular Destinations'}
           </h2>
-          <p className="text-text-soft mt-2 max-w-2xl mx-auto">
-            {t('home.popular_subtitle') || 'Must‑visit places recommended by travelers'}
+          <p className="text-text-soft mt-3 max-w-2xl mx-auto text-base md:text-lg">
+            {t('home.popular_subtitle') || 'Must‑visit places recommended by fellow travelers'}
           </p>
         </motion.div>
         {loadingDestinations ? (
@@ -256,11 +260,11 @@ export default function HomePage() {
       >
         <div className="container mx-auto px-4">
           <motion.div variants={fadeInUp} className="text-center mb-12">
-            <h2 className="text-3xl sm:text-4xl font-serif font-bold text-text">
-              {t('home.directory_summary') || 'Explore Local Businesses'}
+            <h2 className="text-3xl sm:text-4xl md:text-5xl font-serif font-bold text-text max-w-3xl mx-auto leading-tight">
+              {t('home.directory_summary') || 'Find Everything You Need'}
             </h2>
-            <p className="text-text-soft mt-2">
-              {t('home.directory_subtitle') || 'Find accommodation, restaurants, transport, and tours'}
+            <p className="text-text-soft mt-3 max-w-2xl mx-auto text-base md:text-lg">
+              {t('home.directory_subtitle') || 'Curated local businesses — from cozy stays to authentic eats'}
             </p>
           </motion.div>
           <motion.div variants={staggerContainer} className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
@@ -297,39 +301,36 @@ export default function HomePage() {
         initial="hidden"
         animate={whyVisitInView ? 'visible' : 'hidden'}
         variants={staggerContainer}
-        className="bg-neutral-light dark:bg-neutral-dark/30 py-16"
+        className="py-16"
       >
+        <motion.div variants={fadeInUp} className="text-center mb-12">
+          <h2 className="text-3xl sm:text-4xl md:text-5xl font-serif font-bold text-text max-w-3xl mx-auto leading-tight">
+            {t('home.why_visit_title') || 'Why Hpa‑An'}
+          </h2>
+          <p className="text-text-soft mt-3 max-w-2xl mx-auto text-base md:text-lg">
+            {t('home.why_visit_subtitle') || 'Limestone, legends & local warmth'}
+          </p>
+        </motion.div>
         <div className="container mx-auto px-4">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-          {[
-            { icon: Mountain, title: t('home.nature') || 'Breathtaking Nature', desc: 'Limestone karsts, hidden caves, and the serene Thanlwin River.' },
-            { icon: Heart, title: t('home.culture') || 'Rich Culture', desc: 'Experience Kayin traditions, festivals, and warm hospitality.' },
-            { icon: Coffee, title: t('home.cuisine') || 'Delicious Cuisine', desc: 'From tea leaf salad to Shan noodles – a food lover\'s paradise.' },
-          ].map((item, i) => (
-            <motion.div
-              key={i}
-              variants={fadeInUp}
-              className="text-center p-8 group bg-white dark:bg-neutral-dark rounded-2xl shadow-soft hover:shadow-elevated transition-all duration-300 hover:-translate-y-1"
-            >
-              {!reduceMotion && (
-                <motion.div
-                  whileHover={{ scale: 1.15, rotate: [0, -5, 5, 0] }}
-                  transition={{ duration: 0.4 }}
-                  className="w-16 h-16 mx-auto mb-4 rounded-2xl bg-primary/5 dark:bg-primary/10 flex items-center justify-center"
-                >
-                  <item.icon className="w-8 h-8 text-primary" strokeWidth={1.5} />
-                </motion.div>
-              )}
-              {reduceMotion && (
-                <div className="w-16 h-16 mx-auto mb-4 rounded-2xl bg-primary/5 dark:bg-primary/10 flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
-                  <item.icon className="w-8 h-8 text-primary" strokeWidth={1.5} />
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            {[
+              { icon: Mountain, title: t('home.nature') || 'Breathtaking Nature', desc: 'Limestone karsts, hidden caves, and the serene Thanlwin River.' },
+              { icon: Heart, title: t('home.culture') || 'Rich Culture', desc: 'Experience Kayin traditions, festivals, and warm hospitality.' },
+              { icon: Coffee, title: t('home.cuisine') || 'Delicious Cuisine', desc: 'From tea leaf salad to Shan noodles – a food lover\'s paradise.' },
+            ].map((item, i) => (
+              <motion.div
+                key={i}
+                variants={fadeInUp}
+                className="text-center p-8 bg-white dark:bg-neutral-dark rounded-2xl shadow-soft hover:shadow-elevated transition-all duration-300 hover:-translate-y-1"
+              >
+                <div className="w-14 h-14 mx-auto mb-4 rounded-xl bg-primary/5 dark:bg-primary/10 flex items-center justify-center">
+                  <item.icon className="w-7 h-7 text-primary" strokeWidth={1.5} />
                 </div>
-              )}
-              <h3 className="text-xl font-semibold text-text mb-2">{item.title}</h3>
-              <p className="text-text-soft leading-relaxed">{item.desc}</p>
-            </motion.div>
-          ))}
-        </div>
+                <h3 className="text-xl font-semibold text-text mb-2">{item.title}</h3>
+                <p className="text-text-soft leading-relaxed text-sm">{item.desc}</p>
+              </motion.div>
+            ))}
+          </div>
         </div>
       </motion.section>
 
@@ -344,27 +345,16 @@ export default function HomePage() {
         variants={fadeIn}
         className="bg-primary text-white py-16 relative overflow-hidden"
       >
-        {!reduceMotion && (
-          <>
-            <motion.div
-              className="absolute inset-0 bg-gradient-to-r from-primary-dark/50 via-transparent to-primary-dark/50"
-              animate={{ opacity: [0.3, 0.6, 0.3] }}
-              transition={{ duration: 4, repeat: Infinity, ease: 'easeInOut' }}
-            />
-            <div className="absolute top-10 left-10 w-32 h-32 rounded-full bg-gold/5 blur-2xl" />
-            <div className="absolute bottom-10 right-10 w-48 h-48 rounded-full bg-secondary/5 blur-3xl" />
-          </>
-        )}
         <div className="container mx-auto px-4 text-center relative z-10">
           <motion.h2
             variants={fadeInUp}
-            className="text-3xl sm:text-4xl font-serif font-bold mb-4"
+            className="text-3xl sm:text-4xl md:text-5xl font-serif font-bold mb-4 max-w-3xl mx-auto"
           >
             {t('home.cta_title') || 'Ready to Explore Hpa‑An?'}
           </motion.h2>
           <motion.p
             variants={fadeInUp}
-            className="text-lg mb-10 max-w-2xl mx-auto opacity-90 leading-relaxed"
+            className="text-lg md:text-xl mb-10 max-w-2xl mx-auto opacity-85 leading-relaxed"
           >
             {t('home.cta_subtitle') || 'Start planning your trip with our curated guides and local insights.'}
           </motion.p>

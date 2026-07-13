@@ -1,25 +1,43 @@
-import { memo, useState } from 'react';
+import { memo, useState, useCallback } from 'react';
 import { Link } from 'react-router-dom';
 import { motion, useMotionValue, useTransform } from 'framer-motion';
 import { useUser } from '../context/UserContext';
 import { useFavorites } from '../hooks/useFavorites';
 import { useLanguage } from '../context/LanguageContext';
+import { useToast } from '../context/ToastContext';
+import { useReducedMotion } from '../hooks/useReducedMotion';
 import StarRating from './StarRating';
-import { getOptimizedImage } from '../utils/imageHelpers';
+import ProgressiveImage from './ui/ProgressiveImage';
 
 const DestinationCard = memo(function DestinationCard({ destination }) {
   const user = useUser();
   const { t, getLocalized } = useLanguage();
   const { favorites, toggleFavorite } = useFavorites(user?.id);
+  const { toast } = useToast();
+  const reduceMotion = useReducedMotion();
   const isSaved = favorites.destinations?.has(destination.id) || false;
   const [imgError, setImgError] = useState(false);
 
-  const x = useMotionValue(0);
-  const y = useMotionValue(0);
-  const rotateX = useTransform(y, [-0.5, 0.5], [5, -5]);
-  const rotateY = useTransform(x, [-0.5, 0.5], [-5, 5]);
+  const handleFavorite = useCallback((e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    toggleFavorite('destination', destination.id);
+    toast({
+      type: isSaved ? 'info' : 'success',
+      message: isSaved
+        ? (t('favorites.removed') || 'Removed from favorites')
+        : (t('favorites.added') || 'Added to favorites'),
+      duration: 2000,
+    });
+  }, [destination.id, isSaved, toggleFavorite, toast, t]);
+
+  const x = !reduceMotion ? useMotionValue(0) : null;
+  const y = !reduceMotion ? useMotionValue(0) : null;
+  const rotateX = !reduceMotion ? useTransform(y, [-0.5, 0.5], [5, -5]) : null;
+  const rotateY = !reduceMotion ? useTransform(x, [-0.5, 0.5], [-5, 5]) : null;
 
   function handlePointerMove(e) {
+    if (reduceMotion || !x || !y) return;
     const rect = e.currentTarget.getBoundingClientRect();
     const cx = 'touches' in e ? e.touches[0].clientX : e.clientX;
     const cy = 'touches' in e ? e.touches[0].clientY : e.clientY;
@@ -30,6 +48,7 @@ const DestinationCard = memo(function DestinationCard({ destination }) {
   }
 
   function handlePointerLeave() {
+    if (reduceMotion || !x || !y) return;
     x.set(0);
     y.set(0);
   }
@@ -40,7 +59,7 @@ const DestinationCard = memo(function DestinationCard({ destination }) {
   return (
     <motion.div
       className="group relative bg-white dark:bg-neutral-dark rounded-xl overflow-hidden shadow-md hover:shadow-xl transition-all duration-300"
-      style={{ perspective: 1000, rotateX, rotateY }}
+      style={!reduceMotion ? { perspective: 1000, rotateX, rotateY } : {}}
       onMouseMove={handlePointerMove}
       onTouchMove={handlePointerMove}
       onMouseLeave={handlePointerLeave}
@@ -56,13 +75,12 @@ const DestinationCard = memo(function DestinationCard({ destination }) {
             </svg>
           </div>
         ) : (
-          <img
-            src={getOptimizedImage(destination.image, 400)}
+          <ProgressiveImage
+            src={destination.image ? `${destination.image}?width=400&quality=80&resize=cover` : null}
             alt={name}
-            loading="lazy"
-            decoding="async"
-            onError={() => setImgError(true)}
             className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
+            wrapperClassName="w-full h-full"
+            onError={() => setImgError(true)}
           />
         )}
         <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent" />
@@ -100,7 +118,7 @@ const DestinationCard = memo(function DestinationCard({ destination }) {
             <motion.button
               whileHover={{ scale: 1.2 }}
               whileTap={{ scale: 0.9 }}
-              onClick={() => toggleFavorite('destination', destination.id)}
+              onClick={handleFavorite}
               className="transition-all duration-200 focus:outline-none"
               title={isSaved ? 'Remove from favorites' : 'Save to favorites'}
             >

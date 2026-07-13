@@ -1,5 +1,6 @@
 /* global L */
 import { useEffect, useState, useRef } from 'react';
+import { motion } from 'framer-motion';
 import {
   MapContainer,
   TileLayer,
@@ -246,13 +247,12 @@ export default function MapPage() {
     setRouteWaypoints(prev => [...prev, coords]);
   };
 
+  const undoLWaypoint = () => {
+    setRouteWaypoints(prev => prev.slice(0, -1));
+  };
+
   const toggleCustomRoute = () => {
-    if (customRouteMode) {
-      setCustomRouteMode(false);
-    } else {
-      setRouteWaypoints([]);
-      setCustomRouteMode(true);
-    }
+    setCustomRouteMode(prev => !prev);
   };
 
   const clearRouting = () => {
@@ -271,19 +271,22 @@ export default function MapPage() {
         <meta property="og:description" content="Interactive map of Hpa-An with destinations, businesses, and route planning." />
         <meta property="og:type" content="website" />
       </Helmet>
-      {!mapReady && (
-        <div className="absolute inset-0 z-10 flex items-center justify-center bg-neutral-light dark:bg-neutral-dark">
-          <div className="text-center">
-            <LoadingSpinner size="md" />
-            <p className="text-text-soft text-sm">Loading map tiles...</p>
-          </div>
+      <motion.div
+        initial={{ opacity: 1 }}
+        animate={{ opacity: mapReady ? 0 : 1 }}
+        transition={{ duration: 0.4, ease: 'easeOut' }}
+        className={`absolute inset-0 z-10 flex items-center justify-center bg-neutral-light dark:bg-neutral-dark pointer-events-none`}
+      >
+        <div className="text-center">
+          <LoadingSpinner size="md" />
+          <p className="text-text-soft text-sm">Loading map tiles...</p>
         </div>
-      )}
+      </motion.div>
       <MapContainer
         center={[16.89, 97.65]}
         zoom={12}
         style={{ height: '100%', width: '100%' }}
-        className="z-0"
+        className="z-0 map-fade-in"
         ref={(map) => {
           setMapInstance(map);
           if (map) setMapReady(true);
@@ -422,6 +425,16 @@ export default function MapPage() {
           </Marker>
         ))}
 
+        {customRouteMode && routeWaypoints.length >= 2 && !routingActive && (
+          <Polyline
+            positions={routeWaypoints.map(wp => [wp.lat, wp.lng])}
+            color="#8B5CF6"
+            weight={3}
+            opacity={0.5}
+            dashArray="8, 6"
+          />
+        )}
+
         {/* ===== DIRECTION ROUTE ===== */}
         {routingActive && routeWaypoints.length >= 2 && (
           <RouteControl waypoints={routeWaypoints} onRouteReady={() => {}} />
@@ -444,8 +457,10 @@ export default function MapPage() {
         <RouteControls
           customRouteMode={customRouteMode}
           routingActive={routingActive}
+          waypointCount={routeWaypoints.length}
           onToggleCustomRoute={toggleCustomRoute}
           onClearRouting={clearRouting}
+          onUndoWaypoint={undoLWaypoint}
           t={t}
         />
 

@@ -1,83 +1,83 @@
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useCallback } from 'react';
 import { useMap } from 'react-leaflet';
 import L from 'leaflet';
 
-export default function RouteControls({ customRouteMode, routingActive, onToggleCustomRoute, onClearRouting, t }) {
+const btnBase = {
+  width: '30px', height: '30px', display: 'flex', alignItems: 'center',
+  justifyContent: 'center', border: 'none', borderRadius: '6px',
+  cursor: 'pointer', boxShadow: '0 1px 4px rgba(0,0,0,0.25)',
+};
+
+function routeIcon(active) {
+  const stroke = active ? 'white' : '#4B5563';
+  return `<svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="${stroke}" stroke-width="2">
+    <circle cx="8" cy="8" r="2.5"/><line x1="8" y1="1" x2="8" y2="4"/>
+    <line x1="8" y1="12" x2="8" y2="15"/><line x1="1" y1="8" x2="4" y2="8"/>
+    <line x1="12" y1="8" x2="15" y2="8"/></svg>`;
+}
+
+function undoIcon() {
+  return `<svg width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="#4B5563" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+    <polyline points="1 4 1 10 7 10"/><path d="M3.51 13.08a7 7 0 101.42-10.66"/></svg>`;
+}
+
+function clearIcon() {
+  return `<svg width="12" height="12" viewBox="0 0 14 14" fill="none" stroke="#4B5563" stroke-width="2" stroke-linecap="round">
+    <line x1="2" y1="2" x2="12" y2="12"/><line x1="12" y1="2" x2="2" y2="12"/></svg>`;
+}
+
+export default function RouteControls({ customRouteMode, routingActive, waypointCount, onToggleCustomRoute, onClearRouting, onUndoWaypoint, t }) {
   const map = useMap();
   const controlRef = useRef(null);
   const toggleRef = useRef(onToggleCustomRoute);
   const clearRef = useRef(onClearRouting);
+  const undoLRef = useRef(onUndoWaypoint);
   useEffect(() => {
     toggleRef.current = onToggleCustomRoute;
     clearRef.current = onClearRouting;
+    undoLRef.current = onUndoWaypoint;
   });
+
+  const updateButtons = useCallback(() => {
+    if (!controlRef.current) return;
+    const { routeBtn, clearBtn, undoBtn } = controlRef.current;
+    const active = !!customRouteMode;
+    routeBtn.style.background = active ? '#2563EB' : 'white';
+    routeBtn.innerHTML = routeIcon(active);
+    routeBtn.title = active ? t('map.tap_to_add_stops') : t('map.custom_route');
+    clearBtn.style.display = (routingActive || active) ? 'flex' : 'none';
+    undoBtn.style.display = (active && waypointCount > 0) ? 'flex' : 'none';
+  }, [customRouteMode, routingActive, waypointCount, t]);
 
   useEffect(() => {
     const container = L.DomUtil.create('div', 'leaflet-bar leaflet-control leaflet-control-custom');
-    container.style.display = 'flex';
-    container.style.gap = '4px';
-    container.style.background = 'none';
-    container.style.border = 'none';
-    container.style.boxShadow = 'none';
+    container.style.cssText = 'display:flex;gap:4px;background:none;border:none;box-shadow:none';
     L.DomEvent.disableClickPropagation(container);
     L.DomEvent.disableScrollPropagation(container);
 
     const routeBtn = L.DomUtil.create('button', '', container);
+    Object.assign(routeBtn.style, btnBase, { background: 'white' });
     routeBtn.type = 'button';
-    routeBtn.style.width = '30px';
-    routeBtn.style.height = '30px';
-    routeBtn.style.display = 'flex';
-    routeBtn.style.alignItems = 'center';
-    routeBtn.style.justifyContent = 'center';
-    routeBtn.style.border = 'none';
-    routeBtn.style.borderRadius = '6px';
-    routeBtn.style.cursor = 'pointer';
-    routeBtn.style.background = customRouteMode ? '#2563EB' : 'white';
-    routeBtn.style.boxShadow = '0 1px 4px rgba(0,0,0,0.25)';
-    routeBtn.title = customRouteMode ? t('map.tap_to_add_stops') : t('map.custom_route');
-    routeBtn.innerHTML = `
-      <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="${customRouteMode ? 'white' : '#4B5563'}" stroke-width="2">
-        <circle cx="8" cy="8" r="2.5"/>
-        <line x1="8" y1="1" x2="8" y2="4"/>
-        <line x1="8" y1="12" x2="8" y2="15"/>
-        <line x1="1" y1="8" x2="4" y2="8"/>
-        <line x1="12" y1="8" x2="15" y2="8"/>
-      </svg>`;
-    routeBtn.addEventListener('click', (e) => {
-      e.stopPropagation();
-      toggleRef.current();
-    });
+    routeBtn.addEventListener('click', (e) => { e.stopPropagation(); toggleRef.current(); });
+
+    const undoBtn = L.DomUtil.create('button', '', container);
+    Object.assign(undoBtn.style, btnBase, { background: 'white', display: 'none' });
+    undoBtn.type = 'button';
+    undoBtn.title = t('map.undo_waypoint') || 'Undo last stop';
+    undoBtn.innerHTML = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"/></svg>';
+    undoBtn.addEventListener('click', (e) => { e.stopPropagation(); undoLRef.current(); });
 
     const clearBtn = L.DomUtil.create('button', '', container);
+    Object.assign(clearBtn.style, btnBase, { background: 'white', display: 'none' });
     clearBtn.type = 'button';
-    clearBtn.style.width = '30px';
-    clearBtn.style.height = '30px';
-    clearBtn.style.display = (routingActive || customRouteMode) ? 'flex' : 'none';
-    clearBtn.style.alignItems = 'center';
-    clearBtn.style.justifyContent = 'center';
-    clearBtn.style.border = 'none';
-    clearBtn.style.borderRadius = '6px';
-    clearBtn.style.cursor = 'pointer';
-    clearBtn.style.background = 'white';
-    clearBtn.style.boxShadow = '0 1px 4px rgba(0,0,0,0.25)';
-    clearBtn.title = t('map.clear_route');
-    clearBtn.innerHTML = `
-      <svg width="12" height="12" viewBox="0 0 14 14" fill="none" stroke="#4B5563" stroke-width="2" stroke-linecap="round">
-        <line x1="2" y1="2" x2="12" y2="12"/>
-        <line x1="12" y1="2" x2="2" y2="12"/>
-      </svg>`;
-    clearBtn.addEventListener('click', (e) => {
-      e.stopPropagation();
-      clearRef.current();
-    });
+    clearBtn.addEventListener('click', (e) => { e.stopPropagation(); clearRef.current(); });
 
-    const CustomControl = L.Control.extend({
-      onAdd: () => container,
-    });
+    const CustomControl = L.Control.extend({ onAdd: () => container });
     const control = new CustomControl({ position: 'topleft' });
     control.addTo(map);
 
-    controlRef.current = { container, routeBtn, clearBtn, control };
+    controlRef.current = { container, routeBtn, clearBtn, undoBtn, control };
+    updateButtons();
 
     return () => {
       control.remove();
@@ -85,21 +85,7 @@ export default function RouteControls({ customRouteMode, routingActive, onToggle
     };
   }, [map]);
 
-  useEffect(() => {
-    if (!controlRef.current) return;
-    const { routeBtn, clearBtn } = controlRef.current;
-    routeBtn.style.background = customRouteMode ? '#2563EB' : 'white';
-    routeBtn.innerHTML = `
-      <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="${customRouteMode ? 'white' : '#4B5563'}" stroke-width="2">
-        <circle cx="8" cy="8" r="2.5"/>
-        <line x1="8" y1="1" x2="8" y2="4"/>
-        <line x1="8" y1="12" x2="8" y2="15"/>
-        <line x1="1" y1="8" x2="4" y2="8"/>
-        <line x1="12" y1="8" x2="15" y2="8"/>
-      </svg>`;
-    routeBtn.title = customRouteMode ? t('map.tap_to_add_stops') : t('map.custom_route');
-    clearBtn.style.display = (routingActive || customRouteMode) ? 'flex' : 'none';
-  }, [customRouteMode, routingActive, t]);
+  useEffect(() => { updateButtons(); }, [updateButtons]);
 
   return null;
 }

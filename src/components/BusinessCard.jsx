@@ -5,13 +5,15 @@ import { useFavorites } from "../hooks/useFavorites";
 import { useLanguage } from "../context/LanguageContext";
 import { memo, useState, useEffect } from "react";
 import { supabase } from "../supabaseClient";
+import { useReducedMotion } from "../hooks/useReducedMotion";
 import StarRating from "./StarRating";
-import { getOptimizedImage } from "../utils/imageHelpers";
+import ProgressiveImage from "./ui/ProgressiveImage";
 
 const BusinessCard = memo(function BusinessCard({ business, avgRating: propAvgRating, ratingCount: propRatingCount }) {
   const user = useUser();
   const { t, getLocalized } = useLanguage();
   const { favorites, toggleFavorite } = useFavorites(user?.id);
+  const reduceMotion = useReducedMotion();
   const isSaved = favorites.businesses.has(business.id);
   const [showShare, setShowShare] = useState(false);
   const [avgRating, setAvgRating] = useState(propAvgRating ?? null);
@@ -57,12 +59,13 @@ const BusinessCard = memo(function BusinessCard({ business, avgRating: propAvgRa
     setShowShare(false);
   };
 
-  const x = useMotionValue(0);
-  const y = useMotionValue(0);
-  const rotateX = useTransform(y, [-0.5, 0.5], [5, -5]);
-  const rotateY = useTransform(x, [-0.5, 0.5], [-5, 5]);
+  const x = !reduceMotion ? useMotionValue(0) : null;
+  const y = !reduceMotion ? useMotionValue(0) : null;
+  const rotateX = !reduceMotion ? useTransform(y, [-0.5, 0.5], [5, -5]) : null;
+  const rotateY = !reduceMotion ? useTransform(x, [-0.5, 0.5], [-5, 5]) : null;
 
   function handlePointerMove(e) {
+    if (reduceMotion || !x || !y) return;
     const rect = e.currentTarget.getBoundingClientRect();
     const cx = 'touches' in e ? e.touches[0].clientX : e.clientX;
     const cy = 'touches' in e ? e.touches[0].clientY : e.clientY;
@@ -73,6 +76,7 @@ const BusinessCard = memo(function BusinessCard({ business, avgRating: propAvgRa
   }
 
   function handlePointerLeave() {
+    if (reduceMotion || !x || !y) return;
     x.set(0);
     y.set(0);
   }
@@ -80,7 +84,7 @@ const BusinessCard = memo(function BusinessCard({ business, avgRating: propAvgRa
   return (
     <motion.div
       className="group relative bg-white dark:bg-neutral-dark rounded-xl overflow-hidden shadow-md hover:shadow-xl transition-shadow duration-300"
-      style={{ perspective: 1000, rotateX, rotateY }}
+      style={!reduceMotion ? { perspective: 1000, rotateX, rotateY } : {}}
       onMouseMove={handlePointerMove}
       onTouchMove={handlePointerMove}
       onMouseLeave={handlePointerLeave}
@@ -89,13 +93,11 @@ const BusinessCard = memo(function BusinessCard({ business, avgRating: propAvgRa
       transition={{ type: 'spring', stiffness: 300, damping: 20 }}
     >
       <Link to={`/business/${business.id}`} className="block relative overflow-hidden h-48">
-        <img
-          src={getOptimizedImage(business.image, 400) || 'data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 400 300%22%3E%3Crect fill=%22%23e5e7eb%22 width=%22400%22 height=%22300%22/%3E%3C/svg%3E'}
+        <ProgressiveImage
+          src={business.image ? `${business.image}?width=400&quality=80&resize=cover` : null}
           alt={name}
-          loading="lazy"
-          decoding="async"
-          onError={(e) => { if (e.target.src !== e.target.currentSrc) return; e.target.src = 'data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 400 300%22%3E%3Crect fill=%22%23e5e7eb%22 width=%22400%22 height=%22300%22/%3E%3C/svg%3E'; }}
           className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
+          wrapperClassName="w-full h-full"
         />
         <div className="absolute inset-0 bg-gradient-to-tr from-transparent via-white/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
         <div className="absolute bottom-0 left-0 right-0 h-32 bg-gradient-to-t from-primary/10 via-gold/5 to-transparent" />

@@ -43,6 +43,25 @@ export const staggerContainer = {
   },
 }
 
+export const staggerSlow = {
+  hidden: {},
+  visible: {
+    transition: {
+      staggerChildren: 0.12,
+      delayChildren: 0.15,
+    },
+  },
+}
+
+export const reveal = {
+  hidden: { opacity: 0, y: 60 },
+  visible: {
+    opacity: 1,
+    y: 0,
+    transition: { duration: 0.7, ease: [0.16, 1, 0.3, 1] },
+  },
+}
+
 export const staggerFast = {
   hidden: {},
   visible: {

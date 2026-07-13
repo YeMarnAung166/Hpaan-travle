@@ -16,7 +16,8 @@ export default function AiAssistantFAB() {
     <>
       <button
         onClick={() => setOpen(true)}
-        className="fixed bottom-20 md:bottom-6 right-4 z-50 w-12 h-12 rounded-full bg-gradient-to-br from-primary to-amber-500 text-white shadow-lg hover:shadow-xl hover:scale-105 active:scale-95 transition-all flex items-center justify-center"
+        className="fixed bottom-20 md:bottom-6 right-4 z-50 w-12 h-12 rounded-full text-white shadow-lg hover:shadow-xl hover:scale-105 active:scale-95 transition-all flex items-center justify-center"
+        style={{ background: 'linear-gradient(135deg, var(--color-aurora-1), var(--color-aurora-2), var(--color-aurora-3))' }}
         aria-label="Open AI Travel Assistant"
       >
         <MessageCircle size={22} />

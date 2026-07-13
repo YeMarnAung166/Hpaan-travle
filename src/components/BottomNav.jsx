@@ -39,7 +39,9 @@ export default function BottomNav() {
               aria-current={isActive ? 'page' : undefined}
             >
               {isActive && (
-                <span className="absolute -top-0.5 w-6 h-0.5 rounded-full bg-primary dark:bg-primary-light" />
+                <span className="absolute -top-0.5 w-6 h-0.5 rounded-full"
+                  style={{ background: 'linear-gradient(90deg, var(--color-aurora-1), var(--color-aurora-2))' }}
+                />
               )}
               <Icon className={`w-5 h-5 ${isActive ? 'fill-primary/15 dark:fill-primary-light/15' : ''}`} />
               <span className={`text-[10px] font-medium leading-tight ${isActive ? 'font-semibold' : ''}`}>
