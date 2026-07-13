@@ -29,4 +29,7 @@ node_modules/
 .DS_Store
 dist/
 test-results/
+test-results.json
 playwright-report/
+.playwright-mcp/
+*.png
