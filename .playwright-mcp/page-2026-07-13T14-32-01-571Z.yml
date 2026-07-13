@@ -1,0 +1,243 @@
+- generic [ref=e2]:
+  - link "Skip to main content" [ref=e3] [cursor=pointer]:
+    - /url: "#main-content"
+  - generic [ref=e4]:
+    - banner [ref=e5]:
+      - generic [ref=e6]:
+        - generic [ref=e7]:
+          - link "Hpa-An Travel Hpa‑An Travel" [ref=e8] [cursor=pointer]:
+            - /url: /
+            - img "Hpa-An Travel" [ref=e9]
+            - generic [ref=e10]:
+              - generic [ref=e11]: Hpa‑An
+              - generic [ref=e12]: Travel
+          - generic [ref=e13]:
+            - button "Toggle theme" [ref=e14] [cursor=pointer]
+            - generic [ref=e17]:
+              - button "Switch to English" [ref=e18] [cursor=pointer]: EN
+              - button "Switch to Myanmar" [ref=e19] [cursor=pointer]: မြန်
+            - button "Login" [ref=e20] [cursor=pointer]
+        - navigation "Main navigation" [ref=e21]:
+          - link "Home" [ref=e22] [cursor=pointer]:
+            - /url: /
+          - link "Destinations" [ref=e29] [cursor=pointer]:
+            - /url: /destinations
+          - link "Map" [ref=e35] [cursor=pointer]:
+            - /url: /map
+          - link "Directory" [ref=e40] [cursor=pointer]:
+            - /url: /business
+          - link "Events" [ref=e47] [cursor=pointer]:
+            - /url: /events
+          - link "Travel Tips" [ref=e52] [cursor=pointer]:
+            - /url: /tips
+          - link "History" [ref=e57] [cursor=pointer]:
+            - /url: /history
+          - link "Blog" [ref=e62] [cursor=pointer]:
+            - /url: /blog
+    - main [ref=e69]:
+      - generic [ref=e71]:
+        - generic [ref=e72]:
+          - img "Hpa-An landscape" [ref=e74]
+          - generic [ref=e76]:
+            - paragraph [ref=e77]: Discover the Hidden Gem
+            - heading "Hpa‑An" [level=1] [ref=e78]
+            - paragraph [ref=e79]: Explore limestone mountains, ancient caves, and authentic Kayin culture in Hpa‑An.
+            - generic [ref=e80]:
+              - link "Explore Destinations" [ref=e81] [cursor=pointer]:
+                - /url: /destinations
+              - link "View Local Businesses" [ref=e82] [cursor=pointer]:
+                - /url: /business
+        - generic [ref=e86]:
+          - generic [ref=e87]:
+            - generic [ref=e88]: 4+
+            - generic [ref=e89]: Destinations
+          - generic [ref=e90]:
+            - generic [ref=e91]: 9+
+            - generic [ref=e92]: Local Businesses
+          - generic [ref=e93]:
+            - generic [ref=e94]: 10+
+            - generic [ref=e95]: Yearly Events
+          - generic [ref=e96]:
+            - generic [ref=e97]: "4.8"
+            - generic [ref=e98]: Traveler Rating
+        - generic [ref=e101]:
+          - generic [ref=e102]:
+            - heading "Upcoming Events" [level=3] [ref=e103]
+            - link "View all" [ref=e104] [cursor=pointer]:
+              - /url: /events
+          - generic [ref=e105]:
+            - generic [ref=e106]:
+              - generic [ref=e107]:
+                - generic [ref=e108]: "12"
+                - generic [ref=e109]: Jan 12
+              - generic [ref=e110]:
+                - generic [ref=e111]: Kayin New Year Festival
+                - generic [ref=e112]: Kayin Cultural Hall, Hpa‑An
+            - generic [ref=e113]:
+              - generic [ref=e114]:
+                - generic [ref=e115]: "20"
+                - generic [ref=e116]: Feb 20
+              - generic [ref=e117]:
+                - generic [ref=e118]: Thanlwin River Boat Race
+                - generic [ref=e119]: Thanlwin River Bank, Hpa‑An
+            - generic [ref=e120]:
+              - generic [ref=e121]:
+                - generic [ref=e122]: "10"
+                - generic [ref=e123]: Mar 10
+              - generic [ref=e124]:
+                - generic [ref=e125]: Hpa‑An Pagoda Festival
+                - generic [ref=e126]: Shwe Yin Myaw Pagoda, Hpa‑An
+        - generic [ref=e127]:
+          - generic [ref=e128]:
+            - heading "Popular Destinations" [level=2] [ref=e129]
+            - paragraph [ref=e130]: Must‑visit places recommended by travelers
+          - generic [ref=e131]:
+            - generic [ref=e132]:
+              - link "cave Saddan Cave" [ref=e133] [cursor=pointer]:
+                - /url: /destination/1
+                - generic [ref=e137]: cave
+                - heading "Saddan Cave" [level=3] [ref=e139]
+              - generic [ref=e140]:
+                - paragraph [ref=e141]: Large cave with a hidden pagoda inside. You can walk through the cave to a serene lake.
+                - link "View Details" [ref=e143] [cursor=pointer]:
+                  - /url: /destination/1
+            - generic [ref=e146]:
+              - link "mountain Mount Zwegabin" [ref=e147] [cursor=pointer]:
+                - /url: /destination/2
+                - generic [ref=e151]: mountain
+                - heading "Mount Zwegabin" [level=3] [ref=e153]
+              - generic [ref=e154]:
+                - paragraph [ref=e155]: Famous mountain with panoramic views of Hpa‑An. A popular sunrise hike.
+                - link "View Details" [ref=e157] [cursor=pointer]:
+                  - /url: /destination/2
+            - generic [ref=e160]:
+              - link "pagoda Kyauk Ka Lat Pagoda" [ref=e161] [cursor=pointer]:
+                - /url: /destination/3
+                - generic [ref=e165]: pagoda
+                - heading "Kyauk Ka Lat Pagoda" [level=3] [ref=e167]
+              - generic [ref=e168]:
+                - paragraph [ref=e169]: Pagoda on a limestone pillar in the middle of a scenic lake.
+                - link "View Details" [ref=e171] [cursor=pointer]:
+                  - /url: /destination/3
+            - generic [ref=e174]:
+              - link "cave Kawgun Cave" [ref=e175] [cursor=pointer]:
+                - /url: /destination/4
+                - generic [ref=e179]: cave
+                - heading "Kawgun Cave" [level=3] [ref=e181]
+              - generic [ref=e182]:
+                - paragraph [ref=e183]: Cave filled with thousands of Buddha images carved into the limestone walls.
+                - link "View Details" [ref=e185] [cursor=pointer]:
+                  - /url: /destination/4
+          - link "View all destinations" [ref=e189] [cursor=pointer]:
+            - /url: /destinations
+        - generic [ref=e193]:
+          - generic [ref=e194]:
+            - heading "Explore Local Businesses" [level=2] [ref=e195]
+            - paragraph [ref=e196]: Find accommodation, restaurants, transport, and tours
+          - generic [ref=e197]:
+            - link [ref=e198] [cursor=pointer]:
+              - /url: /business?category=accommodation
+              - heading "Accommodation" [level=3] [ref=e203]
+              - paragraph [ref=e204]: 3 listings
+            - link [ref=e205] [cursor=pointer]:
+              - /url: /business?category=restaurant
+              - heading "Restaurants" [level=3] [ref=e211]
+              - paragraph [ref=e212]: 3 listings
+            - link [ref=e213] [cursor=pointer]:
+              - /url: /business?category=transport
+              - heading "Transport" [level=3] [ref=e218]
+              - paragraph [ref=e219]: 1 listings
+            - link [ref=e220] [cursor=pointer]:
+              - /url: /business?category=tours
+              - heading "Tours & Activities" [level=3] [ref=e224]
+              - paragraph [ref=e225]: 2 listings
+        - generic [ref=e226]:
+          - generic [ref=e227]:
+            - heading "Why Hpa‑An" [level=2] [ref=e228]
+            - paragraph [ref=e229]: Limestone, legends & local warmth
+          - generic [ref=e231]:
+            - generic [ref=e232]:
+              - heading "Breathtaking Nature" [level=3] [ref=e236]
+              - paragraph [ref=e237]: Limestone karsts, hidden caves, and the serene Thanlwin River.
+            - generic [ref=e238]:
+              - heading "Rich Culture" [level=3] [ref=e242]
+              - paragraph [ref=e243]: Experience Kayin traditions, festivals, and warm hospitality.
+            - generic [ref=e244]:
+              - heading "Delicious Cuisine" [level=3] [ref=e248]
+              - paragraph [ref=e249]: From tea leaf salad to Shan noodles – a food lover's paradise.
+        - generic [ref=e251]:
+          - generic [ref=e252]:
+            - heading "Latest from Our Blog" [level=2] [ref=e253]
+            - paragraph [ref=e254]: Stories, tips, and insights from Hpa-An
+          - link [ref=e256] [cursor=pointer]:
+            - /url: /blog/test
+            - img "Test" [ref=e258]
+            - generic [ref=e259]:
+              - paragraph [ref=e260]: 7/10/2026
+              - heading "Test" [level=3] [ref=e261]
+              - paragraph
+          - link "View All Posts →" [ref=e263] [cursor=pointer]:
+            - /url: /blog
+        - generic [ref=e265]:
+          - heading "Ready to Explore Hpa‑An?" [level=2] [ref=e266]
+          - paragraph [ref=e267]: Start planning your trip with our curated guides and local insights.
+          - link "Start Your Journey" [ref=e268] [cursor=pointer]:
+            - /url: /destinations
+    - contentinfo [ref=e269]:
+      - generic [ref=e270]:
+        - generic [ref=e271]:
+          - generic [ref=e272]:
+            - heading "Hpa‑An Travel" [level=3] [ref=e273]
+            - paragraph [ref=e274]: Your ultimate travel guide to Hpa‑An, Myanmar. Discover limestone mountains, ancient caves, and authentic Kayin culture.
+            - generic [ref=e275]:
+              - link "Follow us on Facebook" [ref=e276] [cursor=pointer]:
+                - /url: https://facebook.com/hpaantravel
+              - link "Follow us on Instagram" [ref=e279] [cursor=pointer]:
+                - /url: https://instagram.com/hpaantravel
+              - link "Follow us on Twitter" [ref=e282] [cursor=pointer]:
+                - /url: https://twitter.com/hpaantravel
+              - link "Follow us on YouTube" [ref=e285] [cursor=pointer]:
+                - /url: https://youtube.com/@hpaantravel
+          - generic [ref=e288]:
+            - heading "Quick Links" [level=4] [ref=e290]
+            - generic [ref=e291]:
+              - link "Home" [ref=e292] [cursor=pointer]:
+                - /url: /
+              - link "Destinations" [ref=e293] [cursor=pointer]:
+                - /url: /destinations
+              - link "Map" [ref=e294] [cursor=pointer]:
+                - /url: /map
+              - link "Directory" [ref=e295] [cursor=pointer]:
+                - /url: /business
+              - link "Events" [ref=e296] [cursor=pointer]:
+                - /url: /events
+              - link "Travel Tips" [ref=e297] [cursor=pointer]:
+                - /url: /tips
+              - link "History" [ref=e298] [cursor=pointer]:
+                - /url: /history
+          - generic [ref=e299]:
+            - heading "Contact" [level=4] [ref=e301]
+            - list [ref=e302]:
+              - listitem [ref=e303]:
+                - link "info@hpaan.travel" [ref=e309] [cursor=pointer]:
+                  - /url: mailto:info@hpaan.travel
+              - listitem [ref=e310]:
+                - link "+959 123 45678" [ref=e315] [cursor=pointer]:
+                  - /url: tel:+95912345678
+              - listitem [ref=e316]:
+                - generic [ref=e321]: Hpa‑An, Kayin State, Myanmar
+          - generic [ref=e323]:
+            - heading "Language" [level=4] [ref=e325]
+            - generic [ref=e326]:
+              - button "English" [ref=e327] [cursor=pointer]
+              - button "မြန်" [ref=e328] [cursor=pointer]
+        - generic [ref=e329]:
+          - paragraph [ref=e330]: © 2026 Hpa‑An Travel. All rights reserved.
+          - generic [ref=e331]:
+            - link "Privacy Policy" [ref=e332] [cursor=pointer]:
+              - /url: /privacy
+            - link "Terms of Service" [ref=e333] [cursor=pointer]:
+              - /url: /terms
+            - link "Contact Us" [ref=e334] [cursor=pointer]:
+              - /url: /contact
+    - button "Open AI Travel Assistant" [ref=e335] [cursor=pointer]
