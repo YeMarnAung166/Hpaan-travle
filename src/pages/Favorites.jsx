@@ -1,4 +1,5 @@
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
+import { useQuery } from '@tanstack/react-query';
 import { supabase } from '../supabaseClient';
 import { useUser } from '../context/UserContext';
 import { useLanguage } from '../context/LanguageContext';
@@ -13,18 +14,14 @@ const PAGE_SIZE = 9;
 export default function Favorites() {
   const user = useUser();
   const { t } = useLanguage();
-  const [favorites, setFavorites] = useState({ destinations: [], businesses: [] });
-  const [ratings, setRatings] = useState({});
-  const [loading, setLoading] = useState(true);
   const [destPage, setDestPage] = useState(1);
   const [bizPage, setBizPage] = useState(1);
 
-  useEffect(() => {
-    const fetchFavorites = async () => {
-      if (!user) {
-        setLoading(false);
-        return;
-      }
+  const { data, isLoading } = useQuery({
+    queryKey: ['favorites', user?.id],
+    queryFn: async () => {
+      if (!user) return { destinations: [], businesses: [], ratings: {} };
+
       const { data: favData } = await supabase
         .from('user_favorites')
         .select('item_type, item_id')
@@ -44,6 +41,7 @@ export default function Favorites() {
         if (bizData) businesses = bizData;
       }
 
+      let ratings = {};
       if (bizIds.length) {
         const { data: ratingData } = await supabase
           .from('business_reviews')
@@ -56,19 +54,19 @@ export default function Favorites() {
             agg[r.business_id].sum += r.rating;
             agg[r.business_id].count += 1;
           });
-          const ratingMap = {};
           Object.entries(agg).forEach(([id, { sum, count }]) => {
-            ratingMap[id] = { avg: sum / count, count };
+            ratings[id] = { avg: sum / count, count };
           });
-          setRatings(ratingMap);
         }
       }
 
-      setFavorites({ destinations, businesses });
-      setLoading(false);
-    };
-    fetchFavorites();
-  }, [user]);
+      return { destinations, businesses, ratings };
+    },
+    enabled: !!user,
+  });
+
+  const favorites = data?.destinations ? { destinations: data.destinations, businesses: data.businesses } : { destinations: [], businesses: [] };
+  const ratings = data?.ratings || {};
 
   if (!user) {
     return (
@@ -78,7 +76,7 @@ export default function Favorites() {
     );
   }
 
-  if (loading) {
+  if (isLoading) {
     return (
       <div className="container-custom">
         <h1 className="page-title">{t('favorites.title')}</h1>

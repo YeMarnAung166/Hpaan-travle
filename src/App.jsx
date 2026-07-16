@@ -1,6 +1,7 @@
 import React, { Suspense, lazy } from 'react';
 import { BrowserRouter, Routes, Route, Navigate, useLocation } from 'react-router-dom';
 import { AnimatePresence, motion as Motion } from 'framer-motion';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { ThemeProvider } from './context/ThemeContext';
 import { LanguageProvider } from './context/LanguageContext';
 import { UserProvider } from './context/UserContext';
@@ -10,6 +11,8 @@ import { HelmetProvider } from 'react-helmet-async';
 import { useAuthSession } from './hooks/useAuthSession';
 import useSwipeBack from './hooks/useSwipeBack';
 import { fadeInUp } from './utils/animations';
+
+const queryClient = new QueryClient({ defaultOptions: { queries: { staleTime: 1000 * 60 * 5, retry: 1 } } });
 import AuthModal from './components/AuthModal';
 import Header from './components/Header';
 import Footer from './components/Footer';
@@ -82,7 +85,7 @@ const AppContent = React.memo(function AppContent({ showAuthModal, setShowAuthMo
       >
         Skip to main content
       </a>
-      <div className="flex flex-col min-h-screen">
+      <div className="flex flex-col min-h-screen overflow-x-hidden">
         {!isAdmin && (
           <Header
             onLoginClick={() => setShowAuthModal(true)}
@@ -155,6 +158,7 @@ function App() {
   const { user, showAuthModal, setShowAuthModal, handleLogout } = useAuthSession();
 
   return (
+    <QueryClientProvider client={queryClient}>
     <ThemeProvider>
       <LanguageProvider>
         <UserProvider value={user}>
@@ -176,6 +180,7 @@ function App() {
         </UserProvider>
       </LanguageProvider>
     </ThemeProvider>
+    </QueryClientProvider>
   );
 }
 

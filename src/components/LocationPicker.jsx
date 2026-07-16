@@ -1,5 +1,6 @@
 import { useState, useRef, useEffect } from 'react';
 import { MapContainer, TileLayer, Marker, useMapEvents, useMap } from 'react-leaflet';
+import { destinationIcon } from '../utils/mapMarkers';
 
 function MapClickHandler({ onMapClick }) {
   useMapEvents({
@@ -135,7 +136,7 @@ export default function LocationPicker({ lat, lng, onLocationChange, label = 'Lo
           <MapClickHandler onMapClick={handleMapClick} />
           <MapFlyTo lat={lat} lng={lng} />
           {lat && lng && (
-            <Marker position={[parseFloat(lat), parseFloat(lng)]} />
+            <Marker position={[parseFloat(lat), parseFloat(lng)]} icon={destinationIcon} />
           )}
         </MapContainer>
       </div>

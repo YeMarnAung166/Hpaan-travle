@@ -1,4 +1,5 @@
-import { useEffect, useState, useCallback } from 'react';
+import { useState } from 'react';
+import { useQuery } from '@tanstack/react-query';
 import { supabase } from '../supabaseClient';
 import DestinationCard from '../components/DestinationCard';
 import { SkeletonCard } from '../components/ui/Skeleton';
@@ -10,68 +11,61 @@ import { Helmet } from 'react-helmet-async';
 const PAGE_SIZE = 12;
 
 export default function DestinationList() {
-  const [destinations, setDestinations] = useState([]);
-  const [totalCount, setTotalCount] = useState(0);
-  const [loading, setLoading] = useState(true);
   const [page, setPage] = useState(1);
   const [searchTerm, setSearchTerm] = useState('');
   const [filters, setFilters] = useState({});
   const [sortBy, setSortBy] = useState('newest');
   const { t, language } = useLanguage();
 
-  const fetchDestinations = useCallback(async () => {
-    setLoading(true);
+  const { data, isLoading } = useQuery({
+    queryKey: ['destinations', 'list', { page, searchTerm, filters, sortBy, language }],
+    queryFn: async () => {
+      let query = supabase
+        .from('destinations')
+        .select('*', { count: 'exact' });
 
-    let query = supabase
-      .from('destinations')
-      .select('*', { count: 'exact' });
-
-    if (searchTerm) {
-      const term = searchTerm.toLowerCase();
-      if (language === 'my') {
-        query = query.or(`name_my.ilike.%${term}%,description_my.ilike.%${term}%`);
-      } else {
-        query = query.or(`name.ilike.%${term}%,description.ilike.%${term}%`);
+      if (searchTerm) {
+        const term = searchTerm.toLowerCase();
+        if (language === 'my') {
+          query = query.or(`name_my.ilike.%${term}%,description_my.ilike.%${term}%`);
+        } else {
+          query = query.or(`name.ilike.%${term}%,description.ilike.%${term}%`);
+        }
       }
-    }
 
-    if (filters.type && filters.type !== 'all') {
-      query = query.eq('type', filters.type);
-    }
+      if (filters.type && filters.type !== 'all') {
+        query = query.eq('type', filters.type);
+      }
 
-    if (filters.minRating && filters.minRating > 0) {
-      query = query.gte('avg_rating', filters.minRating);
-    }
+      if (filters.minRating && filters.minRating > 0) {
+        query = query.gte('avg_rating', filters.minRating);
+      }
 
-    const sortMap = {
-      newest: { column: 'id', ascending: false },
-      oldest: { column: 'id', ascending: true },
-      name_asc: { column: 'name', ascending: true },
-      name_desc: { column: 'name', ascending: false },
-    };
-    const s = sortMap[sortBy] || sortMap.newest;
-    query = query.order(s.column, { ascending: s.ascending });
+      const sortMap = {
+        newest: { column: 'id', ascending: false },
+        oldest: { column: 'id', ascending: true },
+        name_asc: { column: 'name', ascending: true },
+        name_desc: { column: 'name', ascending: false },
+      };
+      const s = sortMap[sortBy] || sortMap.newest;
+      query = query.order(s.column, { ascending: s.ascending });
 
-    const from = (page - 1) * PAGE_SIZE;
-    const to = from + PAGE_SIZE - 1;
-    query = query.range(from, to);
+      const from = (page - 1) * PAGE_SIZE;
+      const to = from + PAGE_SIZE - 1;
+      query = query.range(from, to);
 
-    const { data, error, count } = await query;
-    if (!error) {
-      setDestinations(data || []);
-      setTotalCount(count || 0);
-    }
-    setLoading(false);
-  }, [page, searchTerm, filters, sortBy, language]);
+      const { data, error, count } = await query;
+      if (error) throw error;
+      return { data: data || [], totalCount: count || 0 };
+    },
+    placeholderData: (prev) => prev,
+  });
 
-  useEffect(() => {
-    // eslint-disable-next-line react-hooks/set-state-in-effect
-    fetchDestinations();
-  }, [fetchDestinations]);
-
+  const destinations = data?.data || [];
+  const totalCount = data?.totalCount || 0;
   const totalPages = Math.ceil(totalCount / PAGE_SIZE);
 
-  if (loading && destinations.length === 0) {
+  if (isLoading && destinations.length === 0) {
     return (
       <div className="container-custom">
         <div className="mb-8">

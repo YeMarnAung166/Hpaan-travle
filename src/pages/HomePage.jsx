@@ -1,6 +1,6 @@
-import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Helmet } from 'react-helmet-async';
+import { useQuery } from '@tanstack/react-query';
 import { supabase } from '../supabaseClient';
 import { useLanguage } from '../context/LanguageContext';
 import WeatherWidget from '../components/WeatherWidget';
@@ -26,43 +26,40 @@ export default function HomePage() {
   const helmetDesc =
     t('home.subtitle') ||
     'Discover the beautiful landscapes, caves, and culture of Hpa-An, Myanmar';
-  const [destinations, setDestinations] = useState([]);
-  const [loadingDestinations, setLoadingDestinations] = useState(true);
-  const [businessCounts, setBusinessCounts] = useState({
-    accommodation: 0,
-    restaurant: 0,
-    transport: 0,
-    tours: 0,
+
+  const { data: destinations = [], isLoading: loadingDestinations } = useQuery({
+    queryKey: ['destinations', 'featured'],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('destinations')
+        .select('*')
+        .order('id', { ascending: true })
+        .limit(6);
+      if (error) throw error;
+      return data;
+    },
   });
 
-  useEffect(() => {
-    const fetchData = async () => {
-      const [destResult, ...countResults] = await Promise.all([
-        supabase
-          .from('destinations')
-          .select('*')
-          .order('id', { ascending: true })
-          .limit(6),
-        ...['accommodation', 'restaurant', 'transport', 'tours'].map((cat) =>
+  const { data: businessCounts = { accommodation: 0, restaurant: 0, transport: 0, tours: 0 } } = useQuery({
+    queryKey: ['businesses', 'counts'],
+    queryFn: async () => {
+      const categories = ['accommodation', 'restaurant', 'transport', 'tours'];
+      const results = await Promise.all(
+        categories.map((cat) =>
           supabase
             .from('businesses')
             .select('*', { count: 'exact', head: true })
             .eq('category', cat),
         ),
-      ]);
-
-      if (!destResult.error) setDestinations(destResult.data);
-      setLoadingDestinations(false);
-
+      );
       const counts = {};
-      const categories = ['accommodation', 'restaurant', 'transport', 'tours'];
-      countResults.forEach((result, i) => {
+      results.forEach((result, i) => {
         if (!result.error) counts[categories[i]] = result.count || 0;
       });
-      setBusinessCounts(counts);
-    };
-    fetchData();
-  }, []);
+      return counts;
+    },
+    staleTime: 1000 * 60 * 2,
+  });
 
   const categoryConfig = {
     accommodation: {
@@ -136,14 +133,6 @@ export default function HomePage() {
 
       {/* ── Overlapping Content Panel ── */}
       <section className="relative z-10 bg-neutral-light dark:bg-neutral-dark rounded-t-3xl -mt-6 pt-8 pb-8 px-4 md:px-6 lg:px-8">
-        {/* Weather & Events — side by side on desktop */}
-        <div className="max-w-7xl mx-auto">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-10">
-            <WeatherWidget />
-            <UpcomingEventsWidget />
-          </div>
-        </div>
-
         {/* Hidden Gems — horizontal scroll */}
         {!loadingDestinations && destinations.length > 0 && (
           <div className="max-w-7xl mx-auto mb-6">
@@ -158,7 +147,7 @@ export default function HomePage() {
                 {t('home.view_all') || 'See all'}
               </Link>
             </div>
-            <div className="flex overflow-x-auto gap-4 pb-4 hide-scrollbar -mx-4 px-4 snap-x snap-mandatory">
+            <div className="flex overflow-x-auto gap-4 pb-4 hide-scrollbar -mx-4 pl-8 pr-4 snap-x snap-mandatory">
               {destinations.map((dest) => (
                 <div
                   key={dest.id}
@@ -178,6 +167,14 @@ export default function HomePage() {
             </div>
           </div>
         )}
+
+        {/* Weather & Events — side by side on desktop */}
+        <div className="max-w-7xl mx-auto">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-10">
+            <WeatherWidget />
+            <UpcomingEventsWidget />
+          </div>
+        </div>
       </section>
 
       {/* ── Directory Summary ── */}

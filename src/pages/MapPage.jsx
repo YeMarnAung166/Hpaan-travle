@@ -1,5 +1,5 @@
-/* global L */
-import { useEffect, useState, useRef } from 'react';
+import { useState, useRef, useEffect } from 'react';
+import { useQuery } from '@tanstack/react-query';
 
 import {
   MapContainer,
@@ -26,58 +26,7 @@ import { useLanguage } from '../context/LanguageContext';
 import { useToast } from '../context/ToastContext';
 import { Helmet } from 'react-helmet-async';
 import { getOptimizedImage } from '../utils/imageHelpers';
-
-const destinationIcon = L.divIcon({
-  html: `
-    <svg width="22" height="22" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
-      <path d="M11 1C7 1 4 4.5 4 9C4 15 10 21 11 22C12 21 18 15 18 9C18 4.5 15 1 11 1Z" fill="#2D6A4F" stroke="#1B4332" stroke-width="1"/>
-      <circle cx="11" cy="9" r="3.5" fill="white"/>
-    </svg>
-  `,
-  iconSize: [22, 22],
-  iconAnchor: [11, 22],
-  popupAnchor: [0, -22],
-  className: 'custom-marker',
-});
-
-const directoryIcon = L.divIcon({
-  html: `
-    <svg width="22" height="22" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
-      <path d="M11 1C7 1 4 4.5 4 9C4 15 10 21 11 22C12 21 18 15 18 9C18 4.5 15 1 11 1Z" fill="#2563EB" stroke="#1D4ED8" stroke-width="1"/>
-      <circle cx="11" cy="9" r="3.5" fill="white"/>
-    </svg>
-  `,
-  iconSize: [22, 22],
-  iconAnchor: [11, 22],
-  popupAnchor: [0, -22],
-  className: 'custom-marker',
-});
-
-const userIcon = L.divIcon({
-  html: `
-    <svg width="22" height="22" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
-      <path d="M11 1C7 1 4 4.5 4 9C4 15 10 21 11 22C12 21 18 15 18 9C18 4.5 15 1 11 1Z" fill="#E53935" stroke="#B71C1C" stroke-width="1"/>
-      <circle cx="11" cy="9" r="3.5" fill="white"/>
-    </svg>
-  `,
-  iconSize: [22, 22],
-  iconAnchor: [11, 22],
-  popupAnchor: [0, -22],
-  className: 'custom-marker',
-});
-
-const waypointIcon = L.divIcon({
-  html: `
-    <svg width="22" height="22" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
-      <path d="M11 1C7 1 4 4.5 4 9C4 15 10 21 11 22C12 21 18 15 18 9C18 4.5 15 1 11 1Z" fill="#8B5CF6" stroke="#7C3AED" stroke-width="1"/>
-      <circle cx="11" cy="9" r="3.5" fill="white"/>
-    </svg>
-  `,
-  iconSize: [22, 22],
-  iconAnchor: [11, 22],
-  popupAnchor: [0, -22],
-  className: 'custom-marker',
-});
+import { destinationIcon, directoryIcon, userIcon, waypointIcon } from '../utils/mapMarkers';
 
 // Helper function to calculate distance in km using Haversine formula
 function getDistance(lat1, lng1, lat2, lng2) {
@@ -131,9 +80,6 @@ function MapClickHandler({ active, onAddWaypoint }) {
 export default function MapPage() {
   const { t, getLocalized } = useLanguage();
   const { toast } = useToast();
-  const [attractions, setAttractions] = useState([]);
-  const [businesses, setBusinesses] = useState([]);
-  const [loading, setLoading] = useState(true);
   const [routeWaypoints, setRouteWaypoints] = useState([]);
   const [customRouteMode, setCustomRouteMode] = useState(false);
   const routingActive = routeWaypoints.length >= 2;
@@ -145,28 +91,31 @@ export default function MapPage() {
   const [tripRouteCoords, setTripRouteCoords] = useState([]);
   const [tripRouteLoading, setTripRouteLoading] = useState(false);
 
-  useEffect(() => {
-    let cancelled = false;
-    const fetchData = async () => {
-      try {
-        const { data: bizData } = await supabase
-          .from('businesses')
-          .select('id, name, name_my, description, description_my, lat, lng, category, image');
-        const { data: destData } = await supabase
-          .from('destinations')
-          .select('id, name, name_my, description, description_my, lat, lng, image');
-        if (cancelled) return;
-        if (bizData) setBusinesses(bizData.filter(b => b.lat && b.lng));
-        if (destData) setAttractions(destData.filter(d => d.lat && d.lng));
-      } catch (err) {
-        console.error('Failed to fetch map data:', err);
-      } finally {
-        if (!cancelled) setLoading(false);
-      }
-    };
-    fetchData();
-    return () => { cancelled = true; };
-  }, []);
+  const { data: bizData, isLoading: bizLoading } = useQuery({
+    queryKey: ['businesses', 'map'],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('businesses')
+        .select('id, name, name_my, description, description_my, lat, lng, category, image');
+      if (error) throw error;
+      return (data || []).filter(b => b.lat && b.lng);
+    },
+  });
+
+  const { data: destData, isLoading: destLoading } = useQuery({
+    queryKey: ['destinations', 'map'],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('destinations')
+        .select('id, name, name_my, description, description_my, lat, lng, image');
+      if (error) throw error;
+      return (data || []).filter(d => d.lat && d.lng);
+    },
+  });
+
+  const businesses = bizData || [];
+  const attractions = destData || [];
+  const loading = bizLoading || destLoading;
 
   useEffect(() => {
     const startParam = searchParams.get('start');

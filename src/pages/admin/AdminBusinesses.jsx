@@ -1,4 +1,5 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "../../supabaseClient";
 import DataTable from "../../components/admin/DataTable";
 import FormModal from "../../components/admin/FormModal";
@@ -17,11 +18,9 @@ const CATEGORIES = [
 ];
 
 export default function AdminBusinesses() {
-  const [businesses, setBusinesses] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const queryClient = useQueryClient();
   const [modalOpen, setModalOpen] = useState(false);
   const [editingItem, setEditingItem] = useState(null);
-  const [submitting, setSubmitting] = useState(false);
   const { t, language } = useLanguage();
   const [deleteTarget, setDeleteTarget] = useState(null);
   const [formData, setFormData] = useState({
@@ -39,22 +38,55 @@ export default function AdminBusinesses() {
     lng: "",
   });
 
-  const fetchBusinesses = async () => {
-    const { data, error } = await supabase
-      .from("businesses")
-      .select("*")
-      .order("id");
-    if (!error) setBusinesses(data);
-    setLoading(false);
+  const { data: businesses = [], isLoading } = useQuery({
+    queryKey: ["admin", "businesses"],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("businesses")
+        .select("*")
+        .order("id");
+      if (error) throw error;
+      return data;
+    },
+  });
+
+  const invalidate = () => {
+    queryClient.invalidateQueries({ queryKey: ["businesses"] });
+    queryClient.invalidateQueries({ queryKey: ["admin"] });
   };
 
-  useEffect(() => {
-    // eslint-disable-next-line react-hooks/set-state-in-effect
-    fetchBusinesses();
-  }, []);
+  const mutation = useMutation({
+    mutationFn: async (payload) => {
+      if (editingItem) {
+        await supabase.from("businesses").update(payload).eq("id", editingItem.id);
+      } else {
+        await supabase.from("businesses").insert([payload]);
+      }
+    },
+    onSuccess: () => {
+      setModalOpen(false);
+      setEditingItem(null);
+      setFormData({
+        name: "", name_my: "", category: "accommodation", description: "", description_my: "",
+        address: "", address_my: "", phone: "", image: "", lat: "", lng: "",
+      });
+      invalidate();
+    },
+  });
+
+  const deleteMutation = useMutation({
+    mutationFn: async (id) => {
+      await supabase.from("businesses").delete().eq("id", id);
+    },
+    onSuccess: () => {
+      setDeleteTarget(null);
+      invalidate();
+    },
+  });
 
   const handleInputChange = (e) => {
-    setFormData({ ...formData, [e.target.name]: e.target.value });
+    const { name, value } = e.target;
+    setFormData(prev => ({ ...prev, [name]: value }));
   };
 
   const handleLocationChange = (lat, lng) => {
@@ -63,37 +95,12 @@ export default function AdminBusinesses() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setSubmitting(true);
     const payload = {
       ...formData,
       lat: formData.lat ? parseFloat(formData.lat) : null,
       lng: formData.lng ? parseFloat(formData.lng) : null,
     };
-    if (editingItem) {
-      await supabase
-        .from("businesses")
-        .update(payload)
-        .eq("id", editingItem.id);
-    } else {
-      await supabase.from("businesses").insert([payload]);
-    }
-    setModalOpen(false);
-    setEditingItem(null);
-    setFormData({
-      name: "",
-      name_my: "",
-      category: "accommodation",
-      description: "",
-      description_my: "",
-      address: "",
-      address_my: "",
-      phone: "",
-      image: "",
-      lat: "",
-      lng: "",
-    });
-    fetchBusinesses();
-    setSubmitting(false);
+    mutation.mutate(payload);
   };
 
   const handleEdit = (item) => {
@@ -121,9 +128,7 @@ export default function AdminBusinesses() {
 
   const confirmDelete = async () => {
     if (!deleteTarget) return;
-    await supabase.from("businesses").delete().eq("id", deleteTarget);
-    setDeleteTarget(null);
-    fetchBusinesses();
+    deleteMutation.mutate(deleteTarget);
   };
 
   const columns = [
@@ -157,7 +162,7 @@ export default function AdminBusinesses() {
     },
   ];
 
-  if (loading) return <div className="container-custom pt-8"><SkeletonTable rows={6} cols={5} /></div>;
+  if (isLoading) return <div className="container-custom pt-8"><SkeletonTable rows={6} cols={5} /></div>;
 
   return (
     <>
@@ -186,7 +191,7 @@ export default function AdminBusinesses() {
           editingItem ? t("admin.edit") || "Edit" : t("admin.add") || "Add"
         }
         onSubmit={handleSubmit}
-        loading={submitting}
+        loading={mutation.isPending}
       >
         {/* English Fields */}
         <div className="border-b pb-3 mb-3">

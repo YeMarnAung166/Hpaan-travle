@@ -1,20 +1,17 @@
-import { useEffect, useState, useCallback } from 'react';
+import { useState, useEffect } from 'react';
+import { useQuery } from '@tanstack/react-query';
 import { supabase } from '../supabaseClient';
 import BusinessCard from '../components/BusinessCard';
 import Pagination from '../components/ui/Pagination';
 import SearchAndFilter from '../components/SearchAndFilter';
 import { useLanguage } from '../context/LanguageContext';
-import { useSearchParams } from 'react-router-dom';
+import { useSearchParams, Link } from 'react-router-dom';
 import { SkeletonCard } from '../components/ui/Skeleton';
 import { Helmet } from 'react-helmet-async';
 
 const PAGE_SIZE = 12;
 
 export default function BusinessList() {
-  const [businesses, setBusinesses] = useState([]);
-  const [ratings, setRatings] = useState({});
-  const [totalCount, setTotalCount] = useState(0);
-  const [loading, setLoading] = useState(true);
   const [page, setPage] = useState(1);
   const [searchTerm, setSearchTerm] = useState('');
   const [filters, setFilters] = useState({});
@@ -25,58 +22,56 @@ export default function BusinessList() {
   useEffect(() => {
     const urlCategory = searchParams.get('category');
     if (urlCategory && ['accommodation', 'restaurant', 'transport', 'tours'].includes(urlCategory)) {
-      // eslint-disable-next-line react-hooks/set-state-in-effect
       setFilters(prev => ({ ...prev, category: urlCategory }));
     }
   }, [searchParams]);
 
   useEffect(() => {
-    // eslint-disable-next-line react-hooks/set-state-in-effect
     setPage(1);
   }, [searchTerm, filters, sortBy]);
 
-  const fetchBusinesses = useCallback(async () => {
-    setLoading(true);
+  const { data, isLoading } = useQuery({
+    queryKey: ['businesses', 'list', { page, searchTerm, filters, sortBy, language }],
+    queryFn: async () => {
+      let query = supabase
+        .from('businesses')
+        .select('*', { count: 'exact' });
 
-    let query = supabase
-      .from('businesses')
-      .select('*', { count: 'exact' });
-
-    if (searchTerm) {
-      const term = searchTerm.toLowerCase();
-      if (language === 'my') {
-        query = query.or(`name_my.ilike.%${term}%,description_my.ilike.%${term}%,address_my.ilike.%${term}%`);
-      } else {
-        query = query.or(`name.ilike.%${term}%,description.ilike.%${term}%,address.ilike.%${term}%`);
+      if (searchTerm) {
+        const term = searchTerm.toLowerCase();
+        if (language === 'my') {
+          query = query.or(`name_my.ilike.%${term}%,description_my.ilike.%${term}%,address_my.ilike.%${term}%`);
+        } else {
+          query = query.or(`name.ilike.%${term}%,description.ilike.%${term}%,address.ilike.%${term}%`);
+        }
       }
-    }
 
-    if (filters.category && filters.category !== 'all') {
-      query = query.eq('category', filters.category);
-    }
+      if (filters.category && filters.category !== 'all') {
+        query = query.eq('category', filters.category);
+      }
 
-    if (filters.minRating && filters.minRating > 0) {
-      query = query.gte('avg_rating', filters.minRating);
-    }
+      if (filters.minRating && filters.minRating > 0) {
+        query = query.gte('avg_rating', filters.minRating);
+      }
 
-    const sortMap = {
-      newest: { column: 'id', ascending: false },
-      oldest: { column: 'id', ascending: true },
-      name_asc: { column: 'name', ascending: true },
-      name_desc: { column: 'name', ascending: false },
-      rating: { column: 'avg_rating', ascending: false },
-    };
-    const s = sortMap[sortBy] || sortMap.newest;
-    query = query.order(s.column, { ascending: s.ascending, nullsLast: true });
+      const sortMap = {
+        newest: { column: 'id', ascending: false },
+        oldest: { column: 'id', ascending: true },
+        name_asc: { column: 'name', ascending: true },
+        name_desc: { column: 'name', ascending: false },
+        rating: { column: 'avg_rating', ascending: false },
+      };
+      const s = sortMap[sortBy] || sortMap.newest;
+      query = query.order(s.column, { ascending: s.ascending, nullsLast: true });
 
-    const from = (page - 1) * PAGE_SIZE;
-    const to = from + PAGE_SIZE - 1;
-    query = query.range(from, to);
+      const from = (page - 1) * PAGE_SIZE;
+      const to = from + PAGE_SIZE - 1;
+      query = query.range(from, to);
 
-    const { data, error, count } = await query;
-    if (!error) {
-      setBusinesses(data || []);
-      setTotalCount(count || 0);
+      const { data, error, count } = await query;
+      if (error) throw error;
+
+      let ratings = {};
       if (data && data.length > 0) {
         const ids = data.map(b => b.id);
         const { data: ratingData } = await supabase
@@ -90,25 +85,23 @@ export default function BusinessList() {
             agg[r.business_id].sum += r.rating;
             agg[r.business_id].count += 1;
           });
-          const ratingMap = {};
           Object.entries(agg).forEach(([id, { sum, count }]) => {
-            ratingMap[id] = { avg: sum / count, count };
+            ratings[id] = { avg: sum / count, count };
           });
-          setRatings(ratingMap);
         }
       }
-    }
-    setLoading(false);
-  }, [page, searchTerm, filters, sortBy, language]);
 
-  useEffect(() => {
-    // eslint-disable-next-line react-hooks/set-state-in-effect
-    fetchBusinesses();
-  }, [fetchBusinesses]);
+      return { data: data || [], totalCount: count || 0, ratings };
+    },
+    placeholderData: (prev) => prev,
+  });
 
+  const businesses = data?.data || [];
+  const ratings = data?.ratings || {};
+  const totalCount = data?.totalCount || 0;
   const totalPages = Math.ceil(totalCount / PAGE_SIZE);
 
-  if (loading && businesses.length === 0) {
+  if (isLoading && businesses.length === 0) {
     return (
       <div className="container-custom">
         <div className="mb-8">

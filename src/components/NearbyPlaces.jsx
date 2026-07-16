@@ -1,5 +1,5 @@
-import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
+import { useQuery } from '@tanstack/react-query';
 import { supabase } from '../supabaseClient';
 import { useLanguage } from '../context/LanguageContext';
 import { getOptimizedImage } from '../utils/imageHelpers';
@@ -18,11 +18,10 @@ function haversineDist(lat1, lng1, lat2, lng2) {
 
 export default function NearbyPlaces({ lat, lng, excludeId, type = 'destinations', radius = 10 }) {
   const { language } = useLanguage();
-  const [places, setPlaces] = useState([]);
-  const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    const fetch = async () => {
+  const { data: places = [], isLoading } = useQuery({
+    queryKey: ['nearby', type, lat, lng, excludeId, radius, language],
+    queryFn: async () => {
       const table = type === 'businesses' ? 'businesses' : 'destinations';
       const rad = radius / 111;
       const { data, error } = await supabase
@@ -34,22 +33,17 @@ export default function NearbyPlaces({ lat, lng, excludeId, type = 'destinations
         .gte('lng', lng - rad)
         .lte('lng', lng + rad)
         .limit(20);
-      if (!error && data) {
-        const filtered = data
-          .map(p => ({ ...p, distance: haversineDist(parseFloat(lat), parseFloat(lng), parseFloat(p.lat), parseFloat(p.lng)) }))
-          .filter(p => p.distance <= radius)
-          .sort((a, b) => a.distance - b.distance)
-          .slice(0, 6);
-        setPlaces(filtered);
-      } else {
-        setPlaces([]);
-      }
-      setLoading(false);
-    };
-    fetch();
-  }, [lat, lng, excludeId, type, radius, language]);
+      if (error) throw error;
+      return (data || [])
+        .map(p => ({ ...p, distance: haversineDist(parseFloat(lat), parseFloat(lng), parseFloat(p.lat), parseFloat(p.lng)) }))
+        .filter(p => p.distance <= radius)
+        .sort((a, b) => a.distance - b.distance)
+        .slice(0, 6);
+    },
+    enabled: !!lat && !!lng,
+  });
 
-  if (loading) return <div className="flex gap-3 overflow-x-auto pb-2"><div className="w-32 h-24 bg-neutral-mid rounded-lg animate-pulse shrink-0" /><div className="w-32 h-24 bg-neutral-mid rounded-lg animate-pulse shrink-0" /></div>;
+  if (isLoading) return <div className="flex gap-3 overflow-x-auto pb-2"><div className="w-32 h-24 bg-neutral-mid rounded-lg animate-pulse shrink-0" /><div className="w-32 h-24 bg-neutral-mid rounded-lg animate-pulse shrink-0" /></div>;
   if (places.length === 0) return <p className="text-text-soft text-sm">{language === 'my' ? 'အနီးနားတွင် နေရာများမရှိပါ။' : 'No nearby places found.'}</p>;
 
   const linkPrefix = type === 'businesses' ? '/business' : '/destination';

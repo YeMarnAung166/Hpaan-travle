@@ -1,6 +1,6 @@
-import { useEffect, useState } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet';
+import { useQuery } from '@tanstack/react-query';
 import { supabase } from '../supabaseClient';
 import { useUser } from '../context/UserContext';
 import { useFavorites } from '../hooks/useFavorites';
@@ -15,35 +15,33 @@ import ImageGallery from '../components/ImageGallery';
 import NearbyPlaces from '../components/NearbyPlaces';
 import { getYouTubeEmbedUrl } from '../utils/videoHelpers';
 import { getOptimizedImage } from '../utils/imageHelpers';
+import { destinationIcon } from '../utils/mapMarkers';
 import { SkeletonDetail } from '../components/ui/Skeleton';
 import { Helmet } from 'react-helmet-async';
 
 export default function DestinationDetail() {
   const { id } = useParams();
   const navigate = useNavigate();
-  const [destination, setDestination] = useState(null);
-  const [loading, setLoading] = useState(true);
   const user = useUser();
   const { getLocalized, language } = useLanguage();
   const { toast } = useToast();
   const { favorites, toggleFavorite } = useFavorites(user?.id);
   const isSaved = user && favorites.destinations?.has(parseInt(id));
 
-  useEffect(() => {
-    const fetchDestination = async () => {
+  const { data: destination, isLoading } = useQuery({
+    queryKey: ['destinations', id],
+    queryFn: async () => {
       const { data, error } = await supabase
         .from('destinations')
         .select('*')
         .eq('id', id)
         .single();
-      if (error) console.error(error);
-      else setDestination(data);
-      setLoading(false);
-    };
-    fetchDestination();
-  }, [id]);
+      if (error) throw error;
+      return data;
+    },
+  });
 
-  if (loading) return <SkeletonDetail />;
+  if (isLoading) return <SkeletonDetail />;
 
   if (!destination) {
     return (
@@ -167,7 +165,7 @@ export default function DestinationDetail() {
                       url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
                       attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
                     />
-                    <Marker position={mapCenter}>
+                    <Marker position={mapCenter} icon={destinationIcon}>
                       <Popup>{name}</Popup>
                     </Marker>
                     <LocationControl />

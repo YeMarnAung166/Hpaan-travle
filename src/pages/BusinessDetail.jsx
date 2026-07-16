@@ -1,6 +1,7 @@
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet';
+import { useQuery } from '@tanstack/react-query';
 import { supabase } from '../supabaseClient';
 import { useUser } from '../context/UserContext';
 import { useFavorites } from '../hooks/useFavorites';
@@ -18,14 +19,13 @@ import NearbyPlaces from '../components/NearbyPlaces';
 import BookingModal from '../components/BookingModal';
 import { getYouTubeEmbedUrl } from '../utils/videoHelpers';
 import { getOptimizedImage } from '../utils/imageHelpers';
+import { directoryIcon } from '../utils/mapMarkers';
 import { SkeletonDetail } from '../components/ui/Skeleton';
 import { Helmet } from 'react-helmet-async';
 
 export default function BusinessDetail() {
   const { id } = useParams();
   const navigate = useNavigate();
-  const [business, setBusiness] = useState(null);
-  const [loading, setLoading] = useState(true);
   const user = useUser();
   const { getLocalized, language } = useLanguage();
   const { toast } = useToast();
@@ -34,19 +34,18 @@ export default function BusinessDetail() {
   const [photoRefreshKey, setPhotoRefreshKey] = useState(0);
   const [showBooking, setShowBooking] = useState(false);
 
-  useEffect(() => {
-    const fetchBusiness = async () => {
+  const { data: business, isLoading } = useQuery({
+    queryKey: ['businesses', id],
+    queryFn: async () => {
       const { data, error } = await supabase
         .from('businesses')
         .select('*')
         .eq('id', id)
         .single();
-      if (error) console.error(error);
-      else setBusiness(data);
-      setLoading(false);
-    };
-    fetchBusiness();
-  }, [id]);
+      if (error) throw error;
+      return data;
+    },
+  });
 
   const name = getLocalized(business, 'name', 'name_my');
   const description = getLocalized(business, 'description', 'description_my');
@@ -73,7 +72,7 @@ export default function BusinessDetail() {
     }
   };
 
-  if (loading) return <SkeletonDetail />;
+  if (isLoading) return <SkeletonDetail />;
 
   if (!business) {
     return (
@@ -217,7 +216,7 @@ export default function BusinessDetail() {
                       url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
                       attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
                     />
-                    <Marker position={mapCenter}>
+                    <Marker position={mapCenter} icon={directoryIcon}>
                       <Popup>{name}</Popup>
                     </Marker>
                     <LocationControl />

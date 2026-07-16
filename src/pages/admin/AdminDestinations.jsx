@@ -1,4 +1,5 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "../../supabaseClient";
 import DataTable from "../../components/admin/DataTable";
 import FormModal from "../../components/admin/FormModal";
@@ -10,11 +11,9 @@ import { SkeletonTable } from '../../components/ui/Skeleton';
 import { Helmet } from 'react-helmet-async';
 
 export default function AdminDestinations() {
-  const [destinations, setDestinations] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const queryClient = useQueryClient();
   const [modalOpen, setModalOpen] = useState(false);
   const [editingItem, setEditingItem] = useState(null);
-  const [submitting, setSubmitting] = useState(false);
   const { t, language } = useLanguage();
   const [deleteTarget, setDeleteTarget] = useState(null);
   const [formData, setFormData] = useState({
@@ -28,22 +27,52 @@ export default function AdminDestinations() {
     video_url: "",
   });
 
-  const fetchDestinations = async () => {
-    const { data, error } = await supabase
-      .from("destinations")
-      .select("*")
-      .order("id");
-    if (!error) setDestinations(data);
-    setLoading(false);
+  const { data: destinations = [], isLoading } = useQuery({
+    queryKey: ["admin", "destinations"],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("destinations")
+        .select("*")
+        .order("id");
+      if (error) throw error;
+      return data;
+    },
+  });
+
+  const invalidate = () => {
+    queryClient.invalidateQueries({ queryKey: ["destinations"] });
+    queryClient.invalidateQueries({ queryKey: ["admin"] });
   };
 
-  useEffect(() => {
-    // eslint-disable-next-line react-hooks/set-state-in-effect
-    fetchDestinations();
-  }, []);
+  const mutation = useMutation({
+    mutationFn: async (payload) => {
+      if (editingItem) {
+        await supabase.from("destinations").update(payload).eq("id", editingItem.id);
+      } else {
+        await supabase.from("destinations").insert([payload]);
+      }
+    },
+    onSuccess: () => {
+      setModalOpen(false);
+      setEditingItem(null);
+      setFormData({ name: "", name_my: "", description: "", description_my: "", lat: "", lng: "", image: "" });
+      invalidate();
+    },
+  });
+
+  const deleteMutation = useMutation({
+    mutationFn: async (id) => {
+      await supabase.from("destinations").delete().eq("id", id);
+    },
+    onSuccess: () => {
+      setDeleteTarget(null);
+      invalidate();
+    },
+  });
 
   const handleInputChange = (e) => {
-    setFormData({ ...formData, [e.target.name]: e.target.value });
+    const { name, value } = e.target;
+    setFormData(prev => ({ ...prev, [name]: value }));
   };
 
   const handleLocationChange = (lat, lng) => {
@@ -52,33 +81,12 @@ export default function AdminDestinations() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setSubmitting(true);
     const payload = {
       ...formData,
       lat: formData.lat ? parseFloat(formData.lat) : null,
       lng: formData.lng ? parseFloat(formData.lng) : null,
     };
-    if (editingItem) {
-      await supabase
-        .from("destinations")
-        .update(payload)
-        .eq("id", editingItem.id);
-    } else {
-      await supabase.from("destinations").insert([payload]);
-    }
-    setModalOpen(false);
-    setEditingItem(null);
-    setFormData({
-      name: "",
-      name_my: "",
-      description: "",
-      description_my: "",
-      lat: "",
-      lng: "",
-      image: "",
-    });
-    fetchDestinations();
-    setSubmitting(false);
+    mutation.mutate(payload);
   };
 
   const handleEdit = (item) => {
@@ -102,9 +110,7 @@ export default function AdminDestinations() {
 
   const confirmDelete = async () => {
     if (!deleteTarget) return;
-    await supabase.from("destinations").delete().eq("id", deleteTarget);
-    setDeleteTarget(null);
-    fetchDestinations();
+    deleteMutation.mutate(deleteTarget);
   };
 
   const columns = [
@@ -134,7 +140,7 @@ export default function AdminDestinations() {
     },
   ];
 
-  if (loading) return <div className="container-custom pt-8"><SkeletonTable rows={6} cols={4} /></div>;
+  if (isLoading) return <div className="container-custom pt-8"><SkeletonTable rows={6} cols={4} /></div>;
 
   return (
     <>
@@ -163,7 +169,7 @@ export default function AdminDestinations() {
           editingItem ? t("admin.edit") || "Edit" : t("admin.add") || "Add"
         }
         onSubmit={handleSubmit}
-        loading={submitting}
+        loading={mutation.isPending}
       >
         <div className="border-b pb-3 mb-3">
           <h3 className="font-semibold mb-2">English</h3>

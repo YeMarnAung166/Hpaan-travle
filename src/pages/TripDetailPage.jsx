@@ -1,5 +1,6 @@
-import { useEffect, useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '../supabaseClient';
 import { useUser } from '../context/UserContext';
 import { useLanguage } from '../context/LanguageContext';
@@ -11,87 +12,99 @@ import { DragDropContext, Droppable, Draggable } from '@hello-pangea/dnd';
 import { Helmet } from 'react-helmet-async';
 
 export default function TripDetailPage() {
+  const queryClient = useQueryClient();
   const { id } = useParams();
   const user = useUser();
   const navigate = useNavigate();
   const { t, language } = useLanguage();
   const { toast } = useToast();
-  const [trip, setTrip] = useState(null);
-  const [items, setItems] = useState([]);
-  const [loading, setLoading] = useState(true);
   const [editingTitle, setEditingTitle] = useState(false);
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
   const [notes, setNotes] = useState({});
   const [editingNoteId, setEditingNoteId] = useState(null);
-  const [availableDestinations, setAvailableDestinations] = useState([]);
-  const [availableBusinesses, setAvailableBusinesses] = useState([]);
   const [showAddModal, setShowAddModal] = useState(false);
   const [addType, setAddType] = useState('destination');
   const [search, setSearch] = useState('');
   const [confirmDelete, setConfirmDelete] = useState(null);
 
-  const fetchTrip = async () => {
-    const { data: tripData, error: tripError } = await supabase
-      .from('trips')
-      .select('*')
-      .eq('id', id)
-      .single();
-    if (tripError || !tripData) {
-      navigate('/trips');
-      return;
-    }
-    setTrip(tripData);
-    setTitle(tripData.title);
-    setDescription(tripData.description || '');
+  const { data, isLoading } = useQuery({
+    queryKey: ['trips', 'detail', id],
+    queryFn: async () => {
+      const { data: tripData, error: tripError } = await supabase
+        .from('trips')
+        .select('*')
+        .eq('id', id)
+        .single();
+      if (tripError || !tripData) {
+        navigate('/trips');
+        throw new Error('Trip not found');
+      }
 
-    const { data: itemsData, error: itemsError } = await supabase
-      .from('trip_items')
-      .select('*')
-      .eq('trip_id', id)
-      .order('order_index', { ascending: true });
-    if (!itemsError) {
-      const enriched = await Promise.all(itemsData.map(async (item) => {
-        if (item.item_type === 'destination') {
-          const { data: dest } = await supabase
-            .from('destinations')
-            .select('id, name, name_my, image, lat, lng')
-            .eq('id', item.item_id)
-            .single();
-          return { ...item, data: dest };
-        } else {
-          const { data: biz } = await supabase
-            .from('businesses')
-            .select('id, name, name_my, image, lat, lng')
-            .eq('id', item.item_id)
-            .single();
-          return { ...item, data: biz };
-        }
-      }));
-      setItems(enriched);
-      const notesMap = {};
-      enriched.forEach(item => { if (item.notes) notesMap[item.id] = item.notes; });
-      setNotes(notesMap);
-    }
+      const { data: itemsData, error: itemsError } = await supabase
+        .from('trip_items')
+        .select('*')
+        .eq('trip_id', id)
+        .order('order_index', { ascending: true });
 
-    const { data: dests } = await supabase.from('destinations').select('id, name, name_my');
-    const { data: bizs } = await supabase.from('businesses').select('id, name, name_my');
-    setAvailableDestinations(dests || []);
-    setAvailableBusinesses(bizs || []);
-    setLoading(false);
-  };
+      let items = [];
+      if (!itemsError && itemsData) {
+        items = await Promise.all(itemsData.map(async (item) => {
+          if (item.item_type === 'destination') {
+            const { data: dest } = await supabase
+              .from('destinations')
+              .select('id, name, name_my, image, lat, lng')
+              .eq('id', item.item_id)
+              .single();
+            return { ...item, data: dest };
+          } else {
+            const { data: biz } = await supabase
+              .from('businesses')
+              .select('id, name, name_my, image, lat, lng')
+              .eq('id', item.item_id)
+              .single();
+            return { ...item, data: biz };
+          }
+        }));
+      }
+
+      const { data: dests } = await supabase.from('destinations').select('id, name, name_my');
+      const { data: bizs } = await supabase.from('businesses').select('id, name, name_my');
+
+      return { trip: tripData, items, availableDestinations: dests || [], availableBusinesses: bizs || [] };
+    },
+    enabled: !!user,
+  });
+
+  const trip = data?.trip;
+  const fetchedItems = data?.items || [];
+  const availableDestinations = data?.availableDestinations || [];
+  const availableBusinesses = data?.availableBusinesses || [];
+
+  const [items, setItems] = useState([]);
 
   useEffect(() => {
-    if (user) fetchTrip();
-  }, [id, user]);
+    if (trip) {
+      setTitle(trip.title || '');
+      setDescription(trip.description || '');
+    }
+  }, [trip]);
 
+  useEffect(() => {
+    if (fetchedItems.length) {
+      setItems(fetchedItems);
+      const notesMap = {};
+      fetchedItems.forEach(item => { if (item.notes) notesMap[item.id] = item.notes; });
+      setNotes(notesMap);
+    }
+  }, [fetchedItems]);
   const updateTrip = async () => {
     const { error } = await supabase
       .from('trips')
       .update({ title, description })
       .eq('id', id);
     if (!error) {
-      setTrip({ ...trip, title, description });
+      queryClient.invalidateQueries({ queryKey: ['trips', 'detail', id] });
       setEditingTitle(false);
     }
   };
@@ -122,6 +135,7 @@ export default function TripDetailPage() {
       toast({ type: 'error', message: t('trips.error_adding') });
     } else {
       setItems(prev => prev.map(i => i.id === tempId ? { ...data, data: newItem.data } : i));
+      queryClient.invalidateQueries({ queryKey: ['trips', 'detail', id] });
     }
     setShowAddModal(false);
   };
@@ -134,6 +148,7 @@ export default function TripDetailPage() {
       setItems(originalItems);
       toast({ type: 'error', message: t('trips.error_removing') });
     } else {
+      queryClient.invalidateQueries({ queryKey: ['trips', 'detail', id] });
       toast({ type: 'success', message: 'Item removed' });
     }
     setConfirmDelete(null);
@@ -165,6 +180,7 @@ export default function TripDetailPage() {
         .update({ order_index: update.order_index })
         .eq('id', update.id)
     ));
+    queryClient.invalidateQueries({ queryKey: ['trips', 'detail', id] });
   };
 
   const viewOnMap = () => {
