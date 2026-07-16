@@ -86,7 +86,7 @@ export default function HomePage() {
       </Helmet>
 
       {/* ── Compact Hero ── */}
-      <section className="relative overflow-hidden -mt-[var(--header-h,96px)] flex flex-col items-center justify-center text-center" style={{ height: 'calc(50vh + 155px)' }}>
+      <section className="relative overflow-hidden -mt-[var(--header-h,96px)] flex flex-col justify-end h-[50vh]">
         <div className="absolute inset-0">
           <img
             src={getOptimizedImage(
@@ -101,27 +101,27 @@ export default function HomePage() {
         </div>
         <div className="absolute inset-0 bg-gradient-to-b from-black/40 to-black/60" />
 
-        <div className="relative z-10 px-6 mt-16 md:mt-24">
-          <p className="text-xs sm:text-sm uppercase tracking-[0.25em] mb-4 font-medium text-white/70">
+        <div className="relative z-10 px-6 pb-12">
+          <p className="text-xs sm:text-sm uppercase tracking-[0.25em] mb-2 font-medium text-white/70">
             {t('home.hero_tagline') || 'Discover the Hidden Gem'}
           </p>
-          <h1 className="font-serif text-4xl md:text-6xl lg:text-7xl text-white font-bold leading-tight mb-3">
+          <h1 className="font-serif text-4xl md:text-6xl lg:text-7xl text-white font-bold leading-tight mb-2">
             DISCOVER Hpa‑An
           </h1>
-          <p className="max-w-md mx-auto text-white/85 text-sm md:text-base leading-relaxed mb-8 px-4">
+          <p className="max-w-md text-white/85 text-sm md:text-base leading-relaxed mb-6">
             {t('home.hero_subtitle') ||
               'Explore limestone mountains, ancient caves, and authentic Kayin culture.'}
           </p>
-          <div className="flex flex-row gap-3 w-full max-w-sm mx-auto px-4">
+          <div className="flex flex-row gap-3">
             <Link
               to="/destinations"
-              className="flex-1 bg-white text-primary font-semibold py-3 px-4 rounded-xl shadow-lg active:scale-95 transition-transform text-xs whitespace-nowrap"
+              className="bg-white text-primary font-semibold py-3 px-5 rounded-xl shadow-lg active:scale-95 transition-transform text-xs whitespace-nowrap"
             >
               {t('home.explore_destinations') || 'Explore Destinations'}
             </Link>
             <Link
               to="/business"
-              className="flex-1 bg-white/20 backdrop-blur-md text-white border border-white/30 font-semibold py-3 px-4 rounded-xl shadow-lg active:scale-95 transition-transform text-xs whitespace-nowrap"
+              className="bg-white/20 backdrop-blur-md text-white border border-white/30 font-semibold py-3 px-5 rounded-xl shadow-lg active:scale-95 transition-transform text-xs whitespace-nowrap"
             >
               {t('home.view_businesses') || 'Local Businesses'}
             </Link>
