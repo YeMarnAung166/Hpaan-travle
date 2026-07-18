@@ -46,6 +46,7 @@ export default function RouteControls({ customRouteMode, routingActive, waypoint
     routeBtn.innerHTML = routeIcon(active);
     routeBtn.title = active ? t('map.tap_to_add_stops') : t('map.custom_route');
     clearBtn.style.display = (routingActive || active) ? 'flex' : 'none';
+    clearBtn.innerHTML = clearIcon();
     undoBtn.style.display = (active && waypointCount > 0) ? 'flex' : 'none';
   }, [customRouteMode, routingActive, waypointCount, t]);
 
@@ -70,6 +71,8 @@ export default function RouteControls({ customRouteMode, routingActive, waypoint
     const clearBtn = L.DomUtil.create('button', '', container);
     Object.assign(clearBtn.style, btnBase, { background: 'white', display: 'none' });
     clearBtn.type = 'button';
+    clearBtn.title = t('map.clear_route') || 'Clear route';
+    clearBtn.innerHTML = clearIcon();
     clearBtn.addEventListener('click', (e) => { e.stopPropagation(); clearRef.current(); });
 
     const CustomControl = L.Control.extend({ onAdd: () => container });

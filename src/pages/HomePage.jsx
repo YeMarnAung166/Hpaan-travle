@@ -114,13 +114,13 @@ export default function HomePage() {
               to="/destinations"
               className="bg-white text-primary font-semibold py-3 px-5 rounded-xl shadow-lg active:scale-95 transition-transform text-xs whitespace-nowrap"
             >
-              {t('home.explore_destinations') || 'Explore Destinations'}
+              {t('home.hero_destinations') || 'Destinations'}
             </Link>
             <Link
               to="/business"
               className="bg-white/20 backdrop-blur-md text-white border border-white/30 font-semibold py-3 px-5 rounded-xl shadow-lg active:scale-95 transition-transform text-xs whitespace-nowrap"
             >
-              {t('home.view_businesses') || 'Local Businesses'}
+              {t('home.hero_business') || 'Businesses'}
             </Link>
           </div>
         </div>
@@ -147,11 +147,11 @@ export default function HomePage() {
                 {t('home.view_all') || 'See all'}
               </Link>
             </div>
-            <div className="flex overflow-x-auto gap-4 pb-4 hide-scrollbar -mx-4 pl-8 pr-4 snap-x snap-mandatory">
+            <div className="flex overflow-x-auto gap-4 pb-4 hide-scrollbar pl-4 pr-4">
               {destinations.map((dest) => (
                 <div
                   key={dest.id}
-                  className="min-w-[240px] md:min-w-[280px] snap-start"
+                  className="min-w-[240px] md:min-w-[280px]"
                 >
                   <DestinationCard destination={dest} />
                 </div>

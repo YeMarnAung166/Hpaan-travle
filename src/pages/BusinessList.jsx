@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '../supabaseClient';
 import BusinessCard from '../components/BusinessCard';
@@ -26,9 +26,18 @@ export default function BusinessList() {
     }
   }, [searchParams]);
 
-  useEffect(() => {
+  const handleSearch = useCallback((term) => {
+    setSearchTerm(term);
     setPage(1);
-  }, [searchTerm, filters, sortBy]);
+  }, []);
+  const handleFilter = useCallback((filters) => {
+    setFilters(filters);
+    setPage(1);
+  }, []);
+  const handleSort = useCallback((sortBy) => {
+    setSortBy(sortBy);
+    setPage(1);
+  }, []);
 
   const { data, isLoading } = useQuery({
     queryKey: ['businesses', 'list', { page, searchTerm, filters, sortBy, language }],
@@ -130,9 +139,9 @@ export default function BusinessList() {
       </div>
       <SearchAndFilter
         type="business"
-        onSearch={setSearchTerm}
-        onFilter={setFilters}
-        onSort={setSortBy}
+        onSearch={handleSearch}
+        onFilter={handleFilter}
+        onSort={handleSort}
       />
       {businesses.length === 0 ? (
         <div className="text-center py-16">

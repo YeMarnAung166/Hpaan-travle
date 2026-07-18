@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useCallback } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '../supabaseClient';
 import DestinationCard from '../components/DestinationCard';
@@ -16,6 +16,19 @@ export default function DestinationList() {
   const [filters, setFilters] = useState({});
   const [sortBy, setSortBy] = useState('newest');
   const { t, language } = useLanguage();
+
+  const handleSearch = useCallback((term) => {
+    setSearchTerm(term);
+    setPage(1);
+  }, []);
+  const handleFilter = useCallback((filters) => {
+    setFilters(filters);
+    setPage(1);
+  }, []);
+  const handleSort = useCallback((sortBy) => {
+    setSortBy(sortBy);
+    setPage(1);
+  }, []);
 
   const { data, isLoading } = useQuery({
     queryKey: ['destinations', 'list', { page, searchTerm, filters, sortBy, language }],
@@ -94,9 +107,9 @@ export default function DestinationList() {
       </div>
       <SearchAndFilter
         type="destination"
-        onSearch={setSearchTerm}
-        onFilter={setFilters}
-        onSort={setSortBy}
+        onSearch={handleSearch}
+        onFilter={handleFilter}
+        onSort={handleSort}
       />
       {destinations.length === 0 ? (
         <div className="text-center py-16">

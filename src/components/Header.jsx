@@ -271,60 +271,49 @@ const Header = memo(function Header({ onLoginClick, onLogoutClick }) {
       aria-modal="true"
       aria-label="Navigation menu"
       onKeyDown={(e) => { if (e.key === 'Escape') { closeMenu(); hamburgerRef.current?.focus(); } }}
-      className={`md:hidden fixed top-0 right-0 bottom-0 w-[280px] max-w-[85vw] z-[110] shadow-2xl flex flex-col transition-transform duration-200 ease-out bg-white dark:bg-gray-900 ${
+      className={`md:hidden fixed top-0 right-0 bottom-0 w-[280px] max-w-[85vw] z-[110] shadow-2xl flex flex-col transition-transform duration-200 ease-out bg-white dark:bg-neutral-dark ${
         isMenuOpen ? 'translate-x-0' : 'translate-x-full'
       }`}
     >
-      <div className="flex items-center justify-between p-4 border-b border-border shrink-0 bg-white dark:bg-gray-900">
-        <Link to="/" className="flex items-center gap-2" onClick={closeMenu}>
-          <img src="/pwa-192x192.png" alt="Hpa-An Travel" className="h-8 w-auto" />
-          <div className="flex flex-col leading-tight">
-            <span className="text-sm font-bold text-gray-900 dark:text-white">Hpa‑An</span>
-            <span className="text-[9px] font-medium tracking-[0.15em] uppercase text-gray-500 dark:text-gray-400">Travel</span>
-          </div>
-        </Link>
+      <div className="flex items-center justify-between p-4 border-b border-border shrink-0 bg-white dark:bg-neutral-dark">
+        {user ? (
+          <Link
+            to="/account"
+            onClick={closeMenu}
+            className="flex items-center gap-3 group flex-1 min-w-0"
+          >
+            {avatarUrl ? (
+              <img src={avatarUrl} alt="Avatar" className="w-8 h-8 rounded-full object-cover ring-2 ring-primary/20 shrink-0" />
+            ) : (
+              <span className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center text-xs font-medium text-primary shrink-0">
+                {displayName.charAt(0).toUpperCase()}
+              </span>
+            )}
+            <div className="min-w-0">
+              <p className="font-medium text-sm text-text group-hover:text-primary transition truncate">{displayName}</p>
+              <p className="text-xs text-text-soft">{t('nav.account') || 'Account'}</p>
+            </div>
+          </Link>
+        ) : (
+          <button
+            onClick={() => { onLoginClick(); closeMenu(); }}
+            className="px-4 py-2 rounded-lg text-sm font-medium bg-primary text-white hover:bg-primary-light transition shadow-soft"
+          >
+            {t('nav.login')}
+          </button>
+        )}
         <button
           onClick={closeMenu}
-          className="flex items-center justify-center p-1.5 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700 transition text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white"
+          className="flex items-center justify-center p-1.5 rounded-full hover:bg-overlay dark:hover:bg-white/10 transition text-text-soft hover:text-text shrink-0"
           aria-label="Close menu"
         >
           <X size={20} />
         </button>
       </div>
 
-      <div className="flex-1 overflow-y-auto bg-white dark:bg-gray-900">
-        {user ? (
-          <div className="p-4 border-b border-border bg-white dark:bg-gray-900">
-            <Link
-              to="/account"
-              onClick={closeMenu}
-              className="flex items-center gap-3 group"
-            >
-              {avatarUrl ? (
-                <img src={avatarUrl} alt="Avatar" className="w-10 h-10 rounded-full object-cover ring-2 ring-primary/20" />
-              ) : (
-                <span className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center text-sm font-medium text-primary">
-                  {displayName.charAt(0).toUpperCase()}
-                </span>
-              )}
-              <div>
-                <p className="font-medium text-sm text-gray-900 dark:text-white group-hover:text-primary transition">{displayName}</p>
-                <p className="text-xs text-gray-500 dark:text-gray-400">{t('nav.account') || 'Account'}</p>
-              </div>
-            </Link>
-          </div>
-        ) : (
-          <div className="p-4 border-b border-border bg-white dark:bg-gray-900">
-            <button
-              onClick={() => { onLoginClick(); closeMenu(); }}
-              className="w-full px-4 py-2.5 rounded-lg text-sm font-medium bg-primary text-white hover:bg-primary-light transition shadow-soft"
-            >
-              {t('nav.login')}
-            </button>
-          </div>
-        )}
+      <div className="flex-1 overflow-y-auto">
 
-        <div className="p-2 space-y-0.5 bg-white dark:bg-gray-900">
+        <div className="p-2 space-y-0.5">
           {navLinks.map(link => {
             const Icon = link.icon;
             return (
@@ -337,7 +326,7 @@ const Header = memo(function Header({ onLoginClick, onLogoutClick }) {
                   `flex items-center gap-3 px-4 py-3 rounded-lg transition ${
                     isActive
                       ? 'font-semibold text-primary bg-primary/5'
-                      : 'text-gray-800 dark:text-gray-200 hover:text-primary hover:bg-gray-100 dark:hover:bg-gray-800'
+                      : 'text-text hover:text-primary hover:bg-overlay dark:hover:bg-white/10'
                   }`
                 }
               >
@@ -348,11 +337,11 @@ const Header = memo(function Header({ onLoginClick, onLogoutClick }) {
           })}
         </div>
 
-        <div className="p-4 border-t border-border bg-white dark:bg-gray-900">
+        <div className="p-4 border-t border-border">
           <div className="flex items-center justify-between">
             <button
               onClick={() => setTheme(theme === 'light' ? 'dark' : 'light')}
-              className="flex items-center gap-2 p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white"
+              className="flex items-center gap-2 p-2 rounded-lg hover:bg-overlay dark:hover:bg-white/10 transition text-text-soft hover:text-text"
               aria-label="Toggle theme"
             >
               {theme === 'light' ? (
@@ -362,11 +351,11 @@ const Header = memo(function Header({ onLoginClick, onLogoutClick }) {
               )}
               <span className="text-sm">{t('nav.theme') || 'Theme'}</span>
             </button>
-            <div className="flex gap-0.5 bg-gray-100 dark:bg-gray-800 rounded-full p-0.5">
+            <div className="flex gap-0.5 bg-overlay dark:bg-white/10 rounded-full p-0.5">
               <button
                 onClick={() => setLanguage('en')}
                 className={`px-2.5 py-1 text-xs font-medium rounded-full transition ${
-                  language === 'en' ? 'bg-primary text-white' : 'text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-white'
+                  language === 'en' ? 'bg-primary text-white' : 'text-text-soft hover:text-text'
                 }`}
                 aria-label="Switch to English"
               >
@@ -375,7 +364,7 @@ const Header = memo(function Header({ onLoginClick, onLogoutClick }) {
               <button
                 onClick={() => setLanguage('my')}
                 className={`px-2.5 py-1 text-xs font-medium rounded-full transition ${
-                  language === 'my' ? 'bg-primary text-white' : 'text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-white'
+                  language === 'my' ? 'bg-primary text-white' : 'text-text-soft hover:text-text'
                 }`}
                 aria-label="Switch to Myanmar"
               >
@@ -385,12 +374,12 @@ const Header = memo(function Header({ onLoginClick, onLogoutClick }) {
           </div>
         </div>
 
-        {user && (
-          <div className="px-4 pb-4 bg-white dark:bg-gray-900">
+          {user && (
+          <div className="px-4 pb-4">
             <Button
               variant="ghost"
               size="sm"
-              className="w-full text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white"
+              className="w-full text-text-soft hover:text-text"
               onClick={() => { onLogoutClick(); closeMenu(); }}
             >
               {t('nav.logout')}
