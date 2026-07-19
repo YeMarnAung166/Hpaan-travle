@@ -1,19 +1,26 @@
 import { useState, useEffect } from 'react';
 import { Bell, BellOff, Loader2 } from 'lucide-react';
-import { requestNotificationPermission, subscribeToPush, unsubscribeFromPush, saveSubscription, isPushSubscribed } from '../utils/pushManager';
+import { requestNotificationPermission, subscribeToPush, unsubscribeFromPush, saveSubscription, isPushSubscribed, isServiceWorkerReady } from '../utils/pushManager';
 
 export default function NotificationToggle() {
   const [loading, setLoading] = useState(false);
   const [subscribed, setSubscribed] = useState(false);
+  const [swReady, setSwReady] = useState(true);
   const [error, setError] = useState('');
+  const [info, setInfo] = useState('');
 
   useEffect(() => {
+    isServiceWorkerReady().then(ready => {
+      setSwReady(ready);
+      if (!ready) setInfo('Service worker not ready');
+    });
     isPushSubscribed().then(setSubscribed);
   }, []);
 
   const handleToggle = async () => {
     setLoading(true);
     setError('');
+    setInfo('');
 
     try {
       if (subscribed) {
@@ -28,7 +35,11 @@ export default function NotificationToggle() {
 
         const sub = await subscribeToPush();
         if (!sub.success) {
-          setError(sub.error);
+          if (sub.error === 'No service worker registration') {
+            setInfo('Service worker not ready');
+          } else {
+            setError(sub.error);
+          }
           return;
         }
 
@@ -66,9 +77,9 @@ export default function NotificationToggle() {
       </div>
       <button
         onClick={handleToggle}
-        disabled={loading}
+        disabled={loading || !swReady}
         className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors flex-shrink-0 ${
-          subscribed ? 'bg-primary' : 'bg-neutral-mid'
+          !swReady ? 'opacity-40 cursor-not-allowed' : subscribed ? 'bg-primary' : 'bg-neutral-mid'
         }`}
         role="switch"
         aria-checked={subscribed}
@@ -86,6 +97,9 @@ export default function NotificationToggle() {
       </button>
       {error && (
         <p className="text-xs text-red-500 mt-1 w-full">{error}</p>
+      )}
+      {info && (
+        <p className="text-xs text-text-soft mt-1 w-full">{info}</p>
       )}
     </div>
   );

@@ -2,6 +2,13 @@ import { supabase } from '../supabaseClient';
 
 const VAPID_PUBLIC_KEY = import.meta.env.VITE_VAPID_PUBLIC_KEY;
 
+if (!VAPID_PUBLIC_KEY) {
+  console.warn(
+    'Push notifications disabled: VITE_VAPID_PUBLIC_KEY not set. ' +
+    'Add it to .env (restart dev server after) or set in your deployment dashboard.'
+  );
+}
+
 export async function requestNotificationPermission() {
   if (!('Notification' in window)) {
     return { granted: false, reason: 'unsupported' };
@@ -32,7 +39,7 @@ export async function subscribeToPush() {
   }
 
   if (!VAPID_PUBLIC_KEY) {
-    return { success: false, error: 'VAPID key not configured' };
+    return { success: false, error: 'VAPID public key not found. Set VITE_VAPID_PUBLIC_KEY in .env and restart the dev server.' };
   }
 
   subscription = await reg.pushManager.subscribe({
@@ -87,6 +94,16 @@ export async function saveSubscription(subscription) {
   }
 
   return { success: true };
+}
+
+export async function isServiceWorkerReady() {
+  if (!('serviceWorker' in navigator)) return false;
+  try {
+    const reg = await navigator.serviceWorker.getRegistration();
+    return !!reg;
+  } catch {
+    return false;
+  }
 }
 
 export async function isPushSubscribed() {
