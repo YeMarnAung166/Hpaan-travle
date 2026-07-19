@@ -40,7 +40,7 @@ serve(async (req) => {
   }
 
   const url =
-    `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${GEMINI_API_KEY}`;
+    `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${GEMINI_API_KEY}`;
 
   const geminiRes = await fetch(url, {
     method: "POST",
@@ -55,10 +55,20 @@ serve(async (req) => {
   });
 
   if (!geminiRes.ok) {
-    const err = await geminiRes.text();
-    console.error("Gemini API error:", geminiRes.status, err);
+    const errText = await geminiRes.text();
+    console.error("Gemini API error:", geminiRes.status, errText);
+    let userMsg = "AI service temporarily unavailable. Please try again later.";
+    try {
+      const errJson = JSON.parse(errText);
+      if (errJson?.error?.message) {
+        userMsg = errJson.error.message;
+        if (errJson.error.status === "RESOURCE_EXHAUSTED") {
+          userMsg = "AI free daily quota exceeded. Try again tomorrow or get a new API key from https://aistudio.google.com/app/apikey";
+        }
+      }
+    } catch {}
     return new Response(
-      JSON.stringify({ error: `Gemini API error: ${err}` }),
+      JSON.stringify({ error: userMsg }),
       { status: 502, headers: { ...corsHeaders, "Content-Type": "application/json" } },
     );
   }
