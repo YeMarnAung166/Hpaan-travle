@@ -32,11 +32,11 @@ export default function StarRating({ rating, onRatingChange, readonly = false, s
             key={value}
             type="button"
             onClick={(e) => handleClick(value, e)}
-            className={`${readonly ? 'cursor-default' : 'cursor-pointer'} focus:outline-none ${starSize} p-0`}
+            className={`${readonly ? 'cursor-default' : 'cursor-pointer'} focus:outline-none flex items-center justify-center ${starSize} min-w-0 min-h-0 p-0 m-0 leading-none`}
             disabled={readonly}
             aria-label={`${value} star${value > 1 ? 's' : ''}`}
           >
-            <svg className={`${starSize} ${showFilled ? 'text-gold' : 'text-text-soft/30'}`} viewBox="0 0 20 20" fill={showFilled ? 'currentColor' : 'none'} stroke={showFilled ? 'none' : 'currentColor'} strokeWidth="1.5" style={half ? { clipPath: 'inset(0 50% 0 0)' } : undefined}>
+            <svg className={`block ${starSize} ${showFilled ? 'text-gold' : 'text-text-soft/30'}`} viewBox="0 0 20 20" fill={showFilled ? 'currentColor' : 'none'} stroke={showFilled ? 'none' : 'currentColor'} strokeWidth="1.5" style={half ? { clipPath: 'inset(0 50% 0 0)' } : undefined}>
               <path d={path} />
             </svg>
           </button>

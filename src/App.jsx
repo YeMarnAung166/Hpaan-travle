@@ -145,7 +145,7 @@ const AppContent = React.memo(function AppContent({ showAuthModal, setShowAuthMo
             </Motion.div>
           </AnimatePresence>
         </main>
-        {!isAdmin && <Footer />}
+        {!isAdmin && location.pathname !== '/map' && <Footer />}
         {!isAdmin && <BottomNav />}
         {!isAdmin && <AiAssistantFAB />}
         <AuthModal isOpen={showAuthModal} onClose={() => setShowAuthModal(false)} />

@@ -212,7 +212,7 @@ export default function MapPage() {
   if (loading) return <LoadingSpinner size="lg" />;
 
   return (
-    <div className="relative h-[calc(100vh-70px)] w-full">
+    <div className="relative h-[calc(100vh-70px)] w-full overflow-hidden">
       <Helmet>
         <title>Map of Hpa-An | Hpa-An Travel</title>
         <meta name="description" content="Interactive map of Hpa-An with destinations, businesses, and route planning." />

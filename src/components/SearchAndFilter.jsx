@@ -24,13 +24,13 @@ export default function SearchAndFilter({
 
   useEffect(() => {
     onSearch?.(debounced);
-  }, [debounced]);
+  }, [debounced, onSearch]);
   useEffect(() => {
     onFilter?.(filters);
-  }, [filters]);
+  }, [filters, onFilter]);
   useEffect(() => {
     onSort?.(sortBy);
-  }, [sortBy]);
+  }, [sortBy, onSort]);
 
   const handleFilterChange = (key, val) =>
     setFilters((prev) => ({ ...prev, [key]: val }));

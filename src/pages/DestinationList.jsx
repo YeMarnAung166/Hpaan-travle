@@ -6,6 +6,7 @@ import { SkeletonCard } from '../components/ui/Skeleton';
 import Pagination from '../components/ui/Pagination';
 import SearchAndFilter from '../components/SearchAndFilter';
 import { useLanguage } from '../context/LanguageContext';
+import { Link } from 'react-router-dom';
 import { Helmet } from 'react-helmet-async';
 
 const PAGE_SIZE = 12;
@@ -21,8 +22,8 @@ export default function DestinationList() {
     setSearchTerm(term);
     setPage(1);
   }, []);
-  const handleFilter = useCallback((filters) => {
-    setFilters(filters);
+  const handleFilter = useCallback((newFilters) => {
+    setFilters(newFilters);
     setPage(1);
   }, []);
   const handleSort = useCallback((sortBy) => {
@@ -61,7 +62,7 @@ export default function DestinationList() {
         name_desc: { column: 'name', ascending: false },
       };
       const s = sortMap[sortBy] || sortMap.newest;
-      query = query.order(s.column, { ascending: s.ascending });
+      query = query.order(s.column, { ascending: s.ascending, nullsLast: true });
 
       const from = (page - 1) * PAGE_SIZE;
       const to = from + PAGE_SIZE - 1;

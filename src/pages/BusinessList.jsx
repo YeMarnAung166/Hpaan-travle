@@ -30,8 +30,8 @@ export default function BusinessList() {
     setSearchTerm(term);
     setPage(1);
   }, []);
-  const handleFilter = useCallback((filters) => {
-    setFilters(filters);
+  const handleFilter = useCallback((newFilters) => {
+    setFilters(newFilters);
     setPage(1);
   }, []);
   const handleSort = useCallback((sortBy) => {
@@ -80,33 +80,12 @@ export default function BusinessList() {
       const { data, error, count } = await query;
       if (error) throw error;
 
-      let ratings = {};
-      if (data && data.length > 0) {
-        const ids = data.map(b => b.id);
-        const { data: ratingData } = await supabase
-          .from('business_reviews')
-          .select('business_id, rating')
-          .in('business_id', ids);
-        if (ratingData) {
-          const agg = {};
-          ratingData.forEach(r => {
-            if (!agg[r.business_id]) agg[r.business_id] = { sum: 0, count: 0 };
-            agg[r.business_id].sum += r.rating;
-            agg[r.business_id].count += 1;
-          });
-          Object.entries(agg).forEach(([id, { sum, count }]) => {
-            ratings[id] = { avg: sum / count, count };
-          });
-        }
-      }
-
-      return { data: data || [], totalCount: count || 0, ratings };
+      return { data: data || [], totalCount: count || 0 };
     },
     placeholderData: (prev) => prev,
   });
 
   const businesses = data?.data || [];
-  const ratings = data?.ratings || {};
   const totalCount = data?.totalCount || 0;
   const totalPages = Math.ceil(totalCount / PAGE_SIZE);
 
@@ -160,7 +139,7 @@ export default function BusinessList() {
         <>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
             {businesses.map(business => (
-              <BusinessCard key={business.id} business={business} avgRating={ratings[business.id]?.avg} ratingCount={ratings[business.id]?.count} />
+              <BusinessCard key={business.id} business={business} avgRating={business.avg_rating} ratingCount={business.review_count} />
             ))}
           </div>
           <Pagination page={page} totalPages={totalPages} onPageChange={setPage} />

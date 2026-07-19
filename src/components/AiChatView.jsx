@@ -73,7 +73,7 @@ function ToolResultCard({ toolName, output }) {
               <p className="font-medium text-sm text-text truncate">{b.name || b.name_my}</p>
               <div className="flex items-center gap-2 mt-0.5">
                 {b.category && <span className="text-[10px] uppercase tracking-wider text-amber-600 dark:text-amber-400">{b.category}</span>}
-                {b.avg_rating && (
+                {b.avg_rating > 0 && (
                   <span className="flex items-center gap-0.5 text-xs text-text-soft">
                     <Star size={10} className="text-amber-500 fill-amber-500" />
                     {b.avg_rating} ({b.review_count})

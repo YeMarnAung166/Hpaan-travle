@@ -20,7 +20,7 @@ const BusinessCard = memo(function BusinessCard({ business, avgRating: propAvgRa
   const address = getLocalized(business, "address", "address_my");
 
   useEffect(() => {
-    if (propAvgRating !== undefined) return;
+    if (propAvgRating != null && propAvgRating > 0) return;
     const fetchRating = async () => {
       const { data, error } = await supabase
         .from("business_reviews")
@@ -54,7 +54,7 @@ const BusinessCard = memo(function BusinessCard({ business, avgRating: propAvgRa
       </Link>
 
       <div className="p-4">
-        <div className="flex justify-between items-start gap-2 mb-1">
+        <div className="flex justify-between items-center gap-2 mb-1">
           <h3 className="text-lg font-serif font-semibold text-text line-clamp-1">
             {name}
           </h3>
@@ -84,7 +84,7 @@ const BusinessCard = memo(function BusinessCard({ business, avgRating: propAvgRa
         </div>
 
         <div className="flex flex-wrap items-center gap-2 mb-2">
-          {avgRating && (
+          {avgRating > 0 && (
             <div className="flex items-center gap-1">
               <StarRating rating={avgRating} readonly size="sm" />
               <span className="text-xs text-text-soft">({ratingCount})</span>
