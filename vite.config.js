@@ -4,6 +4,7 @@ import { VitePWA } from 'vite-plugin-pwa';
 
 export default defineConfig({
   build: {
+    chunkSizeWarningLimit: 2000,
     minify: 'terser',
     terserOptions: {
       compress: {
