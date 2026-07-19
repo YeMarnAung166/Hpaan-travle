@@ -56,19 +56,10 @@ serve(async (req) => {
 
   if (!geminiRes.ok) {
     const errText = await geminiRes.text();
-    console.error("Gemini API error:", geminiRes.status, errText);
-    let userMsg = "AI service temporarily unavailable. Please try again later.";
-    try {
-      const errJson = JSON.parse(errText);
-      if (errJson?.error?.message) {
-        userMsg = errJson.error.message;
-        if (errJson.error.status === "RESOURCE_EXHAUSTED") {
-          userMsg = "AI free daily quota exceeded. Try again tomorrow or get a new API key from https://aistudio.google.com/app/apikey";
-        }
-      }
-    } catch {}
+    const sanitized = errText.replace(/key=[A-Za-z0-9._-]+/gi, "key=***");
+    console.error("Gemini API error:", geminiRes.status, sanitized);
     return new Response(
-      JSON.stringify({ error: userMsg }),
+      JSON.stringify({ error: "AI service temporarily unavailable. Please try again later." }),
       { status: 502, headers: { ...corsHeaders, "Content-Type": "application/json" } },
     );
   }
