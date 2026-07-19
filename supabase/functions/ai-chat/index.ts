@@ -40,7 +40,7 @@ serve(async (req) => {
   }
 
   const url =
-    `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${GEMINI_API_KEY}`;
+    `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${GEMINI_API_KEY}`;
 
   const geminiRes = await fetch(url, {
     method: "POST",
@@ -56,6 +56,7 @@ serve(async (req) => {
 
   if (!geminiRes.ok) {
     const err = await geminiRes.text();
+    console.error("Gemini API error:", geminiRes.status, err);
     return new Response(
       JSON.stringify({ error: `Gemini API error: ${err}` }),
       { status: 502, headers: { ...corsHeaders, "Content-Type": "application/json" } },
