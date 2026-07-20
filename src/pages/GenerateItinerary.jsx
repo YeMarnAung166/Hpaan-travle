@@ -26,7 +26,7 @@ export default function GenerateItinerary() {
     const fetchDestinations = async () => {
       const { data, error } = await supabase
         .from('destinations')
-        .select('id, name, name_my, description, image, lat, lng, category')
+        .select('id, name, name_my, description, image, lat, lng')
         .order('name');
       if (error) {
         console.error("Failed to fetch destinations:", error);
