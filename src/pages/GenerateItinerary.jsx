@@ -28,11 +28,16 @@ export default function GenerateItinerary() {
         .from('destinations')
         .select('id, name, name_my, description, image, lat, lng, category')
         .order('name');
-      if (!error) setDestinations(data);
+      if (error) {
+        console.error("Failed to fetch destinations:", error);
+        toast({ type: 'error', message: 'Failed to load destinations' });
+      } else {
+        setDestinations(data || []);
+      }
       setLoading(false);
     };
     fetchDestinations();
-  }, []);
+  }, [toast]);
 
   const toggleSelect = (id) => {
     setSelectedIds(prev =>
@@ -123,10 +128,11 @@ export default function GenerateItinerary() {
       setSaving(false);
       return;
     }
+    let order = 0;
     const allItems = generated.flatMap(day =>
-      day.items.map((item, idx) => ({
+      day.items.map(item => ({
         trip_id: trip.id, item_type: 'destination', item_id: item.id,
-        order_index: idx,
+        order_index: order++,
       }))
     );
     const { error: itemsError } = await supabase.from('trip_items').insert(allItems);

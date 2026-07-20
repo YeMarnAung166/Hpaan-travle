@@ -185,6 +185,20 @@
   "generated_title": "My Custom Itinerary",
   "error_reordering": "Error reordering items"
 },
+"itinerary": {
+  "day": "Day"
+},
+"generator": {
+  "title": "Automated Itinerary Generator",
+  "subtitle": "Select destinations and days, and we\u2019ll create a balanced itinerary for you.",
+  "select_destinations": "Select Destinations",
+  "days": "Number of Days",
+  "search_radius": "Restaurant Radius (km)",
+  "generate": "Generate Itinerary",
+  "preview": "Your Itinerary",
+  "save_trip": "Save as Trip",
+  "clear": "Clear"
+},
   "admin": {
     "title": "Pages",
     "dashboard": "Dashboard",
@@ -348,15 +362,6 @@
   "privacy": "Privacy Policy",
   "terms": "Terms of Service",
   "contact_us": "Contact Us"
-},
-"generator": {
-  "title": "Automated Itinerary Generator",
-  "subtitle": "Select destinations and days, and we’ll create a balanced itinerary for you.",
-  "select_destinations": "Select Destinations",
-  "days": "Number of Days",
-  "generate": "Generate Itinerary",
-  "preview": "Your Itinerary",
-  "save_trip": "Save as Trip"
 },
 "ai_assistant": {
   "title": "AI Travel Assistant",
