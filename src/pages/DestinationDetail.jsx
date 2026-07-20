@@ -126,7 +126,7 @@ export default function DestinationDetail() {
 
             {/* Add to Trip button - placed after description */}
             <div className="flex flex-wrap items-center gap-3 mt-4 mb-6">
-              <AddToTripButton itemType="destination" itemId={destination.id} itemName={name} />
+              <AddToTripButton itemType="destination" itemId={destination.id} />
             </div>
 
             {/* Embedded Video */}

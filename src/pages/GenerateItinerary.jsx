@@ -123,14 +123,18 @@ export default function GenerateItinerary() {
       setSaving(false);
       return;
     }
-    let order = 0;
-    for (const day of generated) {
-      for (const item of day.items) {
-        await supabase.from('trip_items').insert({
-          trip_id: trip.id, item_type: 'destination', item_id: item.id, order_index: order,
-        });
-        order++;
-      }
+    const allItems = generated.flatMap(day =>
+      day.items.map((item, idx) => ({
+        trip_id: trip.id, item_type: 'destination', item_id: item.id,
+        order_index: idx,
+      }))
+    );
+    const { error: itemsError } = await supabase.from('trip_items').insert(allItems);
+    if (itemsError) {
+      await supabase.from('trips').delete().eq('id', trip.id);
+      toast({ type: 'error', message: 'Error saving trip items' });
+      setSaving(false);
+      return;
     }
     setSaving(false);
     navigate(`/trip/${trip.id}`);

@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { supabase } from '../supabaseClient';
 import { useUser } from '../context/UserContext';
@@ -20,7 +20,8 @@ export default function TripsPage() {
   const [newTitle, setNewTitle] = useState('');
   const [creating, setCreating] = useState(false);
 
-  const fetchTrips = async () => {
+  const fetchTrips = useCallback(async () => {
+    if (!user) return;
     const { data, error } = await supabase
       .from('trips')
       .select('*')
@@ -28,12 +29,11 @@ export default function TripsPage() {
       .order('created_at', { ascending: false });
     if (!error) setTrips(data);
     setLoading(false);
-  };
+  }, [user]);
 
   useEffect(() => {
-    // eslint-disable-next-line react-hooks/set-state-in-effect
-    if (user) fetchTrips();
-  }, [user]);
+    fetchTrips();
+  }, [fetchTrips]);
 
   const createTrip = async () => {
     if (!newTitle.trim()) return;
@@ -56,6 +56,8 @@ export default function TripsPage() {
     if (!error) {
       setTrips(trips.filter(t => t.id !== id));
       toast({ type: 'success', message: 'Trip deleted' });
+    } else {
+      toast({ type: 'error', message: 'Failed to delete trip' });
     }
     setDeleteId(null);
   };

@@ -181,7 +181,9 @@
   "added_to_trip": "Added to \"{title}\"!",
   "location_missing": "No locations with coordinates in this trip",
   "trip_link_copied": "Trip link copied!",
-  "generate_itinerary": "Generate Itinerary"
+  "generate_itinerary": "Generate Itinerary",
+  "generated_title": "My Custom Itinerary",
+  "error_reordering": "Error reordering items"
 },
   "admin": {
     "title": "Pages",

@@ -28,7 +28,7 @@ export default function TripDetailPage() {
   const [search, setSearch] = useState('');
   const [confirmDelete, setConfirmDelete] = useState(null);
 
-  const { data, isLoading } = useQuery({
+  const { data, isLoading, isError, error: queryError } = useQuery({
     queryKey: ['trips', 'detail', id],
     queryFn: async () => {
       const { data: tripData, error: tripError } = await supabase
@@ -37,7 +37,6 @@ export default function TripDetailPage() {
         .eq('id', id)
         .single();
       if (tripError || !tripData) {
-        navigate('/trips');
         throw new Error('Trip not found');
       }
 
@@ -48,33 +47,43 @@ export default function TripDetailPage() {
         .order('order_index', { ascending: true });
 
       let items = [];
-      if (!itemsError && itemsData) {
-        items = await Promise.all(itemsData.map(async (item) => {
-          if (item.item_type === 'destination') {
-            const { data: dest } = await supabase
-              .from('destinations')
-              .select('id, name, name_my, image, lat, lng')
-              .eq('id', item.item_id)
-              .single();
-            return { ...item, data: dest };
-          } else {
-            const { data: biz } = await supabase
-              .from('businesses')
-              .select('id, name, name_my, image, lat, lng')
-              .eq('id', item.item_id)
-              .single();
-            return { ...item, data: biz };
-          }
+      if (!itemsError && itemsData && itemsData.length > 0) {
+        const destIds = itemsData.filter(i => i.item_type === 'destination').map(i => i.item_id);
+        const bizIds = itemsData.filter(i => i.item_type === 'business').map(i => i.item_id);
+
+        const [destResult, bizResult] = await Promise.all([
+          destIds.length > 0
+            ? supabase.from('destinations').select('id, name, name_my, image, lat, lng').in('id', destIds)
+            : { data: [] },
+          bizIds.length > 0
+            ? supabase.from('businesses').select('id, name, name_my, image, lat, lng').in('id', bizIds)
+            : { data: [] },
+        ]);
+
+        const destMap = new Map((destResult.data || []).map(d => [d.id, d]));
+        const bizMap = new Map((bizResult.data || []).map(b => [b.id, b]));
+
+        items = itemsData.map(item => ({
+          ...item,
+          data: item.item_type === 'destination' ? destMap.get(item.item_id) : bizMap.get(item.item_id),
         }));
       }
 
-      const { data: dests } = await supabase.from('destinations').select('id, name, name_my');
-      const { data: bizs } = await supabase.from('businesses').select('id, name, name_my');
+      const [dests, bizs] = await Promise.all([
+        supabase.from('destinations').select('id, name, name_my'),
+        supabase.from('businesses').select('id, name, name_my'),
+      ]);
 
-      return { trip: tripData, items, availableDestinations: dests || [], availableBusinesses: bizs || [] };
+      return { trip: tripData, items, availableDestinations: dests.data || [], availableBusinesses: bizs.data || [] };
     },
     enabled: !!user,
   });
+
+  useEffect(() => {
+    if (isError && queryError?.message === 'Trip not found') {
+      navigate('/trips');
+    }
+  }, [isError, queryError, navigate]);
 
   const trip = data?.trip;
   const fetchedItems = data?.items || [];
@@ -111,7 +120,7 @@ export default function TripDetailPage() {
 
   const addItem = async (itemType, itemId) => {
     const newOrderIndex = items.length;
-    const tempId = Date.now(); // eslint-disable-line react-hooks/purity
+    const tempId = crypto.randomUUID();
     const newItem = {
       id: tempId,
       trip_id: id,
@@ -169,17 +178,23 @@ export default function TripDetailPage() {
 
   const onDragEnd = async (result) => {
     if (!result.destination) return;
+    const originalItems = [...items];
     const reordered = Array.from(items);
     const [movedItem] = reordered.splice(result.source.index, 1);
     reordered.splice(result.destination.index, 0, movedItem);
     setItems(reordered);
     const updates = reordered.map((item, idx) => ({ id: item.id, order_index: idx }));
-    await Promise.all(updates.map(update =>
+    const results = await Promise.allSettled(updates.map(update =>
       supabase
         .from('trip_items')
         .update({ order_index: update.order_index })
         .eq('id', update.id)
     ));
+    const failed = results.find(r => r.status === 'rejected' || (r.status === 'fulfilled' && r.value?.error));
+    if (failed) {
+      setItems(originalItems);
+      toast({ type: 'error', message: t('trips.error_reordering') });
+    }
     queryClient.invalidateQueries({ queryKey: ['trips', 'detail', id] });
   };
 
@@ -193,13 +208,17 @@ export default function TripDetailPage() {
     navigate(`/map?waypoints=${waypointsParam}`);
   };
 
-  const shareTrip = () => {
+  const shareTrip = async () => {
     const url = `${window.location.origin}/trip/${id}`;
-    navigator.clipboard.writeText(url);
-    toast({ type: 'success', message: t('trips.trip_link_copied') });
+    try {
+      await navigator.clipboard.writeText(url);
+      toast({ type: 'success', message: t('trips.trip_link_copied') });
+    } catch {
+      toast({ type: 'error', message: 'Failed to copy link' });
+    }
   };
 
-  if (loading) return <SkeletonDetail />;
+  if (isLoading) return <SkeletonDetail />;
   if (!trip) return <div className="container-custom">Trip not found</div>;
 
   const getName = (item) => {

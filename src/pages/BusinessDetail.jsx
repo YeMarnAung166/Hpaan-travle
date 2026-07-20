@@ -179,7 +179,7 @@ export default function BusinessDetail() {
             )}
 
             {/* Add to Trip Button */}
-            <AddToTripButton itemType="business" itemId={business.id} itemName={name} />
+            <AddToTripButton itemType="business" itemId={business.id} />
 
             {/* Embedded Video – now using business.video_url */}
             {videoEmbedUrl && (
